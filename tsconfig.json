@@ -5,10 +5,9 @@
     { "path": "./tsconfig.node.json" }
   ],
   "compilerOptions": {
-    "baseUrl": ".",
     "paths": {
-      "@/components/*": ["src/shared/components/*"],
-      "@/modules/*": ["src/shared/modules/*"]
+      "@components/*": ["./src/shared/components"],
+      "@modules/*": ["./src/shared/modules"]
     }
   }
 }
