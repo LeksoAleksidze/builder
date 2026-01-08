@@ -1,90 +1,63 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import clsx from 'clsx';
 import { Rnd } from 'react-rnd';
+import clsx from 'clsx';
 import styles from './dashboard.module.scss';
 import General from './components/general/General';
 import Authorization from '../../shared/modules/authorization/Authorization.tsx';
 
 export default function DashboardPage() {
-  const imageUrl =
-    'https://promotions.crocobet.com/crc/private/3oaks/assets/default/background/web/ge.jpg';
-  const [isScaled, setScaled] = useState(false);
-  const [authStyles, setAuthStyles] = useState({
-    marginTop: '700px',
-    backgroundColor: '#37445ee6',
+  const [activeLang, setActiveLang] = useState('GE');
+  const [activeView, setActiveView] = useState<'WEB' | 'MOB'>('WEB');
+  const [isPreview, setIsPreview] = useState(false);
+
+  // საწყისი მონაცემები, რომ არაფერი გაქრეს
+  const [globalBG, setGlobalBG] = useState<any>({
+    GE: { web: '', mob: '' },
+    EN: { web: '', mob: '' },
+    RU: { web: '', mob: '' },
+    TR: { web: '', mob: '' },
+  });
+  const [authStyles, setAuthStyles] = useState<any>({
+    WEB: { marginTop: '700px' },
+    MOB: { marginTop: '300px' },
   });
   const [sections, setSections] = useState<any[]>([]);
 
-  // LocalStorage-დან წაკითხვა ჩატვირთვისას
+  // მონაცემების ჩატვირთვა
   useEffect(() => {
-    const savedData = localStorage.getItem('landing_config');
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      setSections(parsed.sections || []);
-      setAuthStyles(
-        parsed.authStyles || {
-          marginTop: '700px',
-          backgroundColor: '#37445ee6',
-        }
-      );
-      setScaled(parsed.isScaled || false);
+    const saved = localStorage.getItem('landing_v_stable_final');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.sections) setSections(parsed.sections);
+      if (parsed.authStyles) setAuthStyles(parsed.authStyles);
+      if (parsed.globalBG) setGlobalBG(parsed.globalBG);
     }
   }, []);
 
-  // ყველაფრის შენახვა LocalStorage-ში
   const saveAllConfig = () => {
-    const config = { sections, authStyles, isScaled };
-    localStorage.setItem('landing_config', JSON.stringify(config));
-    console.log('Saved Configuration:', config);
-    alert('კონფიგურაცია შენახულია!');
+    localStorage.setItem(
+      'landing_v_stable_final',
+      JSON.stringify({ sections, authStyles, globalBG })
+    );
+    alert('✅ შენახულია!');
   };
 
-  const addSection = () => {
-    setSections([
-      ...sections,
-      {
-        id: Date.now(),
-        title: `სექცია ${sections.length + 1}`,
-        width: '100%',
-        height: 400,
-        marginTop: 0,
-        borderRadius: 0,
-        borderWidth: 0,
-        borderColor: '#ffffff',
-        bgType: 'none',
-        backgroundColor: 'transparent',
-        backgroundImage: '',
-        elements: [],
-      },
-    ]);
-  };
-
-  const addElement = (sectionId: number, type: 'text' | 'image') => {
-    setSections(
-      sections.map((s) =>
-        s.id === sectionId
+  const updateElement = (
+    sId: number,
+    elId: number,
+    field: string,
+    value: any
+  ) => {
+    setSections((prev) =>
+      prev.map((s) =>
+        s.id === sId
           ? {
               ...s,
-              elements: [
-                ...s.elements,
-                {
-                  id: Date.now(),
-                  type,
-                  content:
-                    type === 'text'
-                      ? 'ტექსტი <span style="color:red">აქ</span>'
-                      : 'https://via.placeholder.com/150',
-                  x: 0,
-                  y: 0,
-                  width: 'auto',
-                  height: 'auto',
-                  fontSize: 24,
-                  color: '#ffffff',
-                  borderRadius: 0,
-                },
-              ],
+              elements: s.elements.map((el: any) =>
+                el.id === elId ? { ...el, [field]: value } : el
+              ),
             }
           : s
       )
@@ -92,132 +65,272 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className={styles.dashboard}>
-      <div className={styles.dashboard__content}>
+    <div
+      className={clsx(
+        styles.dashboard,
+        isPreview && styles['dashboard--preview']
+      )}
+    >
+      <div
+        className={styles.dashboard__content}
+        style={{
+          width: activeView === 'MOB' ? '375px' : '100%',
+          margin: '0 auto',
+        }}
+      >
         <div
-          className={clsx(
-            styles.dashboard__landing,
-            isScaled && styles['dashboard__landing--scaled']
-          )}
-          style={{ backgroundImage: `url(${imageUrl})` }}
+          className={styles.dashboard__landing}
+          style={{
+            backgroundImage: `url(${globalBG[activeLang][activeView.toLowerCase()]})`,
+            minHeight: '100vh',
+            backgroundSize: 'cover',
+          }}
         >
-          <Authorization stylesProp={authStyles} />
+          <Authorization stylesProp={authStyles[activeView]} />
 
           <div className={styles.dashboard__builder}>
-            {sections.map((section) => (
-              <div
-                key={section.id}
-                style={{
-                  height: `${section.height}px`,
-                  width: section.width,
-                  marginTop: `${section.marginTop}px`,
-                  borderRadius: `${section.borderRadius}px`,
-                  border:
-                    section.borderWidth > 0
-                      ? `${section.borderWidth}px solid ${section.borderColor}`
+            {sections.map((s) => {
+              const st = s.styles[activeView];
+              return (
+                <div
+                  key={s.id}
+                  style={{
+                    width: st.width,
+                    height: `${st.height}px`,
+                    marginTop: `${st.marginTop}px`,
+                    marginBottom: `${st.marginBottom}px`,
+                    backgroundColor: st.backgroundColor,
+                    border: `${st.borderWidth}px solid ${st.borderColor}`,
+                    borderRadius: `${st.borderRadius}px`,
+                    backgroundImage: st.backgroundImage
+                      ? `url(${st.backgroundImage})`
                       : 'none',
-                  backgroundColor:
-                    section.bgType === 'color'
-                      ? section.backgroundColor
-                      : 'transparent',
-                  backgroundImage:
-                    section.bgType === 'image'
-                      ? `url(${section.backgroundImage})`
-                      : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  position: 'relative',
-                  marginInline: 'auto',
-                  padding: 0,
-                }}
-              >
-                {section.elements.map((el: any) => (
-                  <Rnd
-                    key={el.id}
-                    size={{ width: el.width, height: el.height }}
-                    position={{ x: el.x, y: el.y }}
-                    bounds="parent"
-                    onDragStop={(_, d) => {
-                      const updated = section.elements.map((e: any) =>
-                        e.id === el.id ? { ...e, x: d.x, y: d.y } : e
-                      );
-                      setSections(
-                        sections.map((s) =>
-                          s.id === section.id ? { ...s, elements: updated } : s
-                        )
-                      );
-                    }}
-                    onResizeStop={(_, __, ref, ___, position) => {
-                      const updated = section.elements.map((e: any) =>
-                        e.id === el.id
-                          ? {
-                              ...e,
+                    backgroundSize: 'cover',
+                    position: 'relative',
+                    margin: '0 auto',
+                    zIndex: st.zIndex || 1,
+                  }}
+                >
+                  {s.elements.map((el: any) => {
+                    const est = el.styles[activeView];
+                    return (
+                      <Rnd
+                        key={el.id}
+                        size={{ width: est.width, height: est.height }}
+                        position={{ x: est.x, y: est.y }}
+                        disableDragging={el.isEditing}
+                        onDragStop={(_, d) =>
+                          updateElement(s.id, el.id, 'styles', {
+                            ...el.styles,
+                            [activeView]: { ...est, x: d.x, y: d.y },
+                          })
+                        }
+                        onResizeStop={(_, __, ref, ___, pos) =>
+                          updateElement(s.id, el.id, 'styles', {
+                            ...el.styles,
+                            [activeView]: {
+                              ...est,
                               width: ref.offsetWidth,
                               height: ref.offsetHeight,
-                              ...position,
-                            }
-                          : e
-                      );
-                      setSections(
-                        sections.map((s) =>
-                          s.id === section.id ? { ...s, elements: updated } : s
-                        )
-                      );
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        cursor: 'move',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {el.type === 'text' ? (
+                              ...pos,
+                            },
+                          })
+                        }
+                        style={{ zIndex: est.zIndex || 1 }}
+                      >
                         <div
-                          style={{
-                            fontSize: `${el.fontSize}px`,
-                            color: el.color,
-                            whiteSpace: 'nowrap',
-                          }}
-                          dangerouslySetInnerHTML={{ __html: el.content }}
-                        />
-                      ) : (
-                        <img
-                          src={el.content}
-                          draggable={false}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            borderRadius: `${el.borderRadius}px`,
-                          }}
-                        />
-                      )}
-                    </div>
-                  </Rnd>
-                ))}
-              </div>
-            ))}
+                          className={clsx(
+                            styles.elementWrapper,
+                            el.isEditing && styles.editingBorder
+                          )}
+                          style={{ width: '100%', height: '100%' }}
+                        >
+                          {!isPreview && (
+                            <button
+                              className={styles.deleteElBtn}
+                              onClick={() =>
+                                setSections(
+                                  sections.map((sec) =>
+                                    sec.id === s.id
+                                      ? {
+                                          ...sec,
+                                          elements: sec.elements.filter(
+                                            (item: any) => item.id !== el.id
+                                          ),
+                                        }
+                                      : sec
+                                  )
+                                )
+                              }
+                            >
+                              ×
+                            </button>
+                          )}
+                          <div
+                            onDoubleClick={() =>
+                              updateElement(s.id, el.id, 'isEditing', true)
+                            }
+                            style={{ width: '100%', height: '100%' }}
+                          >
+                            {el.type === 'text' ? (
+                              <div
+                                contentEditable={el.isEditing}
+                                suppressContentEditableWarning
+                                onBlur={(e) => {
+                                  updateElement(s.id, el.id, 'content', {
+                                    ...el.content,
+                                    [activeLang]: e.currentTarget.innerHTML,
+                                  });
+                                  updateElement(
+                                    s.id,
+                                    el.id,
+                                    'isEditing',
+                                    false
+                                  );
+                                }}
+                                style={{
+                                  fontSize: `${est.fontSize}px`,
+                                  fontFamily: est.fontFamily,
+                                  color: est.color,
+                                  textShadow: est.textShadow || 'none', // Shadow დაემატა
+                                  outline: 'none',
+                                  width: '100%',
+                                  height: '100%',
+                                }}
+                                dangerouslySetInnerHTML={{
+                                  __html: el.content[activeLang],
+                                }}
+                              />
+                            ) : (
+                              <img
+                                src={el.content[activeLang]}
+                                style={{
+                                  width: '100%',
+                                  height: '100%',
+                                  objectFit: 'cover',
+                                  borderRadius: `${est.borderRadius}px`,
+                                  border: `${est.borderWidth || 0}px solid ${est.borderColor || 'transparent'}`, // Image Border დაემატა
+                                }}
+                                draggable={false}
+                              />
+                            )}
+                          </div>
+                        </div>
+                      </Rnd>
+                    );
+                  })}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
-
-      <div className={styles.dashboard__aside}>
-        <General
-          isScaled={isScaled}
-          setScaled={setScaled}
-          authStyles={authStyles}
-          setAuthStyles={setAuthStyles}
-          sections={sections}
-          setSections={setSections}
-          addSection={addSection}
-          addElement={addElement}
-          saveAllConfig={saveAllConfig}
-        />
-      </div>
+      {!isPreview && (
+        <div className={styles.dashboard__aside}>
+          <General
+            {...{
+              activeLang,
+              setActiveLang,
+              activeView,
+              setActiveView,
+              authStyles,
+              setAuthStyles,
+              globalBG,
+              setGlobalBG,
+              sections,
+              setSections,
+              addSection: () =>
+                setSections([
+                  ...sections,
+                  {
+                    id: Date.now(),
+                    title: `Section ${sections.length + 1}`,
+                    styles: {
+                      WEB: {
+                        width: '100%',
+                        height: 400,
+                        marginTop: 0,
+                        marginBottom: 0,
+                        backgroundColor: '#111',
+                        borderWidth: 0,
+                        borderColor: '#fff',
+                        borderRadius: 0,
+                        backgroundImage: '',
+                        zIndex: 1,
+                      },
+                      MOB: {
+                        width: '100%',
+                        height: 300,
+                        marginTop: 0,
+                        marginBottom: 0,
+                        backgroundColor: '#111',
+                        borderWidth: 0,
+                        borderColor: '#fff',
+                        borderRadius: 0,
+                        backgroundImage: '',
+                        zIndex: 1,
+                      },
+                    },
+                    elements: [],
+                  },
+                ]),
+              deleteSection: (id: any) =>
+                setSections(sections.filter((s) => s.id !== id)),
+              addElement: (sId: any, type: any) =>
+                setSections(
+                  sections.map((s) =>
+                    s.id === sId
+                      ? {
+                          ...s,
+                          elements: [
+                            ...s.elements,
+                            {
+                              id: Date.now(),
+                              type,
+                              content: {
+                                GE: 'ტექსტი',
+                                EN: 'Text',
+                                RU: 'Текст',
+                                TR: 'Metin',
+                              },
+                              styles: {
+                                WEB: {
+                                  x: 50,
+                                  y: 50,
+                                  width: 200,
+                                  height: 100,
+                                  fontSize: 24,
+                                  fontFamily: 'Arial',
+                                  color: '#fff',
+                                  zIndex: 1,
+                                  borderRadius: 0,
+                                },
+                                MOB: {
+                                  x: 20,
+                                  y: 20,
+                                  width: 150,
+                                  height: 80,
+                                  fontSize: 18,
+                                  fontFamily: 'Arial',
+                                  color: '#fff',
+                                  zIndex: 1,
+                                  borderRadius: 0,
+                                },
+                              },
+                              isEditing: false,
+                            },
+                          ],
+                        }
+                      : s
+                  )
+                ),
+              updateElement,
+              saveAllConfig,
+              setIsPreview,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

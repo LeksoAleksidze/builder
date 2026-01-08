@@ -1,17 +1,77 @@
 .general {
-  background-color: #ffffff;
-  border: 1px solid #e5e5ea;
-  overflow-y: auto; // იმისთვის რომ ბევრი სექცია თუ იქნება დასკროლდეს
+  background-color: #0f111a;
+  border-left: 1px solid #2d2f3b;
+  overflow-y: auto;
   max-height: 100vh;
-  transition: all 0.3s ease;
+  min-width: 340px;
+  color: #e1e1e6;
+  font-family: 'Inter', sans-serif;
+
+  &__topControls {
+    padding: 16px;
+    background: #161925;
+    border-bottom: 1px solid #2d2f3b;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__tabGroup {
+    display: flex;
+    gap: 4px;
+    background: #0a0c12;
+    padding: 4px;
+    border-radius: 8px;
+  }
+
+  &__tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: none;
+    color: #6272a4;
+    font-size: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 6px;
+    text-transform: uppercase;
+    transition: 0.2s;
+    &--active {
+      background: #2d2f3b;
+      color: #00f2ff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+  }
+
+  &__saveBtn {
+    width: calc(100% - 32px);
+    margin: 16px;
+    padding: 14px;
+    background: #34c759;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    text-transform: uppercase;
+    &:hover { background: #28a745; }
+  }
+
+  &__previewBtn {
+    width: calc(100% - 32px);
+    margin: 0 16px 16px;
+    padding: 10px;
+    background: #50fa7b;
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-weight: 700;
+    cursor: pointer;
+  }
 
   &__block {
-    border-bottom: 1px solid #e5e5ea;
-    &--closed {
-      .general__content {
-        display: none;
-      }
-    }
+    border-bottom: 1px solid #1f222e;
+    &--closed { .general__content { display: none; } }
   }
 
   &__header {
@@ -20,107 +80,53 @@
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
-    background-color: #fbfbfd;
-    &:hover {
-      background-color: #f2f2f7;
-    }
+    background-color: #161925;
+    &:hover { background-color: #1f2232; }
   }
 
   &__main-title {
-    font-size: 15px;
-    font-weight: 600;
-    color: #1c1c1e;
-    margin: 0;
-  }
-
-  &__arrow {
-    font-size: 10px;
-    color: #8e8e93;
-    transition: transform 0.3s ease;
-    &--active {
-      transform: rotate(180deg);
-    }
+    font-size: 11px;
+    font-weight: 700;
+    color: #00f2ff;
+    text-transform: uppercase;
   }
 
   &__content {
     padding: 16px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    border-top: 1px solid #e5e5ea;
-    animation: slideDown 0.2s ease-out;
-  }
-
-  &__section {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  &__title {
-    font-size: 11px;
-    font-weight: 700;
-    color: #8e8e93;
-    text-transform: uppercase;
-  }
-
-  // Inputs & Values
-  &__input {
-    width: 100%;
-    accent-color: #007aff;
-    cursor: pointer;
-  }
-
-  &__value {
-    font-size: 12px;
-    color: #007aff;
-    font-weight: 600;
-    margin-top: 4px;
-    display: block;
-    text-align: right;
-  }
-
-  &__colorPicker {
-    width: 100%;
-    height: 35px;
-    border: 1px solid #e5e5ea;
-    border-radius: 8px;
-    cursor: pointer;
-    background: none;
-    padding: 2px;
-  }
-
-  // Builder Buttons & Cards
-  &__addButton {
-    width: 100%;
-    padding: 12px;
-    background-color: #007aff;
-    color: #ffffff;
-    border: none;
-    border-radius: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: 0.2s;
-    &:hover { opacity: 0.9; }
+    gap: 15px;
   }
 
   &__sectionCard {
-    background-color: #f2f2f7;
-    border-radius: 12px;
-    padding: 12px;
-    margin-bottom: 12px;
+    background-color: #161925;
+    border: 1px solid #2d2f3b;
+    border-radius: 8px;
+    overflow: hidden;
+    &--active { border-color: #00f2ff; }
   }
 
   &__cardHeader {
+    padding: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
-    span { font-size: 13px; font-weight: 600; }
-    button {
-      background: none; border: none; color: #ff3b30;
-      font-size: 11px; cursor: pointer; font-weight: 500;
+    cursor: pointer;
+    background: #1c202e;
+    strong { font-size: 11px; color: #fff; }
+    button { background: none; border: none; color: #ff5555; cursor: pointer; }
+  }
+
+  &__elItem {
+    background: #0a0c12;
+    border-left: 3px solid #00f2ff;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 4px;
+    textarea {
+      width: 100%; background: #161925; border: 1px solid #2d2f3b;
+      color: #fff; padding: 8px; border-radius: 4px; font-size: 11px;
+      margin-top: 8px; min-height: 60px; resize: vertical;
     }
   }
 
@@ -129,80 +135,16 @@
     justify-content: space-between;
     align-items: center;
     margin-top: 8px;
-    label { font-size: 12px; color: #8e8e93; }
-    input[type="number"] {
-      width: 65px;
-      padding: 4px;
-      border: 1px solid #d1d1d6;
-      border-radius: 6px;
-      font-size: 12px;
+    label { font-size: 10px; color: #8e8e93; }
+    input {
+      width: 60px; background: #161925; border: 1px solid #2d2f3b;
+      color: #fff; padding: 4px; border-radius: 4px; font-size: 11px;
     }
+    input[type="color"] { width: 30px; padding: 0; border: none; }
   }
 
-  &__elementActions {
-    display: flex;
-    gap: 6px;
-    margin-top: 12px;
-    button {
-      flex: 1;
-      padding: 6px;
-      font-size: 11px;
-      border: 1px solid #007aff;
-      background: #fff;
-      color: #007aff;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      &:hover { background: #007aff; color: #fff; }
-    }
+  &__addButton {
+    width: 100%; padding: 10px; background: #007aff; color: #fff;
+    border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
   }
-
-  &__saveBtn {
-    width: 100%;
-    padding: 14px;
-    background-color: #34c759;
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-
-  &__lang-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 4px;
-    background-color: #f2f2f7;
-    padding: 4px;
-    border-radius: 8px;
-  }
-
-  &__lang-item {
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    border-radius: 6px;
-    transition: 0.2s;
-    &--active {
-      background-color: #fff;
-      color: #007aff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-  }
-
-  &__row {
-    background-color: #f2f2f7;
-    padding: 10px 12px;
-    border-radius: 10px;
-  }
-}
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
 }
