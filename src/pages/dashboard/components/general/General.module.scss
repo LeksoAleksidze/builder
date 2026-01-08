@@ -5,8 +5,6 @@
   max-height: 100vh;
   min-width: 340px;
   color: #e1e1e6;
-  font-family: 'Inter', sans-serif;
-
   &__topControls {
     padding: 16px;
     background: #161925;
@@ -15,7 +13,6 @@
     flex-direction: column;
     gap: 12px;
   }
-
   &__tabGroup {
     display: flex;
     gap: 4px;
@@ -23,7 +20,6 @@
     padding: 4px;
     border-radius: 8px;
   }
-
   &__tab {
     flex: 1;
     padding: 8px;
@@ -42,7 +38,6 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
   }
-
   &__saveBtn {
     width: calc(100% - 32px);
     margin: 16px;
@@ -56,7 +51,6 @@
     text-transform: uppercase;
     &:hover { background: #28a745; }
   }
-
   &__previewBtn {
     width: calc(100% - 32px);
     margin: 0 16px 16px;
@@ -68,12 +62,14 @@
     font-weight: 700;
     cursor: pointer;
   }
-
   &__block {
     border-bottom: 1px solid #1f222e;
-    &--closed { .general__content { display: none; } }
+    &--closed {
+      .general__content {
+        display: none;
+      }
+    }
   }
-
   &__header {
     padding: 16px;
     display: flex;
@@ -81,31 +77,31 @@
     align-items: center;
     cursor: pointer;
     background-color: #161925;
-    &:hover { background-color: #1f2232; }
+    &:hover {
+      background-color: #1f2232;
+    }
   }
-
   &__main-title {
     font-size: 11px;
     font-weight: 700;
     color: #00f2ff;
     text-transform: uppercase;
   }
-
   &__content {
     padding: 16px;
     display: flex;
     flex-direction: column;
     gap: 15px;
   }
-
   &__sectionCard {
     background-color: #161925;
     border: 1px solid #2d2f3b;
     border-radius: 8px;
     overflow: hidden;
-    &--active { border-color: #00f2ff; }
+    &--active {
+      border-color: #00f2ff;
+    }
   }
-
   &__cardHeader {
     padding: 12px;
     display: flex;
@@ -113,10 +109,17 @@
     align-items: center;
     cursor: pointer;
     background: #1c202e;
-    strong { font-size: 11px; color: #fff; }
-    button { background: none; border: none; color: #ff5555; cursor: pointer; }
+    strong {
+      font-size: 11px;
+      color: #fff;
+    }
+    button {
+      background: none;
+      border: none;
+      color: #ff5555;
+      cursor: pointer;
+    }
   }
-
   &__elItem {
     background: #0a0c12;
     border-left: 3px solid #00f2ff;
@@ -129,7 +132,6 @@
       margin-top: 8px; min-height: 60px; resize: vertical;
     }
   }
-
   &__field {
     display: flex;
     justify-content: space-between;
@@ -142,7 +144,6 @@
     }
     input[type="color"] { width: 30px; padding: 0; border: none; }
   }
-
   &__addButton {
     width: 100%; padding: 10px; background: #007aff; color: #fff;
     border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
