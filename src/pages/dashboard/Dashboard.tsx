@@ -24,7 +24,7 @@ export default function DashboardPage() {
   const [sections, setSections] = useState([]);
 
   useEffect(() => {
-    const saved = localStorage.getItem('landing_v_stable_final');
+    const saved = localStorage.getItem('landing_data');
 
     if (saved) {
       const parsed = JSON.parse(saved);
@@ -37,7 +37,7 @@ export default function DashboardPage() {
 
   const saveAllConfig = () => {
     localStorage.setItem(
-      'landing_v_stable_final',
+      'landing_data',
       JSON.stringify({ sections, authStyles, globalBG })
     );
     alert('✅ კონფიგურაცია შენახულია!');
