@@ -32,7 +32,7 @@ const FONTS = [
   'Courier New',
 ];
 
-// --- 1. SORTABLE ITEM COMPONENT (აღდგენილი სრული ფუნქციონალით) ---
+// --- 1. SORTABLE ITEM COMPONENT ---
 function SortableSection({
   s,
   activeView,
@@ -246,7 +246,6 @@ function SortableSection({
             }}
           />
 
-          {/* ADD ELEMENTS */}
           <div style={{ display: 'flex', gap: '4px', marginTop: '10px' }}>
             <button
               className={styles.general__addButton}
@@ -264,7 +263,6 @@ function SortableSection({
             </button>
           </div>
 
-          {/* ELEMENTS LISTING (აღდგენილი ფუნქციონალი) */}
           {s.elements.map((el: any) => {
             const est = el.styles[activeView];
             return (
@@ -452,11 +450,7 @@ export default function General({
   saveAllConfig,
 }: any) {
   const [openSections, setOpenSections] = useState<number[]>([]);
-  const [openBlocks, setOpenBlocks] = useState<string[]>([
-    'bg',
-    'auth',
-    'sections',
-  ]);
+  const [openBlocks, setOpenBlocks] = useState<string[]>(['bg', 'sections']);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -558,6 +552,24 @@ export default function General({
     }
   };
 
+  // --- გლობალური ფონის შეცვლის ფუნქცია ---
+  const handleGlobalBGChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setGlobalBG((prev: any) => ({
+          ...prev,
+          [activeLang]: {
+            ...prev[activeLang],
+            [activeView.toLowerCase()]: reader.result,
+          },
+        }));
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
     <div className={styles.general}>
       <div className={styles.general__topControls}>
@@ -594,6 +606,74 @@ export default function General({
       <button className={styles.general__saveBtn} onClick={saveAllConfig}>
         💾 PUBLISH CONFIG
       </button>
+
+      {/* GLOBAL BACKGROUND BLOCK */}
+      <div
+        className={clsx(
+          styles.general__block,
+          !openBlocks.includes('bg') && styles['general__block--closed']
+        )}
+      >
+        <div
+          className={styles.general__header}
+          onClick={() =>
+            setOpenBlocks((p) =>
+              p.includes('bg') ? p.filter((b) => b !== 'bg') : [...p, 'bg']
+            )
+          }
+        >
+          <span className={styles['general__main-title']}>
+            Global Background ({activeLang} - {activeView})
+          </span>
+        </div>
+        <div className={styles.general__content}>
+          <div className={styles.general__field}>
+            <label>Upload Background</label>
+            <input
+              type="file"
+              onChange={handleGlobalBGChange}
+              accept="image/*"
+            />
+          </div>
+          {globalBG[activeLang]?.[activeView.toLowerCase()] && (
+            <div style={{ marginTop: '10px', position: 'relative' }}>
+              <img
+                src={globalBG[activeLang][activeView.toLowerCase()]}
+                style={{
+                  width: '100px',
+                  height: '100px',
+                  borderRadius: '4px',
+                  border: '1px solid #444',
+                }}
+                alt="Preview"
+              />
+              <button
+                onClick={() =>
+                  setGlobalBG((prev: any) => ({
+                    ...prev,
+                    [activeLang]: {
+                      ...prev[activeLang],
+                      [activeView.toLowerCase()]: '',
+                    },
+                  }))
+                }
+                style={{
+                  position: 'absolute',
+                  top: 5,
+                  right: 5,
+                  background: 'red',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* SECTIONS BLOCK */}
       <div

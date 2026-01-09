@@ -12,26 +12,36 @@ export default function DashboardPage() {
   const [activeView, setActiveView] = useState<'WEB' | 'MOB'>('WEB');
   const [isPreview, setIsPreview] = useState(false);
   const [globalBG, setGlobalBG] = useState<any>({
-    GE: { web: '' },
-    EN: { web: '' },
-    RU: { web: '' },
-    TR: { web: '' },
+    GE: { web: '', mob: '' },
+    EN: { web: '', mob: '' },
+    RU: { web: '', mob: '' },
+    TR: { web: '', mob: '' },
   });
   const [authStyles, setAuthStyles] = useState({
     WEB: { marginTop: '700px', backgroundColor: 'transparent' },
     MOB: { marginTop: '300px', backgroundColor: 'transparent' },
   });
-  const [sections, setSections] = useState([]);
+  const [sections, setSections] = useState<any[]>([]);
 
   useEffect(() => {
     const saved = localStorage.getItem('landing_data');
-
     if (saved) {
       const parsed = JSON.parse(saved);
-
-      setSections(parsed.sections);
-      setAuthStyles(parsed.authStyles);
-      setGlobalBG(parsed.globalBG);
+      setSections(parsed.sections || []);
+      setAuthStyles(
+        parsed.authStyles || {
+          WEB: { marginTop: '700px' },
+          MOB: { marginTop: '300px' },
+        }
+      );
+      setGlobalBG(
+        parsed.globalBG || {
+          GE: { web: '', mob: '' },
+          EN: { web: '', mob: '' },
+          RU: { web: '', mob: '' },
+          TR: { web: '', mob: '' },
+        }
+      );
     }
   }, []);
 
@@ -75,12 +85,18 @@ export default function DashboardPage() {
         style={{
           width: activeView === 'MOB' ? '375px' : '100%',
           margin: '0 auto',
+          minHeight: '100vh',
+          transition: 'width 0.3s ease',
         }}
       >
         <div
           className={styles.dashboard__landing}
           style={{
             backgroundImage: `url(${globalBG[activeLang]?.[activeView.toLowerCase()] || ''})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'top center',
+            backgroundAttachment: 'scroll',
+            minHeight: '100vh',
           }}
         >
           <Authorization stylesProp={authStyles[activeView]} />
@@ -117,7 +133,8 @@ export default function DashboardPage() {
                         key={el.id}
                         size={{ width: est.width, height: est.height }}
                         position={{ x: est.x, y: est.y }}
-                        disableDragging={el.isEditing}
+                        disableDragging={el.isEditing || isPreview}
+                        disableResizing={isPreview}
                         onDragStop={(_, d) =>
                           updateElement(s.id, el.id, 'styles', {
                             ...el.styles,
@@ -137,8 +154,14 @@ export default function DashboardPage() {
                         }
                         style={{
                           zIndex: est.zIndex || 1,
-                          border: el.isEditing ? '1px solid #00f2ff' : 'none',
-                          boxShadow: el.isEditing ? '0 0 10px #00f2ff' : 'none',
+                          border:
+                            !isPreview && el.isEditing
+                              ? '1px solid #00f2ff'
+                              : 'none',
+                          boxShadow:
+                            !isPreview && el.isEditing
+                              ? '0 0 10px #00f2ff'
+                              : 'none',
                         }}
                       >
                         <div
@@ -166,22 +189,27 @@ export default function DashboardPage() {
                                 )
                               }
                             >
-                              ×
+                              ✕
                             </button>
                           )}
                           <div
                             onDoubleClick={() =>
+                              !isPreview &&
                               updateElement(s.id, el.id, 'isEditing', true)
                             }
                             style={{
                               width: '100%',
                               height: '100%',
-                              cursor: el.isEditing ? 'text' : 'move',
+                              cursor: isPreview
+                                ? 'default'
+                                : el.isEditing
+                                  ? 'text'
+                                  : 'move',
                             }}
                           >
                             {el.type === 'text' ? (
                               <div
-                                contentEditable={el.isEditing}
+                                contentEditable={!isPreview && el.isEditing}
                                 suppressContentEditableWarning
                                 onBlur={(e) => {
                                   updateElement(s.id, el.id, 'content', {
@@ -216,7 +244,6 @@ export default function DashboardPage() {
                                   height: '100%',
                                   objectFit: 'cover',
                                   borderRadius: `${est.borderRadius || 0}px`,
-                                  border: `${est.borderWidth || 0}px solid ${est.borderColor || 'transparent'}`,
                                 }}
                                 draggable={false}
                                 alt="*"
@@ -253,6 +280,25 @@ export default function DashboardPage() {
           />
         </div>
       )}
+
+      {/* PREVIEW TOGGLE BUTTON */}
+      <button
+        onClick={() => setIsPreview(!isPreview)}
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '20px',
+          zIndex: 9999,
+          padding: '10px 20px',
+          background: isPreview ? '#ff4757' : '#2ed573',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        {isPreview ? '🛠 EDIT MODE' : '👁 PREVIEW'}
+      </button>
     </div>
   );
 }
