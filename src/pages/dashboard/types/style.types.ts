@@ -50,6 +50,13 @@ export type ViewportImageElementStyles = {
 export interface AuthStyle {
   marginTop: string;
   backgroundColor: string;
+  textColor: string;
+  textBgColor: string;
+  textBgBorderRadius: number;
+  fontSize: number;
+  height: number;
+  padding: number;
+  borderRadius: number;
 }
 
 export type ViewportAuthStyles = {

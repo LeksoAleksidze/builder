@@ -2,11 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import type {
   Section,
   GlobalBackground,
+  ViewportBGColor,
   ViewportAuthStyles,
   Viewport,
   Language,
 } from '../types';
-import { DEFAULT_GLOBAL_BG, DEFAULT_AUTH_STYLES } from '../constants';
+import { DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES, LANGUAGES } from '../constants';
 import { useLocalStorage } from './useLocalStorage';
 import { useSections } from './useSections';
 import { useElements } from './useElements';
@@ -16,6 +17,8 @@ export function useLandingData() {
   const [activeView, setActiveView] = useState<Viewport>('WEB');
   const [isPreview, setIsPreview] = useState(false);
   const [globalBG, setGlobalBG] = useState<GlobalBackground>(DEFAULT_GLOBAL_BG);
+  const [globalBGColor, setGlobalBGColor] = useState<ViewportBGColor>(DEFAULT_GLOBAL_BG_COLOR);
+  const [sameBackgroundForAllLangs, setSameBackgroundForAllLangs] = useState(true);
   const [authStyles, setAuthStyles] = useState<ViewportAuthStyles>(DEFAULT_AUTH_STYLES);
   const [sections, setSections] = useState<Section[]>([]);
 
@@ -26,12 +29,14 @@ export function useLandingData() {
     setSections(data.sections);
     setAuthStyles(data.authStyles);
     setGlobalBG(data.globalBG);
+    setGlobalBGColor(data.globalBGColor);
+    setSameBackgroundForAllLangs(data.sameBackgroundForAllLangs ?? true);
   }, [load]);
 
   const saveAllConfig = useCallback(() => {
-    save({ sections, authStyles, globalBG });
+    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs });
     alert('Configuration saved!');
-  }, [save, sections, authStyles, globalBG]);
+  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs]);
 
   const sectionActions = useSections({
     sections,
@@ -47,26 +52,58 @@ export function useLandingData() {
 
   const updateGlobalBG = useCallback(
     (imageData: string) => {
-      setGlobalBG((prev) => ({
-        ...prev,
-        [activeLang]: {
-          ...prev[activeLang],
-          [activeView.toLowerCase()]: imageData,
-        },
-      }));
+      setGlobalBG((prev) => {
+        if (sameBackgroundForAllLangs) {
+          // Update all languages with the same background
+          const viewKey = activeView.toLowerCase() as 'web' | 'mob';
+          const updated: GlobalBackground = { ...prev };
+          LANGUAGES.forEach((lang) => {
+            updated[lang] = {
+              ...updated[lang],
+              [viewKey]: imageData,
+            };
+          });
+          return updated;
+        } else {
+          // Update only current language
+          return {
+            ...prev,
+            [activeLang]: {
+              ...prev[activeLang],
+              [activeView.toLowerCase()]: imageData,
+            },
+          };
+        }
+      });
     },
-    [activeLang, activeView]
+    [activeLang, activeView, sameBackgroundForAllLangs]
   );
 
   const clearGlobalBG = useCallback(() => {
-    setGlobalBG((prev) => ({
-      ...prev,
-      [activeLang]: {
-        ...prev[activeLang],
-        [activeView.toLowerCase()]: '',
-      },
-    }));
-  }, [activeLang, activeView]);
+    setGlobalBG((prev) => {
+      if (sameBackgroundForAllLangs) {
+        // Clear all languages
+        const viewKey = activeView.toLowerCase() as 'web' | 'mob';
+        const updated: GlobalBackground = { ...prev };
+        LANGUAGES.forEach((lang) => {
+          updated[lang] = {
+            ...updated[lang],
+            [viewKey]: '',
+          };
+        });
+        return updated;
+      } else {
+        // Clear only current language
+        return {
+          ...prev,
+          [activeLang]: {
+            ...prev[activeLang],
+            [activeView.toLowerCase()]: '',
+          },
+        };
+      }
+    });
+  }, [activeLang, activeView, sameBackgroundForAllLangs]);
 
   const updateAuthStyle = useCallback(
     <K extends keyof ViewportAuthStyles['WEB']>(
@@ -81,12 +118,47 @@ export function useLandingData() {
     [activeView]
   );
 
+  // Sync backgrounds when enabling "Same for all languages"
+  const setSameBackgroundForAllLangsWithSync = useCallback(
+    (value: boolean) => {
+      setSameBackgroundForAllLangs(value);
+      if (value) {
+        // When enabling, sync current language's background to all languages
+        setGlobalBG((prev) => {
+          const currentBgWeb = prev[activeLang]?.web || '';
+          const currentBgMob = prev[activeLang]?.mob || '';
+          const updated: GlobalBackground = { ...prev };
+          LANGUAGES.forEach((lang) => {
+            updated[lang] = {
+              web: currentBgWeb,
+              mob: currentBgMob,
+            };
+          });
+          return updated;
+        });
+      }
+    },
+    [activeLang]
+  );
+
+  const updateGlobalBGColor = useCallback(
+    (color: string) => {
+      setGlobalBGColor((prev) => ({
+        ...prev,
+        [activeView]: color,
+      }));
+    },
+    [activeView]
+  );
+
   return {
     // State
     activeLang,
     activeView,
     isPreview,
     globalBG,
+    globalBGColor,
+    sameBackgroundForAllLangs,
     authStyles,
     sections,
 
@@ -95,12 +167,15 @@ export function useLandingData() {
     setActiveView,
     setIsPreview,
     setGlobalBG,
+    setGlobalBGColor,
+    setSameBackgroundForAllLangs: setSameBackgroundForAllLangsWithSync,
     setAuthStyles,
     setSections,
 
     // Actions
     saveAllConfig,
     updateGlobalBG,
+    updateGlobalBGColor,
     clearGlobalBG,
     updateAuthStyle,
     ...sectionActions,

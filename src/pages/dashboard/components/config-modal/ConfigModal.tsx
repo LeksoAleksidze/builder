@@ -38,6 +38,7 @@ function SortableSectionCard({ section }: { section: Section }) {
     updateElementStyle,
     updateElementContent,
     deleteElement,
+    setElementSameForAllLangs,
   } = useLandingContext();
 
   const {
@@ -197,14 +198,17 @@ function SortableSectionCard({ section }: { section: Section }) {
                   activeLang={activeLang}
                   updateElementStyle={updateElementStyle}
                   updateElementContent={updateElementContent}
+                  setElementSameForAllLangs={setElementSameForAllLangs}
                 />
               ) : (
                 <ImageElementForm
                   sectionId={section.id}
                   element={el as ImageElement}
                   activeView={activeView}
+                  activeLang={activeLang}
                   updateElementStyle={updateElementStyle}
                   updateElementContent={updateElementContent}
+                  setElementSameForAllLangs={setElementSameForAllLangs}
                 />
               )}
             </div>
@@ -222,24 +226,40 @@ function TextElementForm({
   activeLang,
   updateElementStyle,
   updateElementContent,
+  setElementSameForAllLangs,
 }: {
   sectionId: number;
   element: TextElement;
   activeView: 'WEB' | 'MOB';
   activeLang: 'GE' | 'EN' | 'RU' | 'TR';
   updateElementStyle: (sId: number, elId: number, field: string, value: unknown) => void;
-  updateElementContent: (sId: number, elId: number, content: string) => void;
+  updateElementContent: (sId: number, elId: number, content: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
+  setElementSameForAllLangs: (sId: number, elId: number, value: boolean) => void;
 }) {
   const est = element.styles[activeView];
+  const isSameForAll = element.sameForAllLangs ?? false;
 
   return (
     <>
+      <div className={styles.toggleRow}>
+        <span className={styles.toggleLabel}>
+          <span className={styles.toggleIcon}>🌐</span>
+          Same for all languages
+        </span>
+        <button
+          className={`${styles.toggle} ${isSameForAll ? styles['toggle--active'] : ''}`}
+          onClick={() => setElementSameForAllLangs(sectionId, element.id, !isSameForAll)}
+        />
+      </div>
+
       <div className={styles.field}>
-        <label className={styles.fieldLabel}>Content ({activeLang})</label>
+        <label className={styles.fieldLabel}>
+          Content {isSameForAll ? '(All)' : `(${activeLang})`}
+        </label>
         <textarea
           className={styles.textarea}
           value={element.content[activeLang] || ''}
-          onChange={(e) => updateElementContent(sectionId, element.id, e.target.value)}
+          onChange={(e) => updateElementContent(sectionId, element.id, e.target.value, activeLang)}
           placeholder="Enter text..."
         />
       </div>
@@ -290,31 +310,55 @@ function ImageElementForm({
   sectionId,
   element,
   activeView,
+  activeLang,
   updateElementStyle,
   updateElementContent,
+  setElementSameForAllLangs,
 }: {
   sectionId: number;
   element: ImageElement;
   activeView: 'WEB' | 'MOB';
+  activeLang: 'GE' | 'EN' | 'RU' | 'TR';
   updateElementStyle: (sId: number, elId: number, field: string, value: unknown) => void;
-  updateElementContent: (sId: number, elId: number, content: string) => void;
+  updateElementContent: (sId: number, elId: number, content: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
+  setElementSameForAllLangs: (sId: number, elId: number, value: boolean) => void;
 }) {
   const est = element.styles[activeView];
+  const isSameForAll = element.sameForAllLangs ?? false;
+  const currentImage = element.content[activeLang] || '';
 
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) {
       const r = new FileReader();
-      r.onload = () => updateElementContent(sectionId, element.id, r.result as string);
+      r.onload = () => updateElementContent(sectionId, element.id, r.result as string, activeLang);
       r.readAsDataURL(f);
     }
   };
 
   return (
     <>
+      <div className={styles.toggleRow}>
+        <span className={styles.toggleLabel}>
+          <span className={styles.toggleIcon}>🌐</span>
+          Same for all languages
+        </span>
+        <button
+          className={`${styles.toggle} ${isSameForAll ? styles['toggle--active'] : ''}`}
+          onClick={() => setElementSameForAllLangs(sectionId, element.id, !isSameForAll)}
+        />
+      </div>
+
       <div className={styles.field}>
-        <label className={styles.fieldLabel}>Image</label>
+        <label className={styles.fieldLabel}>
+          Image {isSameForAll ? '(All)' : `(${activeLang})`}
+        </label>
         <input type="file" className={styles.fileInput} onChange={handleUpload} accept="image/*" />
+        {currentImage && (
+          <div className={styles.imagePreview} style={{ marginTop: '8px' }}>
+            <img src={currentImage} alt="Preview" />
+          </div>
+        )}
       </div>
       <div className={styles.field}>
         <label className={styles.fieldLabel}>Size (W / H / Radius)</label>
@@ -350,8 +394,14 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     activeView,
     setActiveView,
     globalBG,
+    globalBGColor,
     updateGlobalBG,
+    updateGlobalBGColor,
     clearGlobalBG,
+    sameBackgroundForAllLangs,
+    setSameBackgroundForAllLangs,
+    authStyles,
+    updateAuthStyle,
     sections,
     addSection,
     reorderSections,
@@ -446,25 +496,209 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
             </div>
             {openSections.includes('bg') && (
               <div className={styles.sectionContent}>
+                <div className={styles.checkboxField}>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={sameBackgroundForAllLangs}
+                      onChange={(e) => setSameBackgroundForAllLangs(e.target.checked)}
+                    />
+                    <span>Same for all languages</span>
+                  </label>
+                </div>
+
+                {sameBackgroundForAllLangs ? (
+                  <>
+                    <div className={styles.field}>
+                      <label className={styles.fieldLabel}>
+                        Background ({activeView})
+                      </label>
+                      <input
+                        type="file"
+                        className={styles.fileInput}
+                        onChange={handleBgUpload}
+                        accept="image/*"
+                      />
+                    </div>
+                    {currentBG && (
+                      <div className={styles.imagePreview}>
+                        <img src={currentBG} alt="Background" />
+                        <button className={styles.removeImageBtn} onClick={clearGlobalBG}>
+                          X
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className={styles.langTabs}>
+                      {LANGUAGES.map((l) => (
+                        <button
+                          key={l}
+                          className={`${styles.langTab} ${activeLang === l ? styles['langTab--active'] : ''}`}
+                          onClick={() => setActiveLang(l)}
+                        >
+                          {l}
+                        </button>
+                      ))}
+                    </div>
+                    <div className={styles.field}>
+                      <label className={styles.fieldLabel}>
+                        Background ({activeLang} - {activeView})
+                      </label>
+                      <input
+                        type="file"
+                        className={styles.fileInput}
+                        onChange={handleBgUpload}
+                        accept="image/*"
+                      />
+                    </div>
+                    {currentBG && (
+                      <div className={styles.imagePreview}>
+                        <img src={currentBG} alt="Background" />
+                        <button className={styles.removeImageBtn} onClick={clearGlobalBG}>
+                          X
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
                 <div className={styles.field}>
                   <label className={styles.fieldLabel}>
-                    Background ({activeLang} - {activeView})
+                    Background Color ({activeView})
                   </label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="color"
+                      className={styles.colorInput}
+                      value={globalBGColor[activeView]}
+                      onChange={(e) => updateGlobalBGColor(e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={globalBGColor[activeView]}
+                      onChange={(e) => updateGlobalBGColor(e.target.value)}
+                      placeholder="#1a1a2e"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Auth Section */}
+          <div className={styles.section}>
+            <div
+              className={`${styles.sectionHeader} ${openSections.includes('auth') ? styles['sectionHeader--open'] : ''}`}
+              onClick={() => toggleSection('auth')}
+            >
+              <h3>
+                <span className={styles.sectionIcon}>AUTH</span>
+                Authorization Block
+              </h3>
+              <span className={`${styles.chevron} ${openSections.includes('auth') ? styles['chevron--open'] : ''}`}>
+                v
+              </span>
+            </div>
+            {openSections.includes('auth') && (
+              <div className={styles.sectionContent}>
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Position (Padding Top)</label>
                   <input
-                    type="file"
-                    className={styles.fileInput}
-                    onChange={handleBgUpload}
-                    accept="image/*"
+                    type="text"
+                    className={styles.input}
+                    value={authStyles[activeView].marginTop}
+                    onChange={(e) => updateAuthStyle('marginTop', e.target.value)}
+                    placeholder="700px"
                   />
                 </div>
-                {currentBG && (
-                  <div className={styles.imagePreview}>
-                    <img src={currentBG} alt="Background" />
-                    <button className={styles.removeImageBtn} onClick={clearGlobalBG}>
-                      X
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Size (Height / Padding / Radius)</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={authStyles[activeView].height}
+                      onChange={(e) => updateAuthStyle('height', Number(e.target.value))}
+                    />
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={authStyles[activeView].padding}
+                      onChange={(e) => updateAuthStyle('padding', Number(e.target.value))}
+                    />
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={authStyles[activeView].borderRadius}
+                      onChange={(e) => updateAuthStyle('borderRadius', Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Block Background</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="color"
+                      className={styles.colorInput}
+                      value={authStyles[activeView].backgroundColor === 'transparent' ? '#000000' : authStyles[activeView].backgroundColor.replace(/[^#\w]/g, '').slice(0, 7)}
+                      onChange={(e) => updateAuthStyle('backgroundColor', e.target.value + 'e6')}
+                    />
+                    <button
+                      className={styles.clearBtn}
+                      onClick={() => updateAuthStyle('backgroundColor', 'transparent')}
+                    >
+                      Clear
                     </button>
                   </div>
-                )}
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Text Color / Font Size</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="color"
+                      className={styles.colorInput}
+                      value={authStyles[activeView].textColor}
+                      onChange={(e) => updateAuthStyle('textColor', e.target.value)}
+                    />
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={authStyles[activeView].fontSize}
+                      onChange={(e) => updateAuthStyle('fontSize', Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Text Background / Radius</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="color"
+                      className={styles.colorInput}
+                      value={authStyles[activeView].textBgColor === 'transparent' ? '#000000' : authStyles[activeView].textBgColor}
+                      onChange={(e) => updateAuthStyle('textBgColor', e.target.value)}
+                    />
+                    <button
+                      className={styles.clearBtn}
+                      onClick={() => updateAuthStyle('textBgColor', 'transparent')}
+                    >
+                      Clear
+                    </button>
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={authStyles[activeView].textBgBorderRadius}
+                      onChange={(e) => updateAuthStyle('textBgBorderRadius', Number(e.target.value))}
+                      placeholder="Radius"
+                    />
+                  </div>
+                </div>
               </div>
             )}
           </div>

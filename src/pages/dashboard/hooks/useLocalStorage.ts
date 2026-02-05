@@ -1,11 +1,13 @@
 import { useCallback } from 'react';
-import type { Section, GlobalBackground, ViewportAuthStyles } from '../types';
-import { STORAGE_KEY, DEFAULT_GLOBAL_BG, DEFAULT_AUTH_STYLES } from '../constants';
+import type { Section, GlobalBackground, ViewportAuthStyles, ViewportBGColor } from '../types';
+import { STORAGE_KEY, DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES } from '../constants';
 
 export interface LandingData {
   sections: Section[];
   authStyles: ViewportAuthStyles;
   globalBG: GlobalBackground;
+  globalBGColor: ViewportBGColor;
+  sameBackgroundForAllLangs: boolean;
 }
 
 export function useLocalStorage() {
@@ -13,16 +15,27 @@ export function useLocalStorage() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
+
+      // Merge authStyles with defaults to ensure new properties have values
+      const authStyles: ViewportAuthStyles = {
+        WEB: { ...DEFAULT_AUTH_STYLES.WEB, ...(parsed.authStyles?.WEB || {}) },
+        MOB: { ...DEFAULT_AUTH_STYLES.MOB, ...(parsed.authStyles?.MOB || {}) },
+      };
+
       return {
         sections: parsed.sections || [],
-        authStyles: parsed.authStyles || DEFAULT_AUTH_STYLES,
+        authStyles,
         globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
+        globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
+        sameBackgroundForAllLangs: parsed.sameBackgroundForAllLangs ?? true,
       };
     }
     return {
       sections: [],
       authStyles: DEFAULT_AUTH_STYLES,
       globalBG: DEFAULT_GLOBAL_BG,
+      globalBGColor: DEFAULT_GLOBAL_BG_COLOR,
+      sameBackgroundForAllLangs: true,
     };
   }, []);
 

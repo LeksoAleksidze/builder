@@ -4,6 +4,8 @@ export type {
   LocalizedContent,
   ViewportBackground,
   GlobalBackground,
+  ViewportBGColor,
+  BackgroundSettings,
 } from './common.types';
 
 export type {

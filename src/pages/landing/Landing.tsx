@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import Authorization from '../../shared/modules/authorization/Authorization';
 import type {
   Section,
   GlobalBackground,
+  ViewportBGColor,
   ViewportAuthStyles,
   Language,
   Viewport,
@@ -12,6 +14,7 @@ import type {
 import {
   STORAGE_KEY,
   DEFAULT_GLOBAL_BG,
+  DEFAULT_GLOBAL_BG_COLOR,
   DEFAULT_AUTH_STYLES,
 } from '../dashboard/constants';
 import styles from './Landing.module.scss';
@@ -20,24 +23,69 @@ interface LandingData {
   sections: Section[];
   authStyles: ViewportAuthStyles;
   globalBG: GlobalBackground;
+  globalBGColor: ViewportBGColor;
 }
 
 export default function LandingPage() {
+  const { key, lang } = useParams<{ key: string; lang?: string }>();
+
+  // ge ან ka = GE
+  const getLanguage = (l?: string): Language => {
+    if (!l) return 'GE';
+    const normalized = l.toUpperCase();
+    if (normalized === 'KA' || normalized === 'GE') return 'GE';
+    if (normalized === 'EN') return 'EN';
+    if (normalized === 'RU') return 'RU';
+    if (normalized === 'TR') return 'TR';
+    return 'GE';
+  };
+
   const [data, setData] = useState<LandingData | null>(null);
-  const [activeLang, setActiveLang] = useState<Language>('GE');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const activeLang = getLanguage(lang);
   const [activeView, setActiveView] = useState<Viewport>('WEB');
 
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      setData({
-        sections: parsed.sections || [],
-        authStyles: parsed.authStyles || DEFAULT_AUTH_STYLES,
-        globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
-      });
-    }
-  }, []);
+    const loadConfig = async () => {
+      setLoading(true);
+      setError(null);
+
+      try {
+        // TODO: მომავალში API-დან ჩატვირთვა key-ით
+        // const response = await fetch(`/api/landing/${key}`);
+        // const config = await response.json();
+
+        // ჯერჯერობით localStorage-დან
+        const saved = localStorage.getItem(STORAGE_KEY);
+
+        if (saved) {
+          const parsed = JSON.parse(saved);
+
+          // Merge authStyles with defaults to ensure new properties have values
+          const authStyles: ViewportAuthStyles = {
+            WEB: { ...DEFAULT_AUTH_STYLES.WEB, ...(parsed.authStyles?.WEB || {}) },
+            MOB: { ...DEFAULT_AUTH_STYLES.MOB, ...(parsed.authStyles?.MOB || {}) },
+          };
+
+          setData({
+            sections: parsed.sections || [],
+            authStyles,
+            globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
+            globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
+          });
+        } else {
+          setError('კონფიგურაცია ვერ მოიძებნა');
+        }
+      } catch (err) {
+        setError('კონფიგურაციის ჩატვირთვა ვერ მოხერხდა');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadConfig();
+  }, [key]);
 
   useEffect(() => {
     const checkViewport = () => {
@@ -48,44 +96,54 @@ export default function LandingPage() {
     return () => window.removeEventListener('resize', checkViewport);
   }, []);
 
-  if (!data) {
+  if (loading) {
     return (
       <div className={styles.loading}>
         <div className={styles.spinner} />
+        <p>იტვირთება...</p>
+      </div>
+    );
+  }
+
+  if (error || !data) {
+    return (
+      <div className={styles.error}>
+        <div className={styles.errorIcon}>!</div>
+        <p>{error || 'კონფიგურაცია ვერ მოიძებნა'}</p>
+        {key && <span className={styles.errorKey}>Key: {key}</span>}
       </div>
     );
   }
 
   const bgKey = activeView.toLowerCase() as 'web' | 'mob';
-  const currentBG = data.globalBG[activeLang]?.[bgKey] || '';
+  const currentBGImage = data.globalBG[activeLang]?.[bgKey] || '';
+  const currentBGColor = data.globalBGColor[activeView] || '#1a1a2e';
 
   return (
-    <div className={styles.landing}>
-      {/* Language Switcher */}
-      <div className={styles.langSwitcher}>
-        {(['GE', 'EN', 'RU', 'TR'] as Language[]).map((lang) => (
-          <button
-            key={lang}
-            className={`${styles.langBtn} ${activeLang === lang ? styles['langBtn--active'] : ''}`}
-            onClick={() => setActiveLang(lang)}
-          >
-            {lang}
-          </button>
-        ))}
-      </div>
-
+    <div
+      className={styles.wrapper}
+      style={{
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: currentBGColor,
+        backgroundImage: currentBGImage ? `url(${currentBGImage})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'top center',
+        backgroundRepeat: 'no-repeat',
+      }}
+    >
       <div
-        className={styles.content}
+        className={styles.landing}
         style={{
-          backgroundImage: currentBG ? `url(${currentBG})` : 'none',
-          backgroundSize: 'cover',
-          backgroundPosition: 'top center',
-          backgroundAttachment: 'scroll',
+          width: activeView === 'MOB' ? '375px' : '100%',
+          margin: '0 auto',
+          minHeight: '100vh',
+          paddingTop: data.authStyles[activeView].marginTop,
         }}
       >
         <Authorization stylesProp={data.authStyles[activeView]} />
 
-        <div className={styles.sections}>
+        <div className={styles.builder}>
           {data.sections.map((section) => {
             const st = section.styles[activeView];
             return (

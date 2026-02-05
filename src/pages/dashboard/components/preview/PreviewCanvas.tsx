@@ -10,12 +10,15 @@ export function PreviewCanvas() {
     activeLang,
     activeView,
     globalBG,
+    globalBGColor,
     authStyles,
     sections,
     clearAllEditing,
   } = useLandingContext();
 
   const bgKey = activeView.toLowerCase() as 'web' | 'mob';
+  const currentBGImage = globalBG[activeLang]?.[bgKey] || '';
+  const currentBGColor = globalBGColor[activeView] || '#1a1a2e';
 
   const handleBackgroundClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -27,21 +30,24 @@ export function PreviewCanvas() {
     <div
       className={styles.dashboard__content}
       style={{
-        width: activeView === 'MOB' ? '375px' : '100%',
-        margin: '0 auto',
+        width: '100%',
         minHeight: '100vh',
-        transition: 'width 0.3s ease',
+        backgroundColor: currentBGColor,
+        backgroundImage: currentBGImage ? `url(${currentBGImage})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'top center',
+        backgroundRepeat: 'no-repeat',
+        transition: 'all 0.3s ease',
       }}
       onClick={handleBackgroundClick}
     >
       <div
         className={styles.dashboard__landing}
         style={{
-          backgroundImage: `url(${globalBG[activeLang]?.[bgKey] || ''})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'top center',
-          backgroundAttachment: 'scroll',
+          width: activeView === 'MOB' ? '375px' : '100%',
+          margin: '0 auto',
           minHeight: '100vh',
+          paddingTop: authStyles[activeView].marginTop,
         }}
         onClick={handleBackgroundClick}
       >

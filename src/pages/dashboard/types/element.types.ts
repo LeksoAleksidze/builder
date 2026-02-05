@@ -10,6 +10,7 @@ export interface TextElement {
   content: LocalizedContent;
   styles: ViewportTextElementStyles;
   isEditing?: boolean;
+  sameForAllLangs?: boolean;
 }
 
 export interface ImageElement {
@@ -18,6 +19,7 @@ export interface ImageElement {
   content: LocalizedContent;
   styles: ViewportImageElementStyles;
   isEditing?: boolean;
+  sameForAllLangs?: boolean;
 }
 
 export type Element = TextElement | ImageElement;

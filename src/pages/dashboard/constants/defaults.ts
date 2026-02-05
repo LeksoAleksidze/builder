@@ -1,5 +1,7 @@
 import type {
   GlobalBackground,
+  ViewportBGColor,
+  BackgroundSettings,
   ViewportAuthStyles,
   SectionStyle,
   TextElementStyle,
@@ -16,9 +18,39 @@ export const DEFAULT_GLOBAL_BG: GlobalBackground = {
   TR: { web: '', mob: '' },
 };
 
+export const DEFAULT_GLOBAL_BG_COLOR: ViewportBGColor = {
+  WEB: '#1a1a2e',
+  MOB: '#1a1a2e',
+};
+
+export const DEFAULT_BACKGROUND_SETTINGS: BackgroundSettings = {
+  sameForAllLanguages: true,
+  backgrounds: DEFAULT_GLOBAL_BG,
+};
+
 export const DEFAULT_AUTH_STYLES: ViewportAuthStyles = {
-  WEB: { marginTop: '700px', backgroundColor: 'transparent' },
-  MOB: { marginTop: '300px', backgroundColor: 'transparent' },
+  WEB: {
+    marginTop: '700px',
+    backgroundColor: '#37445ee6',
+    textColor: '#ffffff',
+    textBgColor: 'transparent',
+    textBgBorderRadius: 4,
+    fontSize: 16,
+    height: 80,
+    padding: 20,
+    borderRadius: 4,
+  },
+  MOB: {
+    marginTop: '300px',
+    backgroundColor: '#37445ee6',
+    textColor: '#ffffff',
+    textBgColor: 'transparent',
+    textBgBorderRadius: 4,
+    fontSize: 14,
+    height: 100,
+    padding: 16,
+    borderRadius: 4,
+  },
 };
 
 export const DEFAULT_SECTION_STYLES: { WEB: SectionStyle; MOB: SectionStyle } = {
