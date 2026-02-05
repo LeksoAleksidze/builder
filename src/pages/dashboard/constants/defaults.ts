@@ -6,6 +6,7 @@ import type {
   SectionStyle,
   TextElementStyle,
   ImageElementStyle,
+  BoxElementStyle,
   LocalizedContent,
 } from '../types';
 
@@ -111,6 +112,29 @@ export const DEFAULT_IMAGE_ELEMENT_STYLES: { WEB: ImageElementStyle; MOB: ImageE
     width: 150,
     height: 150,
     borderRadius: 0,
+  },
+};
+
+export const DEFAULT_BOX_ELEMENT_STYLES: { WEB: BoxElementStyle; MOB: BoxElementStyle } = {
+  WEB: {
+    x: 50,
+    y: 50,
+    width: 300,
+    height: 200,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  MOB: {
+    x: 20,
+    y: 20,
+    width: 200,
+    height: 150,
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderRadius: 8,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
 };
 

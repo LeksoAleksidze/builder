@@ -2,6 +2,7 @@ import type { LocalizedContent } from './common.types';
 import type {
   ViewportTextElementStyles,
   ViewportImageElementStyles,
+  ViewportBoxElementStyles,
 } from './style.types';
 
 export interface TextElement {
@@ -22,4 +23,16 @@ export interface ImageElement {
   sameForAllLangs?: boolean;
 }
 
-export type Element = TextElement | ImageElement;
+// Child elements inside a box (text or image only)
+export type BoxChildElement = TextElement | ImageElement;
+
+export interface BoxElement {
+  id: number;
+  type: 'box';
+  title: string;
+  styles: ViewportBoxElementStyles;
+  children: BoxChildElement[];
+  isEditing?: boolean;
+}
+
+export type Element = TextElement | ImageElement | BoxElement;

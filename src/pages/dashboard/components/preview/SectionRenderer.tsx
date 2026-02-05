@@ -39,7 +39,13 @@ export function SectionRenderer({ section }: SectionRendererProps) {
       onClick={handleClick}
     >
       {section.elements.map((el) => (
-        <ElementRenderer key={el.id} sectionId={section.id} element={el} />
+        <ElementRenderer
+          key={el.id}
+          sectionId={section.id}
+          element={el}
+          parentWidth={typeof st.width === 'string' && st.width.includes('%') ? 0 : Number(st.width) || 0}
+          parentHeight={st.height || 0}
+        />
       ))}
     </div>
   );

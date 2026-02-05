@@ -19,7 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { useLandingContext } from '../../context';
 import { FONTS, LANGUAGES, VIEWPORTS } from '../../constants';
-import type { Section, TextElement, ImageElement } from '../../types';
+import type { Section, TextElement, ImageElement, BoxElement } from '../../types';
 import styles from './ConfigModal.module.scss';
 
 interface ConfigModalProps {
@@ -35,10 +35,14 @@ function SortableSectionCard({ section }: { section: Section }) {
     updateSectionStyle,
     deleteSection,
     addElement,
+    addElementToBox,
+    duplicateElement,
     updateElementStyle,
     updateElementContent,
     deleteElement,
+    deleteBoxChild,
     setElementSameForAllLangs,
+    updateBoxTitle,
   } = useLandingContext();
 
   const {
@@ -179,15 +183,27 @@ function SortableSectionCard({ section }: { section: Section }) {
             <button className={styles.btnImage} onClick={() => addElement(section.id, 'image')}>
               + Image
             </button>
+            <button className={styles.btnBox} onClick={() => addElement(section.id, 'box')}>
+              + Box
+            </button>
           </div>
 
           {section.elements.map((el) => (
             <div key={el.id} className={styles.elementItem}>
               <div className={styles.elementHeader}>
                 <span className={styles.elementType}>{el.type}</span>
-                <button className={styles.deleteBtn} onClick={() => deleteElement(section.id, el.id)}>
-                  X
-                </button>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <button
+                    className={styles.duplicateBtn}
+                    onClick={() => duplicateElement(section.id, el.id)}
+                    title="Duplicate"
+                  >
+                    ++
+                  </button>
+                  <button className={styles.deleteBtn} onClick={() => deleteElement(section.id, el.id)}>
+                    X
+                  </button>
+                </div>
               </div>
 
               {el.type === 'text' ? (
@@ -200,7 +216,7 @@ function SortableSectionCard({ section }: { section: Section }) {
                   updateElementContent={updateElementContent}
                   setElementSameForAllLangs={setElementSameForAllLangs}
                 />
-              ) : (
+              ) : el.type === 'image' ? (
                 <ImageElementForm
                   sectionId={section.id}
                   element={el as ImageElement}
@@ -209,6 +225,19 @@ function SortableSectionCard({ section }: { section: Section }) {
                   updateElementStyle={updateElementStyle}
                   updateElementContent={updateElementContent}
                   setElementSameForAllLangs={setElementSameForAllLangs}
+                />
+              ) : (
+                <BoxElementForm
+                  sectionId={section.id}
+                  element={el as BoxElement}
+                  activeView={activeView}
+                  activeLang={activeLang}
+                  updateElementStyle={updateElementStyle}
+                  updateElementContent={updateElementContent}
+                  setElementSameForAllLangs={setElementSameForAllLangs}
+                  addElementToBox={addElementToBox}
+                  deleteBoxChild={deleteBoxChild}
+                  updateBoxTitle={updateBoxTitle}
                 />
               )}
             </div>
@@ -382,6 +411,163 @@ function ImageElementForm({
             onChange={(e) => updateElementStyle(sectionId, element.id, 'borderRadius', Number(e.target.value))}
           />
         </div>
+      </div>
+    </>
+  );
+}
+
+function BoxElementForm({
+  sectionId,
+  element,
+  activeView,
+  activeLang,
+  updateElementStyle,
+  updateElementContent,
+  setElementSameForAllLangs,
+  addElementToBox,
+  deleteBoxChild,
+  updateBoxTitle,
+}: {
+  sectionId: number;
+  element: BoxElement;
+  activeView: 'WEB' | 'MOB';
+  activeLang: 'GE' | 'EN' | 'RU' | 'TR';
+  updateElementStyle: (sId: number, elId: number, field: string, value: unknown) => void;
+  updateElementContent: (sId: number, elId: number, content: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
+  setElementSameForAllLangs: (sId: number, elId: number, value: boolean) => void;
+  addElementToBox: (sId: number, boxId: number, type: 'text' | 'image') => void;
+  deleteBoxChild: (sId: number, boxId: number, childId: number) => void;
+  updateBoxTitle: (sId: number, boxId: number, title: string) => void;
+}) {
+  const est = element.styles[activeView];
+
+  return (
+    <>
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Box Title</label>
+        <input
+          type="text"
+          className={styles.input}
+          value={element.title}
+          onChange={(e) => updateBoxTitle(sectionId, element.id, e.target.value)}
+          placeholder="Box name"
+        />
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Size (W / H)</label>
+        <div className={styles.fieldRow}>
+          <input
+            type="number"
+            className={`${styles.input} ${styles.inputSmall}`}
+            value={est.width}
+            onChange={(e) => updateElementStyle(sectionId, element.id, 'width', Number(e.target.value))}
+          />
+          <input
+            type="number"
+            className={`${styles.input} ${styles.inputSmall}`}
+            value={est.height}
+            onChange={(e) => updateElementStyle(sectionId, element.id, 'height', Number(e.target.value))}
+          />
+        </div>
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Border (Width / Radius)</label>
+        <div className={styles.fieldRow}>
+          <input
+            type="number"
+            className={`${styles.input} ${styles.inputSmall}`}
+            value={est.borderWidth}
+            onChange={(e) => updateElementStyle(sectionId, element.id, 'borderWidth', Number(e.target.value))}
+          />
+          <input
+            type="number"
+            className={`${styles.input} ${styles.inputSmall}`}
+            value={est.borderRadius}
+            onChange={(e) => updateElementStyle(sectionId, element.id, 'borderRadius', Number(e.target.value))}
+          />
+        </div>
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Colors (BG / Border)</label>
+        <div className={styles.fieldRow}>
+          <input
+            type="color"
+            className={styles.colorInput}
+            value={est.backgroundColor === 'transparent' ? '#000000' : est.backgroundColor}
+            onChange={(e) => updateElementStyle(sectionId, element.id, 'backgroundColor', e.target.value)}
+          />
+          <button
+            className={styles.clearBtn}
+            onClick={() => updateElementStyle(sectionId, element.id, 'backgroundColor', 'transparent')}
+          >
+            Clear
+          </button>
+          <input
+            type="color"
+            className={styles.colorInput}
+            value={est.borderColor}
+            onChange={(e) => updateElementStyle(sectionId, element.id, 'borderColor', e.target.value)}
+          />
+        </div>
+      </div>
+
+      <div className={styles.boxChildren}>
+        <label className={styles.fieldLabel}>Box Children ({element.children.length})</label>
+        <div className={styles.buttonGroup} style={{ marginTop: '8px' }}>
+          <button
+            className={styles.btnText}
+            style={{ fontSize: '11px', padding: '6px 10px' }}
+            onClick={() => addElementToBox(sectionId, element.id, 'text')}
+          >
+            + Text
+          </button>
+          <button
+            className={styles.btnImage}
+            style={{ fontSize: '11px', padding: '6px 10px' }}
+            onClick={() => addElementToBox(sectionId, element.id, 'image')}
+          >
+            + Image
+          </button>
+        </div>
+
+        {element.children.map((child) => (
+          <div key={child.id} className={styles.boxChildItem}>
+            <div className={styles.elementHeader}>
+              <span className={styles.elementType} style={{ fontSize: '9px' }}>{child.type}</span>
+              <button
+                className={styles.deleteBtn}
+                style={{ width: '18px', height: '18px', fontSize: '10px' }}
+                onClick={() => deleteBoxChild(sectionId, element.id, child.id)}
+              >
+                X
+              </button>
+            </div>
+            {child.type === 'text' ? (
+              <TextElementForm
+                sectionId={sectionId}
+                element={child as TextElement}
+                activeView={activeView}
+                activeLang={activeLang}
+                updateElementStyle={updateElementStyle}
+                updateElementContent={updateElementContent}
+                setElementSameForAllLangs={setElementSameForAllLangs}
+              />
+            ) : (
+              <ImageElementForm
+                sectionId={sectionId}
+                element={child as ImageElement}
+                activeView={activeView}
+                activeLang={activeLang}
+                updateElementStyle={updateElementStyle}
+                updateElementContent={updateElementContent}
+                setElementSameForAllLangs={setElementSameForAllLangs}
+              />
+            )}
+          </div>
+        ))}
       </div>
     </>
   );

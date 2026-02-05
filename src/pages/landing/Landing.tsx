@@ -10,6 +10,11 @@ import type {
   ViewportAuthStyles,
   Language,
   Viewport,
+  Element,
+  BoxElement,
+  TextElement,
+  ImageElement,
+  BoxChildElement,
 } from '../dashboard/types';
 import {
   STORAGE_KEY,
@@ -24,6 +29,156 @@ interface LandingData {
   authStyles: ViewportAuthStyles;
   globalBG: GlobalBackground;
   globalBGColor: ViewportBGColor;
+}
+
+// Render a single element (text, image, or box)
+function LandingElement({
+  element,
+  activeLang,
+  activeView,
+}: {
+  element: Element;
+  activeLang: Language;
+  activeView: Viewport;
+}) {
+  // Render box element
+  if (element.type === 'box') {
+    const boxEl = element as BoxElement;
+    const boxStyle = boxEl.styles[activeView];
+
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: `${boxStyle.x}px`,
+          top: `${boxStyle.y}px`,
+          width: `${boxStyle.width}px`,
+          height: `${boxStyle.height}px`,
+          backgroundColor: boxStyle.backgroundColor,
+          border: `${boxStyle.borderWidth}px solid ${boxStyle.borderColor}`,
+          borderRadius: `${boxStyle.borderRadius}px`,
+          zIndex: boxStyle.zIndex || 1,
+          overflow: 'hidden',
+        }}
+      >
+        {boxEl.children.map((child) => (
+          <LandingChildElement key={child.id} child={child} activeLang={activeLang} activeView={activeView} />
+        ))}
+      </div>
+    );
+  }
+
+  // Render text element
+  if (element.type === 'text') {
+    const textEl = element as TextElement;
+    const textStyle = textEl.styles[activeView];
+
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: `${textStyle.x}px`,
+          top: `${textStyle.y}px`,
+          width: `${textStyle.width}px`,
+          height: `${textStyle.height}px`,
+          fontSize: `${textStyle.fontSize}px`,
+          fontFamily: textStyle.fontFamily,
+          color: textStyle.color,
+          textShadow: textStyle.textShadow || 'none',
+          zIndex: textStyle.zIndex || 1,
+        }}
+        dangerouslySetInnerHTML={{ __html: textEl.content[activeLang] || '' }}
+      />
+    );
+  }
+
+  // Render image element
+  const imgEl = element as ImageElement;
+  const imgStyle = imgEl.styles[activeView];
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: `${imgStyle.x}px`,
+        top: `${imgStyle.y}px`,
+        width: `${imgStyle.width}px`,
+        height: `${imgStyle.height}px`,
+        zIndex: imgStyle.zIndex || 1,
+      }}
+    >
+      <img
+        src={imgEl.content[activeLang] || ''}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          borderRadius: `${imgStyle.borderRadius || 0}px`,
+        }}
+        alt=""
+      />
+    </div>
+  );
+}
+
+// Render child elements inside a box
+function LandingChildElement({
+  child,
+  activeLang,
+  activeView,
+}: {
+  child: BoxChildElement;
+  activeLang: Language;
+  activeView: Viewport;
+}) {
+  if (child.type === 'text') {
+    const textStyle = child.styles[activeView];
+
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: `${textStyle.x}px`,
+          top: `${textStyle.y}px`,
+          width: `${textStyle.width}px`,
+          height: `${textStyle.height}px`,
+          fontSize: `${(textStyle as TextElement['styles']['WEB']).fontSize}px`,
+          fontFamily: (textStyle as TextElement['styles']['WEB']).fontFamily,
+          color: (textStyle as TextElement['styles']['WEB']).color,
+          textShadow: (textStyle as TextElement['styles']['WEB']).textShadow || 'none',
+          zIndex: textStyle.zIndex || 1,
+        }}
+        dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
+      />
+    );
+  }
+
+  // Image child
+  const imgStyle = child.styles[activeView];
+
+  return (
+    <div
+      style={{
+        position: 'absolute',
+        left: `${imgStyle.x}px`,
+        top: `${imgStyle.y}px`,
+        width: `${imgStyle.width}px`,
+        height: `${imgStyle.height}px`,
+        zIndex: imgStyle.zIndex || 1,
+      }}
+    >
+      <img
+        src={child.content[activeLang] || ''}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          borderRadius: `${(imgStyle as ImageElement['styles']['WEB']).borderRadius || 0}px`,
+        }}
+        alt=""
+      />
+    </div>
+  );
 }
 
 export default function LandingPage() {
@@ -166,49 +321,9 @@ export default function LandingPage() {
                   zIndex: st.zIndex || 1,
                 }}
               >
-                {section.elements.map((el) => {
-                  const est = el.styles[activeView];
-                  return (
-                    <div
-                      key={el.id}
-                      style={{
-                        position: 'absolute',
-                        left: `${est.x}px`,
-                        top: `${est.y}px`,
-                        width: `${est.width}px`,
-                        height: `${est.height}px`,
-                        zIndex: est.zIndex || 1,
-                      }}
-                    >
-                      {el.type === 'text' ? (
-                        <div
-                          style={{
-                            fontSize: `${(est as { fontSize: number }).fontSize}px`,
-                            fontFamily: (est as { fontFamily: string }).fontFamily,
-                            color: (est as { color: string }).color,
-                            textShadow: (est as { textShadow?: string }).textShadow || 'none',
-                            width: '100%',
-                            height: '100%',
-                          }}
-                          dangerouslySetInnerHTML={{
-                            __html: el.content[activeLang] || '',
-                          }}
-                        />
-                      ) : (
-                        <img
-                          src={el.content[activeLang] || ''}
-                          style={{
-                            width: '100%',
-                            height: '100%',
-                            objectFit: 'cover',
-                            borderRadius: `${(est as { borderRadius: number }).borderRadius || 0}px`,
-                          }}
-                          alt=""
-                        />
-                      )}
-                    </div>
-                  );
-                })}
+                {section.elements.map((el) => (
+                  <LandingElement key={el.id} element={el} activeLang={activeLang} activeView={activeView} />
+                ))}
               </div>
             );
           })}

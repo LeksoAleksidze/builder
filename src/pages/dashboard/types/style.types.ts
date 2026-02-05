@@ -47,6 +47,23 @@ export type ViewportImageElementStyles = {
   MOB: ImageElementStyle;
 };
 
+export interface BoxElementStyle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  backgroundColor: string;
+  borderWidth: number;
+  borderRadius: number;
+  borderColor: string;
+  zIndex?: number;
+}
+
+export type ViewportBoxElementStyles = {
+  WEB: BoxElementStyle;
+  MOB: BoxElementStyle;
+};
+
 export interface AuthStyle {
   marginTop: string;
   backgroundColor: string;
