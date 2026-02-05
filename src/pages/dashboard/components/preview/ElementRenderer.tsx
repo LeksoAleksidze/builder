@@ -6,8 +6,18 @@ import { useLandingContext } from '../../context';
 import type { Element, BoxElement, TextElement, ImageElement, BoxChildElement } from '../../types';
 
 interface AlignmentGuides {
-  horizontal: boolean;
-  vertical: boolean;
+  // Parent center alignment
+  parentHorizontal: boolean;
+  parentVertical: boolean;
+  // Sibling alignment positions
+  siblingHorizontalY?: number;
+  siblingVerticalX?: number;
+}
+
+interface SiblingPosition {
+  id: number;
+  centerX: number;
+  centerY: number;
 }
 
 interface ElementRendererProps {
@@ -15,6 +25,7 @@ interface ElementRendererProps {
   element: Element;
   parentWidth?: number;
   parentHeight?: number;
+  siblingPositions?: SiblingPosition[];
 }
 
 // Separate component for box children to avoid prop drilling
@@ -42,7 +53,7 @@ function BoxChildRenderer({
     duplicateBoxChild,
   } = useLandingContext();
 
-  const [guides, setGuides] = useState<AlignmentGuides>({ horizontal: false, vertical: false });
+  const [guides, setGuides] = useState<AlignmentGuides>({ parentHorizontal: false, parentVertical: false });
 
   const est = child.styles[activeView];
 
@@ -54,8 +65,8 @@ function BoxChildRenderer({
 
     const threshold = 5;
     setGuides({
-      horizontal: Math.abs(centerY - parentCenterY) < threshold,
-      vertical: Math.abs(centerX - parentCenterX) < threshold,
+      parentHorizontal: Math.abs(centerY - parentCenterY) < threshold,
+      parentVertical: Math.abs(centerX - parentCenterX) < threshold,
     });
   }, [parentWidth, parentHeight]);
 
@@ -64,7 +75,7 @@ function BoxChildRenderer({
   };
 
   const handleDragStop = (_: unknown, d: { x: number; y: number }) => {
-    setGuides({ horizontal: false, vertical: false });
+    setGuides({ parentHorizontal: false, parentVertical: false });
     updateElementStyles(sectionId, child.id, {
       ...child.styles,
       [activeView]: { ...est, x: d.x, y: d.y },
@@ -91,29 +102,29 @@ function BoxChildRenderer({
 
   return (
     <>
-      {/* Alignment guides */}
-      {guides.horizontal && !isPreview && (
+      {/* Alignment guides - parent center */}
+      {guides.parentHorizontal && !isPreview && (
         <div
           style={{
             position: 'absolute',
             left: 0,
             right: 0,
             top: '50%',
-            height: '1px',
+            height: '2px',
             backgroundColor: '#ff00ff',
             pointerEvents: 'none',
             zIndex: 1000,
           }}
         />
       )}
-      {guides.vertical && !isPreview && (
+      {guides.parentVertical && !isPreview && (
         <div
           style={{
             position: 'absolute',
             top: 0,
             bottom: 0,
             left: '50%',
-            width: '1px',
+            width: '2px',
             backgroundColor: '#ff00ff',
             pointerEvents: 'none',
             zIndex: 1000,
@@ -136,15 +147,16 @@ function BoxChildRenderer({
           boxShadow: !isPreview && child.isEditing ? '0 0 10px #00f2ff' : 'none',
         }}
       >
-        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'visible' }}>
           {!isPreview && child.isEditing && (
-            <div style={{ position: 'absolute', top: '-10px', right: '-30px', display: 'flex', gap: '4px', zIndex: 10 }}>
+            <div style={{ position: 'absolute', top: '4px', right: '4px', display: 'flex', gap: '4px', zIndex: 9999 }}>
               <button
                 onClick={() => duplicateBoxChild(sectionId, boxId, child.id)}
                 style={{
-                  width: '20px', height: '20px', borderRadius: '50%', border: 'none',
-                  background: '#667eea', color: 'white', fontSize: '10px', cursor: 'pointer',
+                  width: '24px', height: '24px', borderRadius: '50%', border: '2px solid white',
+                  background: '#667eea', color: 'white', fontSize: '14px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                 }}
               >
                 +
@@ -152,9 +164,10 @@ function BoxChildRenderer({
               <button
                 onClick={() => deleteBoxChild(sectionId, boxId, child.id)}
                 style={{
-                  width: '20px', height: '20px', borderRadius: '50%', border: 'none',
-                  background: '#ff4757', color: 'white', fontSize: '12px', cursor: 'pointer',
+                  width: '24px', height: '24px', borderRadius: '50%', border: '2px solid white',
+                  background: '#ff4757', color: 'white', fontSize: '14px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                 }}
               >
                 X
@@ -200,7 +213,7 @@ function BoxChildRenderer({
   );
 }
 
-export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHeight = 0 }: ElementRendererProps) {
+export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHeight = 0, siblingPositions = [] }: ElementRendererProps) {
   const {
     activeView,
     activeLang,
@@ -212,31 +225,54 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
     duplicateElement,
   } = useLandingContext();
 
-  const [guides, setGuides] = useState<AlignmentGuides>({ horizontal: false, vertical: false });
+  const [guides, setGuides] = useState<AlignmentGuides>({ parentHorizontal: false, parentVertical: false });
 
   const est = element.styles[activeView];
 
   const checkAlignment = useCallback((x: number, y: number, width: number, height: number) => {
-    if (!parentWidth || !parentHeight) return;
-
     const centerX = x + width / 2;
     const centerY = y + height / 2;
-    const parentCenterX = parentWidth / 2;
-    const parentCenterY = parentHeight / 2;
-
     const threshold = 5;
-    setGuides({
-      horizontal: Math.abs(centerY - parentCenterY) < threshold,
-      vertical: Math.abs(centerX - parentCenterX) < threshold,
-    });
-  }, [parentWidth, parentHeight]);
+
+    let parentHorizontal = false;
+    let parentVertical = false;
+    let siblingHorizontalY: number | undefined;
+    let siblingVerticalX: number | undefined;
+
+    // Check alignment with parent center
+    if (parentWidth && parentHeight) {
+      const parentCenterX = parentWidth / 2;
+      const parentCenterY = parentHeight / 2;
+
+      if (Math.abs(centerY - parentCenterY) < threshold) {
+        parentHorizontal = true;
+      }
+      if (Math.abs(centerX - parentCenterX) < threshold) {
+        parentVertical = true;
+      }
+    }
+
+    // Check alignment with sibling elements
+    for (const sibling of siblingPositions) {
+      // Horizontal alignment (same Y center)
+      if (Math.abs(centerY - sibling.centerY) < threshold) {
+        siblingHorizontalY = sibling.centerY;
+      }
+      // Vertical alignment (same X center)
+      if (Math.abs(centerX - sibling.centerX) < threshold) {
+        siblingVerticalX = sibling.centerX;
+      }
+    }
+
+    setGuides({ parentHorizontal, parentVertical, siblingHorizontalY, siblingVerticalX });
+  }, [parentWidth, parentHeight, siblingPositions]);
 
   const handleDrag = (_: unknown, d: { x: number; y: number }) => {
     checkAlignment(d.x, d.y, est.width, est.height);
   };
 
   const handleDragStop = (_: unknown, d: { x: number; y: number }) => {
-    setGuides({ horizontal: false, vertical: false });
+    setGuides({ parentHorizontal: false, parentVertical: false, siblingHorizontalY: undefined, siblingVerticalX: undefined });
     updateElementStyles(sectionId, element.id, {
       ...element.styles,
       [activeView]: { ...est, x: d.x, y: d.y },
@@ -268,30 +304,59 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
 
     return (
       <>
-        {/* Alignment guides for box */}
-        {guides.horizontal && !isPreview && (
+        {/* Alignment guides for box - parent center (magenta) */}
+        {guides.parentHorizontal && !isPreview && (
           <div
             style={{
               position: 'absolute',
               left: 0,
               right: 0,
               top: '50%',
-              height: '1px',
+              height: '2px',
               backgroundColor: '#ff00ff',
               pointerEvents: 'none',
               zIndex: 1000,
             }}
           />
         )}
-        {guides.vertical && !isPreview && (
+        {guides.parentVertical && !isPreview && (
           <div
             style={{
               position: 'absolute',
               top: 0,
               bottom: 0,
               left: '50%',
-              width: '1px',
+              width: '2px',
               backgroundColor: '#ff00ff',
+              pointerEvents: 'none',
+              zIndex: 1000,
+            }}
+          />
+        )}
+        {/* Alignment guides for box - sibling alignment (green) */}
+        {guides.siblingHorizontalY !== undefined && !isPreview && (
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: `${guides.siblingHorizontalY}px`,
+              height: '2px',
+              backgroundColor: '#00ff00',
+              pointerEvents: 'none',
+              zIndex: 1000,
+            }}
+          />
+        )}
+        {guides.siblingVerticalX !== undefined && !isPreview && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              left: `${guides.siblingVerticalX}px`,
+              width: '2px',
+              backgroundColor: '#00ff00',
               pointerEvents: 'none',
               zIndex: 1000,
             }}
@@ -320,18 +385,19 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
           }}
         >
           <div
-            style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}
+            style={{ width: '100%', height: '100%', position: 'relative', overflow: 'visible' }}
             onClick={() => !isPreview && setElementEditing(sectionId, element.id, true)}
           >
             {/* Box controls */}
             {!isPreview && boxEl.isEditing && (
-              <div style={{ position: 'absolute', top: '-10px', right: '-10px', display: 'flex', gap: '4px', zIndex: 10 }}>
+              <div style={{ position: 'absolute', top: '4px', right: '4px', display: 'flex', gap: '4px', zIndex: 9999 }}>
                 <button
                   onClick={(e) => { e.stopPropagation(); duplicateElement(sectionId, element.id); }}
                   style={{
-                    width: '20px', height: '20px', borderRadius: '50%', border: 'none',
-                    background: '#667eea', color: 'white', fontSize: '10px', cursor: 'pointer',
+                    width: '24px', height: '24px', borderRadius: '50%', border: '2px solid white',
+                    background: '#667eea', color: 'white', fontSize: '14px', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                   }}
                 >
                   +
@@ -339,9 +405,10 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
                 <button
                   onClick={(e) => { e.stopPropagation(); deleteElement(sectionId, element.id); }}
                   style={{
-                    width: '20px', height: '20px', borderRadius: '50%', border: 'none',
-                    background: '#ff4757', color: 'white', fontSize: '12px', cursor: 'pointer',
+                    width: '24px', height: '24px', borderRadius: '50%', border: '2px solid white',
+                    background: '#ff4757', color: 'white', fontSize: '14px', cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                   }}
                 >
                   X
@@ -388,30 +455,59 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
   // Render text/image elements
   return (
     <>
-      {/* Alignment guides */}
-      {guides.horizontal && !isPreview && (
+      {/* Alignment guides - parent center (magenta) */}
+      {guides.parentHorizontal && !isPreview && (
         <div
           style={{
             position: 'absolute',
             left: 0,
             right: 0,
             top: '50%',
-            height: '1px',
+            height: '2px',
             backgroundColor: '#ff00ff',
             pointerEvents: 'none',
             zIndex: 1000,
           }}
         />
       )}
-      {guides.vertical && !isPreview && (
+      {guides.parentVertical && !isPreview && (
         <div
           style={{
             position: 'absolute',
             top: 0,
             bottom: 0,
             left: '50%',
-            width: '1px',
+            width: '2px',
             backgroundColor: '#ff00ff',
+            pointerEvents: 'none',
+            zIndex: 1000,
+          }}
+        />
+      )}
+      {/* Alignment guides - sibling alignment (green) */}
+      {guides.siblingHorizontalY !== undefined && !isPreview && (
+        <div
+          style={{
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            top: `${guides.siblingHorizontalY}px`,
+            height: '2px',
+            backgroundColor: '#00ff00',
+            pointerEvents: 'none',
+            zIndex: 1000,
+          }}
+        />
+      )}
+      {guides.siblingVerticalX !== undefined && !isPreview && (
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            bottom: 0,
+            left: `${guides.siblingVerticalX}px`,
+            width: '2px',
+            backgroundColor: '#00ff00',
             pointerEvents: 'none',
             zIndex: 1000,
           }}
@@ -433,15 +529,16 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
           boxShadow: !isPreview && element.isEditing ? '0 0 10px #00f2ff' : 'none',
         }}
       >
-        <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+        <div style={{ width: '100%', height: '100%', position: 'relative', overflow: 'visible' }}>
           {!isPreview && element.isEditing && (
-            <div style={{ position: 'absolute', top: '-10px', right: '-30px', display: 'flex', gap: '4px', zIndex: 10 }}>
+            <div style={{ position: 'absolute', top: '4px', right: '4px', display: 'flex', gap: '4px', zIndex: 9999 }}>
               <button
                 onClick={() => duplicateElement(sectionId, element.id)}
                 style={{
-                  width: '20px', height: '20px', borderRadius: '50%', border: 'none',
-                  background: '#667eea', color: 'white', fontSize: '10px', cursor: 'pointer',
+                  width: '24px', height: '24px', borderRadius: '50%', border: '2px solid white',
+                  background: '#667eea', color: 'white', fontSize: '14px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                 }}
               >
                 +
@@ -449,9 +546,10 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
               <button
                 onClick={() => deleteElement(sectionId, element.id)}
                 style={{
-                  width: '20px', height: '20px', borderRadius: '50%', border: 'none',
-                  background: '#ff4757', color: 'white', fontSize: '12px', cursor: 'pointer',
+                  width: '24px', height: '24px', borderRadius: '50%', border: '2px solid white',
+                  background: '#ff4757', color: 'white', fontSize: '14px', cursor: 'pointer',
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
                 }}
               >
                 X

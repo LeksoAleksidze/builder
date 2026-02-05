@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useLandingContext } from '../../context';
 import type { Section } from '../../types';
 import { ElementRenderer } from './ElementRenderer';
@@ -17,6 +18,21 @@ export function SectionRenderer({ section }: SectionRendererProps) {
       clearAllEditing();
     }
   };
+
+  // Calculate sibling element positions for alignment guides
+  const siblingPositions = useMemo(() => {
+    return section.elements.map((el) => {
+      const elStyle = el.styles[activeView];
+      return {
+        id: el.id,
+        centerX: elStyle.x + elStyle.width / 2,
+        centerY: elStyle.y + elStyle.height / 2,
+      };
+    });
+  }, [section.elements, activeView]);
+
+  const parentWidth = typeof st.width === 'string' && st.width.includes('%') ? 0 : Number(st.width) || 0;
+  const parentHeight = st.height || 0;
 
   return (
     <div
@@ -43,8 +59,9 @@ export function SectionRenderer({ section }: SectionRendererProps) {
           key={el.id}
           sectionId={section.id}
           element={el}
-          parentWidth={typeof st.width === 'string' && st.width.includes('%') ? 0 : Number(st.width) || 0}
-          parentHeight={st.height || 0}
+          parentWidth={parentWidth}
+          parentHeight={parentHeight}
+          siblingPositions={siblingPositions.filter((s) => s.id !== el.id)}
         />
       ))}
     </div>

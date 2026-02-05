@@ -331,6 +331,15 @@ function TextElementForm({
           placeholder="2px 2px 4px rgba(0,0,0,0.5)"
         />
       </div>
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Z-Index</label>
+        <input
+          type="number"
+          className={`${styles.input} ${styles.inputSmall}`}
+          value={est.zIndex || 1}
+          onChange={(e) => updateElementStyle(sectionId, element.id, 'zIndex', Number(e.target.value))}
+        />
+      </div>
     </>
   );
 }
@@ -411,6 +420,15 @@ function ImageElementForm({
             onChange={(e) => updateElementStyle(sectionId, element.id, 'borderRadius', Number(e.target.value))}
           />
         </div>
+      </div>
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Z-Index</label>
+        <input
+          type="number"
+          className={`${styles.input} ${styles.inputSmall}`}
+          value={est.zIndex || 1}
+          onChange={(e) => updateElementStyle(sectionId, element.id, 'zIndex', Number(e.target.value))}
+        />
       </div>
     </>
   );
@@ -512,6 +530,16 @@ function BoxElementForm({
             onChange={(e) => updateElementStyle(sectionId, element.id, 'borderColor', e.target.value)}
           />
         </div>
+      </div>
+
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Z-Index</label>
+        <input
+          type="number"
+          className={`${styles.input} ${styles.inputSmall}`}
+          value={est.zIndex || 1}
+          onChange={(e) => updateElementStyle(sectionId, element.id, 'zIndex', Number(e.target.value))}
+        />
       </div>
 
       <div className={styles.boxChildren}>
