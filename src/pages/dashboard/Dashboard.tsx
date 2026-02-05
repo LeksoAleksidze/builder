@@ -1,43 +1,38 @@
 'use client';
 
-import clsx from 'clsx';
-import styles from './dashboard.module.scss';
+import { useState } from 'react';
 import { LandingProvider, useLandingContext } from './context';
-import General from './components/general/General';
 import { PreviewCanvas } from './components/preview';
+import { ConfigModal } from './components/config-modal';
+import styles from './dashboard.module.scss';
 
 function DashboardContent() {
   const { isPreview, setIsPreview } = useLandingContext();
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
 
   return (
-    <div
-      className={clsx(styles.dashboard, isPreview && styles['dashboard--preview'])}
-    >
+    <div className={styles.dashboard}>
       <PreviewCanvas />
 
-      {!isPreview && (
-        <div className={styles.dashboard__aside}>
-          <General />
-        </div>
-      )}
+      <ConfigModal isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} />
 
-      <button
-        onClick={() => setIsPreview(!isPreview)}
-        style={{
-          position: 'fixed',
-          bottom: '20px',
-          left: '20px',
-          zIndex: 9999,
-          padding: '10px 20px',
-          background: isPreview ? '#ff4757' : '#2ed573',
-          color: 'white',
-          border: 'none',
-          borderRadius: '5px',
-          cursor: 'pointer',
-        }}
-      >
-        {isPreview ? 'EDIT MODE' : 'PREVIEW'}
-      </button>
+      {/* Floating Action Buttons */}
+      <div className={styles.floatingButtons}>
+        {!isPreview && (
+          <button
+            className={styles.configBtn}
+            onClick={() => setIsConfigOpen(true)}
+          >
+            Settings
+          </button>
+        )}
+        <button
+          className={`${styles.previewBtn} ${isPreview ? styles['previewBtn--active'] : ''}`}
+          onClick={() => setIsPreview(!isPreview)}
+        >
+          {isPreview ? 'Edit' : 'Preview'}
+        </button>
+      </div>
     </div>
   );
 }
