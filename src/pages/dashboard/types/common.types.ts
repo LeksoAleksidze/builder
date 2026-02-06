@@ -15,3 +15,10 @@ export interface HeaderText {
   styles: import('./style.types').ViewportHeaderTextStyles;
   sameForAllLangs: boolean;
 }
+
+export interface EndpointsConfig {
+  rulesKey: string;
+  rulesBackground: string;
+  rulesPaddingTop: number;
+  rulesPaddingBottom: number;
+}

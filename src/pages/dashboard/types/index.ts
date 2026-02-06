@@ -7,6 +7,7 @@ export type {
   ViewportBGColor,
   BackgroundSettings,
   HeaderText,
+  EndpointsConfig,
 } from './common.types';
 
 export type {

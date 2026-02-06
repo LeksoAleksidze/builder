@@ -1789,6 +1789,8 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     updateHeaderTextContent,
     updateHeaderTextStyle,
     setHeaderTextSameForAllLangs,
+    endpoints,
+    updateEndpoints,
   } = useLandingContext();
 
   const [openSections, setOpenSections] = useState<string[]>([
@@ -2401,6 +2403,75 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
                       )
                     }
                     placeholder="Radius"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Endpoints */}
+        <div className={styles.section}>
+          <div
+            className={`${styles.sectionHeader} ${openSections.includes('endpoints') ? styles['sectionHeader--open'] : ''}`}
+            onClick={() => toggleSection('endpoints')}
+          >
+            <h3>
+              <span className={styles.sectionIcon}>EP</span>
+              Endpoints
+            </h3>
+            <span
+              className={`${styles.chevron} ${openSections.includes('endpoints') ? styles['chevron--open'] : ''}`}
+            >
+              v
+            </span>
+          </div>
+          {openSections.includes('endpoints') && (
+            <div className={styles.sectionContent}>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Rules Key</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={endpoints.rulesKey}
+                  onChange={(e) => updateEndpoints('rulesKey', e.target.value)}
+                  placeholder="e.g. sport-rules"
+                />
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Rules Background</label>
+                <div className={styles.fieldRow}>
+                  <input
+                    type="color"
+                    className={styles.colorInput}
+                    value={endpoints.rulesBackground.replace(/[^#\w]/g, '').slice(0, 7) || '#37445e'}
+                    onChange={(e) => updateEndpoints('rulesBackground', e.target.value + 'e6')}
+                  />
+                  <input
+                    type="text"
+                    className={styles.input}
+                    value={endpoints.rulesBackground}
+                    onChange={(e) => updateEndpoints('rulesBackground', e.target.value)}
+                    placeholder="#37445ee6"
+                  />
+                </div>
+              </div>
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Rules Padding (Top / Bottom)</label>
+                <div className={styles.fieldRow}>
+                  <input
+                    type="number"
+                    className={`${styles.input} ${styles.inputSmall}`}
+                    value={endpoints.rulesPaddingTop}
+                    onChange={(e) => updateEndpoints('rulesPaddingTop', Number(e.target.value))}
+                    placeholder="Top"
+                  />
+                  <input
+                    type="number"
+                    className={`${styles.input} ${styles.inputSmall}`}
+                    value={endpoints.rulesPaddingBottom}
+                    onChange={(e) => updateEndpoints('rulesPaddingBottom', Number(e.target.value))}
+                    placeholder="Bottom"
                   />
                 </div>
               </div>

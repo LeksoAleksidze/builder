@@ -13,6 +13,7 @@ import type {
   LocalizedContent,
   ViewportHeaderTextStyles,
   HeaderText,
+  EndpointsConfig,
 } from '../types';
 
 export const STORAGE_KEY = 'landing_data';
@@ -262,6 +263,13 @@ export const DEFAULT_HEADER_TEXT_STYLES: ViewportHeaderTextStyles = {
     color: '#ffffff',
     maxWidth: 350,
   },
+};
+
+export const DEFAULT_ENDPOINTS_CONFIG: EndpointsConfig = {
+  rulesKey: '',
+  rulesBackground: '#37445ee6',
+  rulesPaddingTop: 20,
+  rulesPaddingBottom: 20,
 };
 
 export const DEFAULT_HEADER_TEXT: HeaderText = {

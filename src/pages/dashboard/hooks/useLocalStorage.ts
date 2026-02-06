@@ -6,6 +6,7 @@ import type {
   ViewportBGColor,
   Popup,
   HeaderText,
+  EndpointsConfig,
 } from '../types';
 import {
   STORAGE_KEY,
@@ -15,6 +16,7 @@ import {
   DEFAULT_CLOSE_BUTTON_STYLES,
   DEFAULT_LOCALIZED_CONTENT,
   DEFAULT_HEADER_TEXT,
+  DEFAULT_ENDPOINTS_CONFIG,
 } from '../constants';
 
 export type BackgroundMode = 'cover' | 'contain' | 'natural';
@@ -28,6 +30,7 @@ export interface LandingData {
   backgroundMode: BackgroundMode;
   popups: Popup[];
   headerText: HeaderText;
+  endpoints: EndpointsConfig;
 }
 
 // Migrate old popup structure to new structure with children and closeButton
@@ -103,6 +106,7 @@ export function useLocalStorage() {
         backgroundMode: parsed.backgroundMode || 'cover',
         popups: migratePopups(parsed.popups),
         headerText: parsed.headerText || { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } },
+        endpoints: { ...DEFAULT_ENDPOINTS_CONFIG, ...(parsed.endpoints || {}) },
       };
     }
     return {
@@ -114,6 +118,7 @@ export function useLocalStorage() {
       backgroundMode: 'cover',
       popups: [],
       headerText: { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } },
+      endpoints: { ...DEFAULT_ENDPOINTS_CONFIG },
     };
   }, []);
 

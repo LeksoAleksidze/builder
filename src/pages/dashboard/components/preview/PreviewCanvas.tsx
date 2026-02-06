@@ -4,6 +4,7 @@ import { useState, useCallback, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { useLandingContext } from '../../context';
 import Authorization from '../../../../shared/modules/authorization/Authorization';
+import Rules from '../../../../shared/modules/rules/Rules';
 import { SectionRenderer } from './SectionRenderer';
 import styles from '../../dashboard.module.scss';
 
@@ -17,6 +18,7 @@ export function PreviewCanvas() {
     authStyles,
     sections,
     headerText,
+    endpoints,
     updateHeaderTextStyle,
     clearAllEditing,
   } = useLandingContext();
@@ -181,6 +183,16 @@ export function PreviewCanvas() {
             <SectionRenderer key={s.id} section={s} />
           ))}
         </div>
+
+        {endpoints.rulesKey && (
+          <Rules
+            rulesKey={endpoints.rulesKey}
+            rulesBackground={endpoints.rulesBackground}
+            lang={activeLang.toLowerCase()}
+            paddingTop={endpoints.rulesPaddingTop}
+            paddingBottom={endpoints.rulesPaddingBottom}
+          />
+        )}
       </div>
     </div>
   );

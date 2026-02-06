@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import Authorization from '../../shared/modules/authorization/Authorization';
+import Rules from '../../shared/modules/rules/Rules';
 import type {
   Section,
   GlobalBackground,
@@ -28,8 +29,9 @@ import {
   DEFAULT_CLOSE_BUTTON_STYLES,
   DEFAULT_LOCALIZED_CONTENT,
   DEFAULT_HEADER_TEXT,
+  DEFAULT_ENDPOINTS_CONFIG,
 } from '../dashboard/constants';
-import type { HeaderText } from '../dashboard/types';
+import type { HeaderText, EndpointsConfig } from '../dashboard/types';
 import styles from './Landing.module.scss';
 
 interface LandingData {
@@ -40,6 +42,7 @@ interface LandingData {
   popups: Popup[];
   backgroundMode?: 'cover' | 'contain' | 'natural';
   headerText?: HeaderText;
+  endpoints?: EndpointsConfig;
 }
 
 // Popup component for landing page
@@ -532,6 +535,7 @@ export default function LandingPage() {
             popups,
             backgroundMode: parsed.backgroundMode || 'cover',
             headerText: parsed.headerText || DEFAULT_HEADER_TEXT,
+            endpoints: { ...DEFAULT_ENDPOINTS_CONFIG, ...(parsed.endpoints || {}) },
           });
         } else {
           setError('კონფიგურაცია ვერ მოიძებნა');
@@ -718,6 +722,16 @@ export default function LandingPage() {
             );
           })}
         </div>
+
+        {data.endpoints?.rulesKey && (
+          <Rules
+            rulesKey={data.endpoints.rulesKey}
+            rulesBackground={data.endpoints.rulesBackground}
+            lang={activeLang.toLowerCase()}
+            paddingTop={data.endpoints.rulesPaddingTop}
+            paddingBottom={data.endpoints.rulesPaddingBottom}
+          />
+        )}
       </div>
 
       {/* Popup */}

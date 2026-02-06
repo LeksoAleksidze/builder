@@ -9,8 +9,9 @@ import type {
   Popup,
   HeaderText,
   HeaderTextStyle,
+  EndpointsConfig,
 } from '../types';
-import { DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES, DEFAULT_HEADER_TEXT, LANGUAGES } from '../constants';
+import { DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES, DEFAULT_HEADER_TEXT, DEFAULT_ENDPOINTS_CONFIG, LANGUAGES } from '../constants';
 import { useLocalStorage } from './useLocalStorage';
 import { useSections } from './useSections';
 import { useElements } from './useElements';
@@ -30,6 +31,7 @@ export function useLandingData() {
   const [sections, setSections] = useState<Section[]>([]);
   const [popups, setPopups] = useState<Popup[]>([]);
   const [headerText, setHeaderText] = useState<HeaderText>({ ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } });
+  const [endpoints, setEndpoints] = useState<EndpointsConfig>({ ...DEFAULT_ENDPOINTS_CONFIG });
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const [editingPopupId, setEditingPopupId] = useState<number | null>(null);
@@ -46,12 +48,13 @@ export function useLandingData() {
     setBackgroundMode(data.backgroundMode || 'cover');
     setPopups(data.popups || []);
     setHeaderText(data.headerText || { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } });
+    setEndpoints(data.endpoints || { ...DEFAULT_ENDPOINTS_CONFIG });
   }, [load]);
 
   const saveAllConfig = useCallback(() => {
-    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText });
+    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints });
     alert('Configuration saved!');
-  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText]);
+  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints]);
 
   const sectionActions = useSections({
     sections,
@@ -221,6 +224,13 @@ export function useLandingData() {
     [activeLang]
   );
 
+  const updateEndpoints = useCallback(
+    <K extends keyof EndpointsConfig>(field: K, value: EndpointsConfig[K]) => {
+      setEndpoints((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+
   const updateGlobalBGColor = useCallback(
     (color: string) => {
       setGlobalBGColor((prev) => ({
@@ -247,6 +257,7 @@ export function useLandingData() {
     popupTriggerSectionId,
     editingPopupId,
     headerText,
+    endpoints,
 
     // State setters
     setActiveLang,
@@ -261,6 +272,7 @@ export function useLandingData() {
     setPopups,
     setEditingPopupId,
     setHeaderText,
+    setEndpoints,
 
     // Actions
     saveAllConfig,
@@ -268,6 +280,7 @@ export function useLandingData() {
     updateGlobalBGColor,
     clearGlobalBG,
     updateAuthStyle,
+    updateEndpoints,
     updateHeaderTextContent,
     updateHeaderTextStyle,
     setHeaderTextSameForAllLangs,
