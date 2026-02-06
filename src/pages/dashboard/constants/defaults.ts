@@ -7,6 +7,8 @@ import type {
   TextElementStyle,
   ImageElementStyle,
   BoxElementStyle,
+  ButtonElementStyle,
+  PopupStyle,
   LocalizedContent,
 } from '../types';
 
@@ -143,4 +145,58 @@ export const DEFAULT_LOCALIZED_CONTENT: LocalizedContent = {
   EN: '',
   RU: '',
   TR: '',
+};
+
+export const DEFAULT_BUTTON_ELEMENT_STYLES: { WEB: ButtonElementStyle; MOB: ButtonElementStyle } = {
+  WEB: {
+    x: 50,
+    y: 50,
+    width: 150,
+    height: 50,
+    fontSize: 16,
+    fontFamily: 'Arial',
+    color: '#ffffff',
+    backgroundColor: '#667eea',
+    borderWidth: 0,
+    borderRadius: 8,
+    borderColor: '#5a67d8',
+  },
+  MOB: {
+    x: 20,
+    y: 20,
+    width: 120,
+    height: 44,
+    fontSize: 14,
+    fontFamily: 'Arial',
+    color: '#ffffff',
+    backgroundColor: '#667eea',
+    borderWidth: 0,
+    borderRadius: 8,
+    borderColor: '#5a67d8',
+  },
+};
+
+export const DEFAULT_POPUP_STYLES: { WEB: PopupStyle; MOB: PopupStyle } = {
+  WEB: {
+    width: 400,
+    height: 300,
+    fontSize: 16,
+    fontFamily: 'Arial',
+    color: '#ffffff',
+    backgroundColor: '#1a1a2e',
+    borderWidth: 1,
+    borderRadius: 12,
+    borderColor: '#333',
+  },
+  MOB: {
+    width: 300,
+    height: 250,
+    fontSize: 14,
+    fontFamily: 'Arial',
+    color: '#ffffff',
+    backgroundColor: '#1a1a2e',
+    borderWidth: 1,
+    borderRadius: 12,
+    borderColor: '#333',
+  },
 };

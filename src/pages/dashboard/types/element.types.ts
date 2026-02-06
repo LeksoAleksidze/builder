@@ -3,6 +3,7 @@ import type {
   ViewportTextElementStyles,
   ViewportImageElementStyles,
   ViewportBoxElementStyles,
+  ViewportButtonElementStyles,
 } from './style.types';
 
 export interface TextElement {
@@ -23,8 +24,27 @@ export interface ImageElement {
   sameForAllLangs?: boolean;
 }
 
-// Child elements inside a box (text or image only)
-export type BoxChildElement = TextElement | ImageElement;
+export type ButtonActionType = 'link' | 'popup';
+
+export interface ButtonAction {
+  type: ButtonActionType;
+  value: string; // URL for link, popup ID for popup
+}
+
+export interface ButtonElement {
+  id: number;
+  type: 'button';
+  content: LocalizedContent; // text content
+  image: LocalizedContent; // optional image (if using image button)
+  useImage: boolean; // whether to use image instead of text
+  action: ButtonAction;
+  styles: ViewportButtonElementStyles;
+  isEditing?: boolean;
+  sameForAllLangs?: boolean;
+}
+
+// Child elements inside a box (text, image, or button)
+export type BoxChildElement = TextElement | ImageElement | ButtonElement;
 
 export interface BoxElement {
   id: number;
@@ -35,4 +55,4 @@ export interface BoxElement {
   isEditing?: boolean;
 }
 
-export type Element = TextElement | ImageElement | BoxElement;
+export type Element = TextElement | ImageElement | BoxElement | ButtonElement;

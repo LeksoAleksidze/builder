@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import { Rnd } from 'react-rnd';
 import { useLandingContext } from '../../context';
-import type { Element, BoxElement, TextElement, ImageElement, BoxChildElement } from '../../types';
+import type { Element, BoxElement, TextElement, ImageElement, ButtonElement, BoxChildElement } from '../../types';
 
 interface AlignmentGuides {
   // Parent center alignment
@@ -51,6 +51,7 @@ function BoxChildRenderer({
     setElementEditing,
     deleteBoxChild,
     duplicateBoxChild,
+    openPopup,
   } = useLandingContext();
 
   const [guides, setGuides] = useState<AlignmentGuides>({ parentHorizontal: false, parentVertical: false });
@@ -195,6 +196,45 @@ function BoxChildRenderer({
                 }}
                 dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
               />
+            ) : child.type === 'button' ? (
+              <button
+                onClick={(e) => {
+                  if (!isPreview) return;
+                  const btnEl = child as ButtonElement;
+                  if (btnEl.action.type === 'link' && btnEl.action.value) {
+                    window.open(btnEl.action.value, '_blank');
+                  } else if (btnEl.action.type === 'popup' && btnEl.action.value) {
+                    e.stopPropagation();
+                    openPopup(Number(btnEl.action.value));
+                  }
+                }}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  fontSize: `${(est as ButtonElement['styles']['WEB']).fontSize}px`,
+                  fontFamily: (est as ButtonElement['styles']['WEB']).fontFamily,
+                  color: (est as ButtonElement['styles']['WEB']).color,
+                  backgroundColor: (est as ButtonElement['styles']['WEB']).backgroundColor,
+                  border: `${(est as ButtonElement['styles']['WEB']).borderWidth}px solid ${(est as ButtonElement['styles']['WEB']).borderColor}`,
+                  borderRadius: `${(est as ButtonElement['styles']['WEB']).borderRadius}px`,
+                  cursor: isPreview ? 'pointer' : 'move',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  overflow: 'hidden',
+                }}
+              >
+                {(child as ButtonElement).useImage ? (
+                  <img
+                    src={(child as ButtonElement).image[activeLang] || ''}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    draggable={false}
+                    alt=""
+                  />
+                ) : (
+                  child.content[activeLang] || 'Button'
+                )}
+              </button>
             ) : (
               <img
                 src={child.content[activeLang] || ''}
@@ -223,6 +263,7 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
     setElementEditing,
     deleteElement,
     duplicateElement,
+    openPopup,
   } = useLandingContext();
 
   const [guides, setGuides] = useState<AlignmentGuides>({ parentHorizontal: false, parentVertical: false });
@@ -446,6 +487,183 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
                 parentHeight={boxStyle.height}
               />
             ))}
+          </div>
+        </Rnd>
+      </>
+    );
+  }
+
+  // Render button element
+  if (element.type === 'button') {
+    const btnEl = element as ButtonElement;
+    const btnStyle = btnEl.styles[activeView];
+
+    return (
+      <>
+        {/* Alignment guides for button - parent center (magenta) */}
+        {guides.parentHorizontal && !isPreview && (
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: '50%',
+              height: '2px',
+              backgroundColor: '#ff00ff',
+              pointerEvents: 'none',
+              zIndex: 1000,
+            }}
+          />
+        )}
+        {guides.parentVertical && !isPreview && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              left: '50%',
+              width: '2px',
+              backgroundColor: '#ff00ff',
+              pointerEvents: 'none',
+              zIndex: 1000,
+            }}
+          />
+        )}
+        {/* Alignment guides for button - sibling alignment (green) */}
+        {guides.siblingHorizontalY !== undefined && !isPreview && (
+          <div
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              top: `${guides.siblingHorizontalY}px`,
+              height: '2px',
+              backgroundColor: '#00ff00',
+              pointerEvents: 'none',
+              zIndex: 1000,
+            }}
+          />
+        )}
+        {guides.siblingVerticalX !== undefined && !isPreview && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              left: `${guides.siblingVerticalX}px`,
+              width: '2px',
+              backgroundColor: '#00ff00',
+              pointerEvents: 'none',
+              zIndex: 1000,
+            }}
+          />
+        )}
+
+        <Rnd
+          size={{ width: btnStyle.width, height: btnStyle.height }}
+          position={{ x: btnStyle.x, y: btnStyle.y }}
+          bounds="parent"
+          disableDragging={btnEl.isEditing || isPreview}
+          disableResizing={isPreview}
+          onDrag={handleDrag}
+          onDragStop={handleDragStop}
+          onResizeStop={handleResizeStop}
+          style={{
+            zIndex: btnStyle.zIndex || 1,
+            border: !isPreview && btnEl.isEditing ? '2px solid #38ef7d' : 'none',
+            borderRadius: `${btnStyle.borderRadius}px`,
+            boxShadow: !isPreview && btnEl.isEditing ? '0 0 15px rgba(56, 239, 125, 0.5)' : 'none',
+          }}
+        >
+          <div
+            style={{ width: '100%', height: '100%', position: 'relative', overflow: 'visible' }}
+            onClick={() => !isPreview && setElementEditing(sectionId, element.id, true)}
+          >
+            {/* Button controls */}
+            {!isPreview && btnEl.isEditing && (
+              <div style={{ position: 'absolute', top: '4px', right: '4px', display: 'flex', gap: '4px', zIndex: 9999 }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); duplicateElement(sectionId, element.id); }}
+                  style={{
+                    width: '24px', height: '24px', borderRadius: '50%', border: '2px solid white',
+                    background: '#667eea', color: 'white', fontSize: '14px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  +
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); deleteElement(sectionId, element.id); }}
+                  style={{
+                    width: '24px', height: '24px', borderRadius: '50%', border: '2px solid white',
+                    background: '#ff4757', color: 'white', fontSize: '14px', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  X
+                </button>
+              </div>
+            )}
+
+            {/* Button type badge */}
+            {!isPreview && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '4px',
+                  left: '4px',
+                  background: 'rgba(56, 239, 125, 0.8)',
+                  color: 'white',
+                  fontSize: '10px',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  zIndex: 5,
+                }}
+              >
+                BTN
+              </div>
+            )}
+
+            <button
+              onClick={(e) => {
+                if (!isPreview) return;
+                if (btnEl.action.type === 'link' && btnEl.action.value) {
+                  window.open(btnEl.action.value, '_blank');
+                } else if (btnEl.action.type === 'popup' && btnEl.action.value) {
+                  e.stopPropagation();
+                  openPopup(Number(btnEl.action.value));
+                }
+              }}
+              style={{
+                width: '100%',
+                height: '100%',
+                fontSize: `${btnStyle.fontSize}px`,
+                fontFamily: btnStyle.fontFamily,
+                color: btnStyle.color,
+                backgroundColor: btnStyle.backgroundColor,
+                border: `${btnStyle.borderWidth}px solid ${btnStyle.borderColor}`,
+                borderRadius: `${btnStyle.borderRadius}px`,
+                cursor: isPreview ? 'pointer' : 'move',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                overflow: 'hidden',
+                padding: 0,
+              }}
+            >
+              {btnEl.useImage ? (
+                <img
+                  src={btnEl.image[activeLang] || ''}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  draggable={false}
+                  alt=""
+                />
+              ) : (
+                btnEl.content[activeLang] || 'Button'
+              )}
+            </button>
           </div>
         </Rnd>
       </>

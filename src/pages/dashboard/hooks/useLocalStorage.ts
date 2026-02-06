@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import type { Section, GlobalBackground, ViewportAuthStyles, ViewportBGColor } from '../types';
+import type { Section, GlobalBackground, ViewportAuthStyles, ViewportBGColor, Popup } from '../types';
 import { STORAGE_KEY, DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES } from '../constants';
 
 export interface LandingData {
@@ -8,6 +8,7 @@ export interface LandingData {
   globalBG: GlobalBackground;
   globalBGColor: ViewportBGColor;
   sameBackgroundForAllLangs: boolean;
+  popups: Popup[];
 }
 
 export function useLocalStorage() {
@@ -28,6 +29,7 @@ export function useLocalStorage() {
         globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
         globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
         sameBackgroundForAllLangs: parsed.sameBackgroundForAllLangs ?? true,
+        popups: parsed.popups || [],
       };
     }
     return {
@@ -36,6 +38,7 @@ export function useLocalStorage() {
       globalBG: DEFAULT_GLOBAL_BG,
       globalBGColor: DEFAULT_GLOBAL_BG_COLOR,
       sameBackgroundForAllLangs: true,
+      popups: [],
     };
   }, []);
 

@@ -2,23 +2,31 @@
 
 import { useState } from 'react';
 import { LandingProvider, useLandingContext } from './context';
-import { PreviewCanvas } from './components/preview';
+import { PreviewCanvas, PopupRenderer } from './components/preview';
 import { ConfigModal } from './components/config-modal';
 import styles from './dashboard.module.scss';
 
 function DashboardContent() {
   const { isPreview, setIsPreview } = useLandingContext();
-  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isConfigOpen, setIsConfigOpen] = useState(true); // Default open
 
   return (
     <div className={styles.dashboard}>
-      <PreviewCanvas />
+      {/* Left side - Preview */}
+      <div className={styles.dashboard__preview}>
+        <PreviewCanvas />
+      </div>
 
-      <ConfigModal isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} />
+      <PopupRenderer />
+
+      {/* Right side - Config Sidebar */}
+      {!isPreview && (
+        <ConfigModal isOpen={isConfigOpen} onClose={() => setIsConfigOpen(false)} />
+      )}
 
       {/* Floating Action Buttons */}
       <div className={styles.floatingButtons}>
-        {!isPreview && (
+        {!isPreview && !isConfigOpen && (
           <button
             className={styles.configBtn}
             onClick={() => setIsConfigOpen(true)}

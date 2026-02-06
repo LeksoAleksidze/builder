@@ -6,11 +6,13 @@ import type {
   ViewportAuthStyles,
   Viewport,
   Language,
+  Popup,
 } from '../types';
 import { DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES, LANGUAGES } from '../constants';
 import { useLocalStorage } from './useLocalStorage';
 import { useSections } from './useSections';
 import { useElements } from './useElements';
+import { usePopups } from './usePopups';
 
 export function useLandingData() {
   const [activeLang, setActiveLang] = useState<Language>('GE');
@@ -21,6 +23,8 @@ export function useLandingData() {
   const [sameBackgroundForAllLangs, setSameBackgroundForAllLangs] = useState(true);
   const [authStyles, setAuthStyles] = useState<ViewportAuthStyles>(DEFAULT_AUTH_STYLES);
   const [sections, setSections] = useState<Section[]>([]);
+  const [popups, setPopups] = useState<Popup[]>([]);
+  const [activePopupId, setActivePopupId] = useState<number | null>(null);
 
   const { load, save } = useLocalStorage();
 
@@ -31,12 +35,13 @@ export function useLandingData() {
     setGlobalBG(data.globalBG);
     setGlobalBGColor(data.globalBGColor);
     setSameBackgroundForAllLangs(data.sameBackgroundForAllLangs ?? true);
+    setPopups(data.popups || []);
   }, [load]);
 
   const saveAllConfig = useCallback(() => {
-    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs });
+    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, popups });
     alert('Configuration saved!');
-  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs]);
+  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, popups]);
 
   const sectionActions = useSections({
     sections,
@@ -49,6 +54,20 @@ export function useLandingData() {
     activeView,
     activeLang,
   });
+
+  const popupActions = usePopups({
+    setPopups,
+    activeView,
+    activeLang,
+  });
+
+  const openPopup = useCallback((popupId: number) => {
+    setActivePopupId(popupId);
+  }, []);
+
+  const closePopup = useCallback(() => {
+    setActivePopupId(null);
+  }, []);
 
   const updateGlobalBG = useCallback(
     (imageData: string) => {
@@ -161,6 +180,8 @@ export function useLandingData() {
     sameBackgroundForAllLangs,
     authStyles,
     sections,
+    popups,
+    activePopupId,
 
     // State setters
     setActiveLang,
@@ -171,6 +192,7 @@ export function useLandingData() {
     setSameBackgroundForAllLangs: setSameBackgroundForAllLangsWithSync,
     setAuthStyles,
     setSections,
+    setPopups,
 
     // Actions
     saveAllConfig,
@@ -178,8 +200,11 @@ export function useLandingData() {
     updateGlobalBGColor,
     clearGlobalBG,
     updateAuthStyle,
+    openPopup,
+    closePopup,
     ...sectionActions,
     ...elementActions,
+    ...popupActions,
   };
 }
 

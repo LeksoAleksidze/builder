@@ -5,6 +5,7 @@ import type {
   TextElement,
   ImageElement,
   BoxElement,
+  ButtonElement,
   BoxChildElement,
   Viewport,
   Language,
@@ -14,6 +15,7 @@ import {
   DEFAULT_TEXT_ELEMENT_STYLES,
   DEFAULT_IMAGE_ELEMENT_STYLES,
   DEFAULT_BOX_ELEMENT_STYLES,
+  DEFAULT_BUTTON_ELEMENT_STYLES,
   DEFAULT_LOCALIZED_CONTENT,
   LANGUAGES,
 } from '../constants';
@@ -25,7 +27,7 @@ interface UseElementsProps {
 }
 
 // Helper to deep clone an element with a new ID
-function cloneElement(el: Element): Element {
+function cloneElement(el: Element | BoxChildElement): Element | BoxChildElement {
   const newId = Date.now() + Math.random();
 
   if (el.type === 'box') {
@@ -36,6 +38,7 @@ function cloneElement(el: Element): Element {
         ...child,
         id: Date.now() + Math.random(),
         content: { ...child.content },
+        ...(child.type === 'button' ? { image: { ...(child as ButtonElement).image }, action: { ...(child as ButtonElement).action } } : {}),
         styles: {
           WEB: { ...child.styles.WEB },
           MOB: { ...child.styles.MOB },
@@ -58,6 +61,20 @@ function cloneElement(el: Element): Element {
         MOB: { ...el.styles.MOB },
       },
     } as TextElement;
+  }
+
+  if (el.type === 'button') {
+    return {
+      ...el,
+      id: newId,
+      content: { ...el.content },
+      image: { ...el.image },
+      action: { ...el.action },
+      styles: {
+        WEB: { ...el.styles.WEB },
+        MOB: { ...el.styles.MOB },
+      },
+    } as ButtonElement;
   }
 
   return {
@@ -98,9 +115,9 @@ function updateElementInTree(
 }
 
 export function useElements({ setSections, activeView, activeLang }: UseElementsProps) {
-  // Add element to section (text, image, or box)
+  // Add element to section (text, image, box, or button)
   const addElement = useCallback(
-    (sectionId: number, type: 'text' | 'image' | 'box') => {
+    (sectionId: number, type: 'text' | 'image' | 'box' | 'button') => {
       let newElement: Element;
 
       if (type === 'text') {
@@ -123,6 +140,19 @@ export function useElements({ setSections, activeView, activeLang }: UseElements
             MOB: { ...DEFAULT_IMAGE_ELEMENT_STYLES.MOB },
           },
         } as ImageElement;
+      } else if (type === 'button') {
+        newElement = {
+          id: Date.now(),
+          type: 'button',
+          content: { ...DEFAULT_LOCALIZED_CONTENT, GE: 'Button', EN: 'Button', RU: 'Button', TR: 'Button' },
+          image: { ...DEFAULT_LOCALIZED_CONTENT },
+          useImage: false,
+          action: { type: 'link', value: '' },
+          styles: {
+            WEB: { ...DEFAULT_BUTTON_ELEMENT_STYLES.WEB },
+            MOB: { ...DEFAULT_BUTTON_ELEMENT_STYLES.MOB },
+          },
+        } as ButtonElement;
       } else {
         newElement = {
           id: Date.now(),
@@ -147,27 +177,43 @@ export function useElements({ setSections, activeView, activeLang }: UseElements
 
   // Add element inside a box
   const addElementToBox = useCallback(
-    (sectionId: number, boxId: number, type: 'text' | 'image') => {
-      const newChild: BoxChildElement =
-        type === 'text'
-          ? {
-              id: Date.now(),
-              type: 'text',
-              content: { ...DEFAULT_LOCALIZED_CONTENT },
-              styles: {
-                WEB: { ...DEFAULT_TEXT_ELEMENT_STYLES.WEB, x: 10, y: 10 },
-                MOB: { ...DEFAULT_TEXT_ELEMENT_STYLES.MOB, x: 10, y: 10 },
-              },
-            }
-          : {
-              id: Date.now(),
-              type: 'image',
-              content: { ...DEFAULT_LOCALIZED_CONTENT },
-              styles: {
-                WEB: { ...DEFAULT_IMAGE_ELEMENT_STYLES.WEB, x: 10, y: 10 },
-                MOB: { ...DEFAULT_IMAGE_ELEMENT_STYLES.MOB, x: 10, y: 10 },
-              },
-            };
+    (sectionId: number, boxId: number, type: 'text' | 'image' | 'button') => {
+      let newChild: BoxChildElement;
+
+      if (type === 'text') {
+        newChild = {
+          id: Date.now(),
+          type: 'text',
+          content: { ...DEFAULT_LOCALIZED_CONTENT },
+          styles: {
+            WEB: { ...DEFAULT_TEXT_ELEMENT_STYLES.WEB, x: 10, y: 10 },
+            MOB: { ...DEFAULT_TEXT_ELEMENT_STYLES.MOB, x: 10, y: 10 },
+          },
+        };
+      } else if (type === 'image') {
+        newChild = {
+          id: Date.now(),
+          type: 'image',
+          content: { ...DEFAULT_LOCALIZED_CONTENT },
+          styles: {
+            WEB: { ...DEFAULT_IMAGE_ELEMENT_STYLES.WEB, x: 10, y: 10 },
+            MOB: { ...DEFAULT_IMAGE_ELEMENT_STYLES.MOB, x: 10, y: 10 },
+          },
+        };
+      } else {
+        newChild = {
+          id: Date.now(),
+          type: 'button',
+          content: { ...DEFAULT_LOCALIZED_CONTENT, GE: 'Button', EN: 'Button', RU: 'Button', TR: 'Button' },
+          image: { ...DEFAULT_LOCALIZED_CONTENT },
+          useImage: false,
+          action: { type: 'link', value: '' },
+          styles: {
+            WEB: { ...DEFAULT_BUTTON_ELEMENT_STYLES.WEB, x: 10, y: 10 },
+            MOB: { ...DEFAULT_BUTTON_ELEMENT_STYLES.MOB, x: 10, y: 10 },
+          },
+        };
+      }
 
       setSections((prev) =>
         prev.map((s): Section => {
@@ -306,6 +352,15 @@ export function useElements({ setSections, activeView, activeLang }: UseElements
                   },
                 } as ImageElement;
               }
+              if (el.type === 'button') {
+                return {
+                  ...el,
+                  styles: {
+                    ...el.styles,
+                    [activeView]: { ...el.styles[activeView], [field]: value },
+                  },
+                } as ButtonElement;
+              }
               // box
               return {
                 ...el,
@@ -414,6 +469,9 @@ export function useElements({ setSections, activeView, activeLang }: UseElements
           if (el.type === 'text') {
             return { ...el, isEditing: false } as TextElement;
           }
+          if (el.type === 'button') {
+            return { ...el, isEditing: false } as ButtonElement;
+          }
           return { ...el, isEditing: false } as ImageElement;
         }),
       }))
@@ -471,6 +529,76 @@ export function useElements({ setSections, activeView, activeLang }: UseElements
     [setSections]
   );
 
+  // Update button action
+  const updateButtonAction = useCallback(
+    (sectionId: number, elementId: number, actionType: 'link' | 'popup', actionValue: string) => {
+      setSections((prev) =>
+        prev.map((s): Section => {
+          if (s.id !== sectionId) return s;
+          return {
+            ...s,
+            elements: updateElementInTree(s.elements, elementId, (el) => {
+              if (el.type !== 'button') return el;
+              return {
+                ...el,
+                action: { type: actionType, value: actionValue },
+              } as ButtonElement;
+            }),
+          };
+        })
+      );
+    },
+    [setSections]
+  );
+
+  // Update button image
+  const updateButtonImage = useCallback(
+    (sectionId: number, elementId: number, imageData: string, targetLang?: Language) => {
+      setSections((prev) =>
+        prev.map((s): Section => {
+          if (s.id !== sectionId) return s;
+          return {
+            ...s,
+            elements: updateElementInTree(s.elements, elementId, (el) => {
+              if (el.type !== 'button') return el;
+              const langToUpdate = targetLang || activeLang;
+              const newImage: LocalizedContent = el.sameForAllLangs
+                ? LANGUAGES.reduce((acc, lang) => ({ ...acc, [lang]: imageData }), {} as LocalizedContent)
+                : { ...el.image, [langToUpdate]: imageData };
+              return {
+                ...el,
+                image: newImage,
+              } as ButtonElement;
+            }),
+          };
+        })
+      );
+    },
+    [activeLang, setSections]
+  );
+
+  // Toggle button useImage
+  const setButtonUseImage = useCallback(
+    (sectionId: number, elementId: number, useImage: boolean) => {
+      setSections((prev) =>
+        prev.map((s): Section => {
+          if (s.id !== sectionId) return s;
+          return {
+            ...s,
+            elements: updateElementInTree(s.elements, elementId, (el) => {
+              if (el.type !== 'button') return el;
+              return {
+                ...el,
+                useImage,
+              } as ButtonElement;
+            }),
+          };
+        })
+      );
+    },
+    [setSections]
+  );
+
   return {
     addElement,
     addElementToBox,
@@ -485,5 +613,8 @@ export function useElements({ setSections, activeView, activeLang }: UseElements
     clearAllEditing,
     setElementSameForAllLangs,
     updateBoxTitle,
+    updateButtonAction,
+    updateButtonImage,
+    setButtonUseImage,
   };
 }

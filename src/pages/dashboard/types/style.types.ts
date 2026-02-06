@@ -80,3 +80,40 @@ export type ViewportAuthStyles = {
   WEB: AuthStyle;
   MOB: AuthStyle;
 };
+
+export interface ButtonElementStyle {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  fontSize: number;
+  fontFamily: string;
+  color: string;
+  backgroundColor: string;
+  borderWidth: number;
+  borderRadius: number;
+  borderColor: string;
+  zIndex?: number;
+}
+
+export type ViewportButtonElementStyles = {
+  WEB: ButtonElementStyle;
+  MOB: ButtonElementStyle;
+};
+
+export interface PopupStyle {
+  width: number;
+  height: number;
+  fontSize: number;
+  fontFamily: string;
+  color: string;
+  backgroundColor: string;
+  borderWidth: number;
+  borderRadius: number;
+  borderColor: string;
+}
+
+export type ViewportPopupStyles = {
+  WEB: PopupStyle;
+  MOB: PopupStyle;
+};

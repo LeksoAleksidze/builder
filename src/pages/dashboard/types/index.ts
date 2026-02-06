@@ -14,13 +14,28 @@ export type {
   TextElementStyle,
   ImageElementStyle,
   BoxElementStyle,
+  ButtonElementStyle,
+  PopupStyle,
   ViewportTextElementStyles,
   ViewportImageElementStyles,
   ViewportBoxElementStyles,
+  ViewportButtonElementStyles,
+  ViewportPopupStyles,
   AuthStyle,
   ViewportAuthStyles,
 } from './style.types';
 
-export type { TextElement, ImageElement, BoxElement, BoxChildElement, Element } from './element.types';
+export type {
+  TextElement,
+  ImageElement,
+  BoxElement,
+  ButtonElement,
+  ButtonAction,
+  ButtonActionType,
+  BoxChildElement,
+  Element,
+} from './element.types';
+
+export type { Popup } from './popup.types';
 
 export type { Section } from './section.types';
