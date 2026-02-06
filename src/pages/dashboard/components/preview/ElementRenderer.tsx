@@ -192,6 +192,7 @@ function BoxChildRenderer({
                   fontFamily: (est as TextElement['styles']['WEB']).fontFamily,
                   color: (est as TextElement['styles']['WEB']).color,
                   textShadow: (est as TextElement['styles']['WEB']).textShadow || 'none',
+                  textAlign: (est as TextElement['styles']['WEB']).textAlign || 'left',
                   outline: 'none', width: '100%', height: '100%',
                 }}
                 dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
@@ -562,7 +563,6 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
         <Rnd
           size={{ width: btnStyle.width, height: btnStyle.height }}
           position={{ x: btnStyle.x, y: btnStyle.y }}
-          bounds="parent"
           disableDragging={btnEl.isEditing || isPreview}
           disableResizing={isPreview}
           onDrag={handleDrag}
@@ -791,6 +791,7 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
                   fontFamily: (est as TextElement['styles']['WEB']).fontFamily,
                   color: (est as TextElement['styles']['WEB']).color,
                   textShadow: (est as TextElement['styles']['WEB']).textShadow || 'none',
+                  textAlign: (est as TextElement['styles']['WEB']).textAlign || 'left',
                   outline: 'none', width: '100%', height: '100%',
                 }}
                 dangerouslySetInnerHTML={{ __html: (element as TextElement).content[activeLang] || '' }}

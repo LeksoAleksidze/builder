@@ -102,7 +102,7 @@ function LandingPopup({
           borderRadius: `${pst.borderRadius}px`,
           border: pst.borderWidth > 0 ? `${pst.borderWidth}px solid ${pst.borderColor}` : 'none',
           position: 'relative',
-          overflow: 'hidden',
+          overflow: 'visible',
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -307,6 +307,7 @@ function LandingElement({
           fontFamily: textStyle.fontFamily,
           color: textStyle.color,
           textShadow: textStyle.textShadow || 'none',
+          textAlign: textStyle.textAlign || 'left',
           zIndex: textStyle.zIndex || 1,
         }}
         dangerouslySetInnerHTML={{ __html: textEl.content[activeLang] || '' }}
@@ -419,6 +420,7 @@ function LandingChildElement({
           fontFamily: (textStyle as TextElement['styles']['WEB']).fontFamily,
           color: (textStyle as TextElement['styles']['WEB']).color,
           textShadow: (textStyle as TextElement['styles']['WEB']).textShadow || 'none',
+          textAlign: (textStyle as TextElement['styles']['WEB']).textAlign || 'left',
           zIndex: textStyle.zIndex || 1,
         }}
         dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
@@ -688,6 +690,7 @@ export default function LandingPage() {
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                   position: 'relative',
+                  overflow: 'visible',
                   zIndex: st.zIndex || 1,
                 }}
               >

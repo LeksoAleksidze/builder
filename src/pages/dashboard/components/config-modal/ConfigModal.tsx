@@ -506,6 +506,22 @@ function TextElementForm({
   const est = element.styles[activeView];
   const isSameForAll = element.sameForAllLangs ?? false;
 
+  const [wcWord, setWcWord] = useState('');
+  const [wcColor, setWcColor] = useState('#ff0000');
+
+  const applyTextWordColor = () => {
+    if (!wcWord.trim()) return;
+    const currentContent = element.content[activeLang] || '';
+    const escaped = wcWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?!<[^>]*)(${escaped})(?![^<]*>)`, 'gi');
+    const newContent = currentContent.replace(
+      regex,
+      `<span style="color:${wcColor}">${wcWord}</span>`
+    );
+    updateElementContent(sectionId, element.id, newContent, activeLang);
+    setWcWord('');
+  };
+
   return (
     <>
       <div className={styles.toggleRow}>
@@ -585,6 +601,80 @@ function TextElementForm({
             </option>
           ))}
         </select>
+      </div>
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Text Align</label>
+        <div className={styles.fieldRow}>
+          {(['left', 'center', 'right'] as const).map((align) => (
+            <button
+              key={align}
+              style={{
+                width: '36px',
+                height: '32px',
+                border: '1px solid',
+                borderColor: (est.textAlign || 'left') === align ? '#667eea' : 'rgba(255,255,255,0.15)',
+                borderRadius: '6px',
+                background: (est.textAlign || 'left') === align ? 'rgba(102,126,234,0.4)' : 'rgba(255,255,255,0.06)',
+                color: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              onClick={() =>
+                updateElementStyle(sectionId, element.id, 'textAlign', align)
+              }
+            >
+              {align === 'left' && (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
+                  <rect x="2" y="7" width="8" height="1.5" rx="0.5" />
+                  <rect x="2" y="11" width="10" height="1.5" rx="0.5" />
+                </svg>
+              )}
+              {align === 'center' && (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
+                  <rect x="4" y="7" width="8" height="1.5" rx="0.5" />
+                  <rect x="3" y="11" width="10" height="1.5" rx="0.5" />
+                </svg>
+              )}
+              {align === 'right' && (
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                  <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
+                  <rect x="6" y="7" width="8" height="1.5" rx="0.5" />
+                  <rect x="4" y="11" width="10" height="1.5" rx="0.5" />
+                </svg>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Word Color Tool</label>
+        <div className={styles.fieldRow}>
+          <input
+            type="text"
+            className={styles.input}
+            value={wcWord}
+            onChange={(e) => setWcWord(e.target.value)}
+            placeholder="Word"
+            style={{ flex: 1 }}
+          />
+          <input
+            type="color"
+            className={styles.colorInput}
+            value={wcColor}
+            onChange={(e) => setWcColor(e.target.value)}
+          />
+          <button
+            className={styles.addButton}
+            style={{ padding: '6px 12px' }}
+            onClick={applyTextWordColor}
+          >
+            Apply
+          </button>
+        </div>
       </div>
       <div className={styles.field}>
         <label className={styles.fieldLabel}>Text Shadow</label>

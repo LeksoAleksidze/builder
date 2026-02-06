@@ -31,7 +31,8 @@ export function SectionRenderer({ section }: SectionRendererProps) {
     });
   }, [section.elements, activeView]);
 
-  const parentWidth = typeof st.width === 'string' && st.width.includes('%') ? 0 : Number(st.width) || 0;
+  const parentWidth =
+    true && st.width.includes('%') ? 0 : Number(st.width) || 0;
   const parentHeight = st.height || 0;
 
   return (
@@ -47,10 +48,13 @@ export function SectionRenderer({ section }: SectionRendererProps) {
         backgroundColor: st.backgroundColor || 'transparent',
         border: `${st.borderWidth || 0}px solid ${st.borderColor || 'transparent'}`,
         borderRadius: `${st.borderRadius || 0}px`,
-        backgroundImage: st.backgroundImage ? `url(${st.backgroundImage})` : 'none',
+        backgroundImage: st.backgroundImage
+          ? `url(${st.backgroundImage})`
+          : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         position: 'relative',
+        overflow: 'visible',
         zIndex: st.zIndex || 1,
       }}
       onClick={handleClick}
