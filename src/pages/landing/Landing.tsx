@@ -553,11 +553,13 @@ export default function LandingPage() {
   const openPopup = (popupId: number, sectionId?: number) => {
     setPopupTriggerSectionId(sectionId ?? null);
     setActivePopupId(popupId);
+    document.body.style.overflow = 'hidden';
   };
 
   const closePopup = () => {
     setActivePopupId(null);
     setPopupTriggerSectionId(null);
+    document.body.style.overflow = '';
   };
 
   if (loading) {
