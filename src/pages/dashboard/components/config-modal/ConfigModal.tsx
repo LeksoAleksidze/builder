@@ -893,205 +893,39 @@ function BoxElementForm({
 function PopupCard({
   popup,
   activeView,
-  activeLang,
   deletePopup,
-  updatePopupStyle,
-  updatePopupContent,
-  updatePopupImage,
-  updatePopupTitle,
-  setPopupUseImage,
-  setPopupSameForAllLangs,
+  onEdit,
 }: {
   popup: Popup;
   activeView: 'WEB' | 'MOB';
-  activeLang: 'GE' | 'EN' | 'RU' | 'TR';
   deletePopup: (popupId: number) => void;
-  updatePopupStyle: (popupId: number, field: string, value: unknown) => void;
-  updatePopupContent: (popupId: number, content: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
-  updatePopupImage: (popupId: number, imageData: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
-  updatePopupTitle: (popupId: number, title: string) => void;
-  setPopupUseImage: (popupId: number, useImage: boolean) => void;
-  setPopupSameForAllLangs: (popupId: number, value: boolean) => void;
+  onEdit: (popupId: number) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
   const pst = popup.styles[activeView];
-  const isSameForAll = popup.sameForAllLangs ?? false;
-  const currentImage = popup.image[activeLang] || '';
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0];
-    if (f) {
-      const r = new FileReader();
-      r.onload = () => updatePopupImage(popup.id, r.result as string, activeLang);
-      r.readAsDataURL(f);
-    }
-  };
 
   return (
-    <div className={`${styles.sectionCard} ${isOpen ? styles['sectionCard--active'] : ''}`}>
+    <div className={styles.sectionCard}>
       <div className={styles.cardHeader}>
-        <div className={styles.cardTitle} onClick={() => setIsOpen(!isOpen)}>
+        <div className={styles.cardTitle} onClick={() => onEdit(popup.id)}>
           <div className={styles.colorDot} style={{ background: pst.backgroundColor }} />
           <span className={styles.cardName}>{popup.title}</span>
+          <span style={{ fontSize: '10px', color: '#6272a4', marginLeft: '8px' }}>
+            ({popup.children?.length || 0} elements)
+          </span>
         </div>
-        <button className={styles.deleteBtn} onClick={() => deletePopup(popup.id)}>
-          X
-        </button>
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <button
+            className={styles.duplicateBtn}
+            onClick={() => onEdit(popup.id)}
+            title="Edit"
+          >
+            E
+          </button>
+          <button className={styles.deleteBtn} onClick={() => deletePopup(popup.id)}>
+            X
+          </button>
+        </div>
       </div>
-
-      {isOpen && (
-        <div className={styles.cardContent}>
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Popup Title</label>
-            <input
-              type="text"
-              className={styles.input}
-              value={popup.title}
-              onChange={(e) => updatePopupTitle(popup.id, e.target.value)}
-              placeholder="Popup name"
-            />
-          </div>
-
-          <div className={styles.toggleRow}>
-            <span className={styles.toggleLabel}>
-              <span className={styles.toggleIcon}>*</span>
-              Same for all languages
-            </span>
-            <button
-              className={`${styles.toggle} ${isSameForAll ? styles['toggle--active'] : ''}`}
-              onClick={() => setPopupSameForAllLangs(popup.id, !isSameForAll)}
-            />
-          </div>
-
-          <div className={styles.toggleRow}>
-            <span className={styles.toggleLabel}>
-              <span className={styles.toggleIcon}>IMG</span>
-              Use Image
-            </span>
-            <button
-              className={`${styles.toggle} ${popup.useImage ? styles['toggle--active'] : ''}`}
-              onClick={() => setPopupUseImage(popup.id, !popup.useImage)}
-            />
-          </div>
-
-          {popup.useImage && (
-            <div className={styles.field}>
-              <label className={styles.fieldLabel}>
-                Popup Image {isSameForAll ? '(All)' : `(${activeLang})`}
-              </label>
-              <input type="file" className={styles.fileInput} onChange={handleImageUpload} accept="image/*" />
-              {currentImage && (
-                <div className={styles.imagePreview} style={{ marginTop: '8px' }}>
-                  <img src={currentImage} alt="Preview" />
-                </div>
-              )}
-            </div>
-          )}
-
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>
-              Popup Text {isSameForAll ? '(All)' : `(${activeLang})`}
-            </label>
-            <textarea
-              className={styles.textarea}
-              value={popup.content[activeLang] || ''}
-              onChange={(e) => updatePopupContent(popup.id, e.target.value, activeLang)}
-              placeholder="Popup content..."
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Size (W / H)</label>
-            <div className={styles.fieldRow}>
-              <input
-                type="number"
-                className={`${styles.input} ${styles.inputSmall}`}
-                value={pst.width}
-                onChange={(e) => updatePopupStyle(popup.id, 'width', Number(e.target.value))}
-              />
-              <input
-                type="number"
-                className={`${styles.input} ${styles.inputSmall}`}
-                value={pst.height}
-                onChange={(e) => updatePopupStyle(popup.id, 'height', Number(e.target.value))}
-              />
-            </div>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Font Size / Color</label>
-            <div className={styles.fieldRow}>
-              <input
-                type="number"
-                className={`${styles.input} ${styles.inputSmall}`}
-                value={pst.fontSize}
-                onChange={(e) => updatePopupStyle(popup.id, 'fontSize', Number(e.target.value))}
-              />
-              <input
-                type="color"
-                className={styles.colorInput}
-                value={pst.color}
-                onChange={(e) => updatePopupStyle(popup.id, 'color', e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Font Family</label>
-            <select
-              className={styles.select}
-              value={pst.fontFamily}
-              onChange={(e) => updatePopupStyle(popup.id, 'fontFamily', e.target.value)}
-            >
-              {FONTS.map((f) => (
-                <option key={f} value={f}>{f}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Background Color</label>
-            <div className={styles.fieldRow}>
-              <input
-                type="color"
-                className={styles.colorInput}
-                value={pst.backgroundColor === 'transparent' ? '#000000' : pst.backgroundColor}
-                onChange={(e) => updatePopupStyle(popup.id, 'backgroundColor', e.target.value)}
-              />
-              <button
-                className={styles.clearBtn}
-                onClick={() => updatePopupStyle(popup.id, 'backgroundColor', 'transparent')}
-              >
-                Clear
-              </button>
-            </div>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.fieldLabel}>Border (Width / Radius / Color)</label>
-            <div className={styles.fieldRow}>
-              <input
-                type="number"
-                className={`${styles.input} ${styles.inputSmall}`}
-                value={pst.borderWidth}
-                onChange={(e) => updatePopupStyle(popup.id, 'borderWidth', Number(e.target.value))}
-              />
-              <input
-                type="number"
-                className={`${styles.input} ${styles.inputSmall}`}
-                value={pst.borderRadius}
-                onChange={(e) => updatePopupStyle(popup.id, 'borderRadius', Number(e.target.value))}
-              />
-              <input
-                type="color"
-                className={styles.colorInput}
-                value={pst.borderColor}
-                onChange={(e) => updatePopupStyle(popup.id, 'borderColor', e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
@@ -1118,12 +952,7 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     popups,
     addPopup,
     deletePopup,
-    updatePopupStyle,
-    updatePopupContent,
-    updatePopupImage,
-    updatePopupTitle,
-    setPopupUseImage,
-    setPopupSameForAllLangs,
+    setEditingPopupId,
   } = useLandingContext();
 
   const [openSections, setOpenSections] = useState<string[]>(['bg', 'sections', 'popups']);
@@ -1446,14 +1275,8 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
                       key={popup.id}
                       popup={popup}
                       activeView={activeView}
-                      activeLang={activeLang}
                       deletePopup={deletePopup}
-                      updatePopupStyle={updatePopupStyle}
-                      updatePopupContent={updatePopupContent}
-                      updatePopupImage={updatePopupImage}
-                      updatePopupTitle={updatePopupTitle}
-                      setPopupUseImage={setPopupUseImage}
-                      setPopupSameForAllLangs={setPopupSameForAllLangs}
+                      onEdit={setEditingPopupId}
                     />
                   ))}
                 </div>

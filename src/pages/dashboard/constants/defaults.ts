@@ -9,6 +9,7 @@ import type {
   BoxElementStyle,
   ButtonElementStyle,
   PopupStyle,
+  CloseButtonStyle,
   LocalizedContent,
 } from '../types';
 
@@ -178,8 +179,8 @@ export const DEFAULT_BUTTON_ELEMENT_STYLES: { WEB: ButtonElementStyle; MOB: Butt
 
 export const DEFAULT_POPUP_STYLES: { WEB: PopupStyle; MOB: PopupStyle } = {
   WEB: {
-    width: 400,
-    height: 300,
+    width: 500,
+    height: 400,
     fontSize: 16,
     fontFamily: 'Arial',
     color: '#ffffff',
@@ -189,8 +190,8 @@ export const DEFAULT_POPUP_STYLES: { WEB: PopupStyle; MOB: PopupStyle } = {
     borderColor: '#333',
   },
   MOB: {
-    width: 300,
-    height: 250,
+    width: 320,
+    height: 300,
     fontSize: 14,
     fontFamily: 'Arial',
     color: '#ffffff',
@@ -198,5 +199,28 @@ export const DEFAULT_POPUP_STYLES: { WEB: PopupStyle; MOB: PopupStyle } = {
     borderWidth: 1,
     borderRadius: 12,
     borderColor: '#333',
+  },
+};
+
+export const DEFAULT_CLOSE_BUTTON_STYLES: { WEB: CloseButtonStyle; MOB: CloseButtonStyle } = {
+  WEB: {
+    x: -1, // -1 means auto position (top-right)
+    y: -1,
+    width: 32,
+    height: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    color: '#ffffff',
+    borderRadius: 16,
+    fontSize: 18,
+  },
+  MOB: {
+    x: -1,
+    y: -1,
+    width: 28,
+    height: 28,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    color: '#ffffff',
+    borderRadius: 14,
+    fontSize: 16,
   },
 };

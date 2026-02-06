@@ -25,6 +25,7 @@ export function useLandingData() {
   const [sections, setSections] = useState<Section[]>([]);
   const [popups, setPopups] = useState<Popup[]>([]);
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
+  const [editingPopupId, setEditingPopupId] = useState<number | null>(null);
 
   const { load, save } = useLocalStorage();
 
@@ -182,6 +183,7 @@ export function useLandingData() {
     sections,
     popups,
     activePopupId,
+    editingPopupId,
 
     // State setters
     setActiveLang,
@@ -193,6 +195,7 @@ export function useLandingData() {
     setAuthStyles,
     setSections,
     setPopups,
+    setEditingPopupId,
 
     // Actions
     saveAllConfig,

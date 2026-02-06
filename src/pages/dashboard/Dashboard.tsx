@@ -4,11 +4,14 @@ import { useState } from 'react';
 import { LandingProvider, useLandingContext } from './context';
 import { PreviewCanvas, PopupRenderer } from './components/preview';
 import { ConfigModal } from './components/config-modal';
+import { PopupEditor } from './components/popup-editor';
 import styles from './dashboard.module.scss';
 
 function DashboardContent() {
-  const { isPreview, setIsPreview } = useLandingContext();
+  const { isPreview, setIsPreview, editingPopupId, setEditingPopupId, popups } = useLandingContext();
   const [isConfigOpen, setIsConfigOpen] = useState(true); // Default open
+
+  const editingPopup = editingPopupId !== null ? popups.find((p) => p.id === editingPopupId) : null;
 
   return (
     <div className={styles.dashboard}>
@@ -18,6 +21,14 @@ function DashboardContent() {
       </div>
 
       <PopupRenderer />
+
+      {/* Popup Editor Modal */}
+      {editingPopup && (
+        <PopupEditor
+          popup={editingPopup}
+          onClose={() => setEditingPopupId(null)}
+        />
+      )}
 
       {/* Right side - Config Sidebar */}
       {!isPreview && (

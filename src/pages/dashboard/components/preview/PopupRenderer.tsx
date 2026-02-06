@@ -1,6 +1,7 @@
 'use client';
 
 import { useLandingContext } from '../../context';
+import type { PopupTextElement, PopupImageElement } from '../../types';
 
 export function PopupRenderer() {
   const { activePopupId, popups, activeLang, activeView, closePopup } = useLandingContext();
@@ -11,6 +12,58 @@ export function PopupRenderer() {
   if (!popup) return null;
 
   const pst = popup.styles[activeView];
+  const closeBtn = popup.closeButton;
+  const closeBtnStyle = closeBtn?.styles?.[activeView];
+
+  // Fallback for old popup structure without closeButton
+  if (!closeBtnStyle) {
+    return (
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+        }}
+        onClick={closePopup}
+      >
+        <div
+          style={{
+            width: `${pst.width}px`,
+            height: `${pst.height}px`,
+            backgroundColor: pst.backgroundColor,
+            borderRadius: `${pst.borderRadius}px`,
+            position: 'relative',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <button
+            onClick={closePopup}
+            style={{
+              position: 'absolute',
+              top: '10px',
+              right: '10px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              border: 'none',
+              background: 'rgba(255,255,255,0.1)',
+              color: '#fff',
+              cursor: 'pointer',
+            }}
+          >
+            X
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -43,76 +96,93 @@ export function PopupRenderer() {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
+        {/* Customizable Close button */}
         <button
           onClick={closePopup}
           style={{
             position: 'absolute',
-            top: '10px',
-            right: '10px',
-            width: '32px',
-            height: '32px',
-            borderRadius: '50%',
+            top: closeBtnStyle.x === -1 ? '10px' : `${closeBtnStyle.y}px`,
+            right: closeBtnStyle.x === -1 ? '10px' : 'auto',
+            left: closeBtnStyle.x === -1 ? 'auto' : `${closeBtnStyle.x}px`,
+            width: `${closeBtnStyle.width}px`,
+            height: `${closeBtnStyle.height}px`,
+            borderRadius: `${closeBtnStyle.borderRadius}px`,
             border: 'none',
-            background: 'rgba(255, 255, 255, 0.1)',
-            color: '#fff',
-            fontSize: '18px',
+            background: closeBtn.useImage ? 'transparent' : closeBtnStyle.backgroundColor,
+            color: closeBtnStyle.color,
+            fontSize: `${closeBtnStyle.fontSize}px`,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 10,
-            transition: 'background 0.2s',
+            zIndex: 100,
+            overflow: 'hidden',
+            padding: 0,
+            transition: 'opacity 0.2s',
           }}
-          onMouseOver={(e) => (e.currentTarget.style.background = 'rgba(255, 71, 87, 0.5)')}
-          onMouseOut={(e) => (e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)')}
+          onMouseOver={(e) => (e.currentTarget.style.opacity = '0.8')}
+          onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
         >
-          X
+          {closeBtn.useImage && closeBtn.image[activeLang] ? (
+            <img
+              src={closeBtn.image[activeLang]}
+              alt="close"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            'X'
+          )}
         </button>
 
-        {/* Popup content */}
-        <div
-          style={{
-            width: '100%',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
-            boxSizing: 'border-box',
-          }}
-        >
-          {popup.useImage && popup.image[activeLang] && (
+        {/* Popup children elements */}
+        {popup.children.map((child) => {
+          const est = child.styles[activeView];
+
+          if (child.type === 'text') {
+            const textStyle = est as PopupTextElement['styles']['WEB'];
+            return (
+              <div
+                key={child.id}
+                style={{
+                  position: 'absolute',
+                  left: `${textStyle.x}px`,
+                  top: `${textStyle.y}px`,
+                  width: `${textStyle.width}px`,
+                  height: `${textStyle.height}px`,
+                  fontSize: `${textStyle.fontSize}px`,
+                  fontFamily: textStyle.fontFamily,
+                  color: textStyle.color,
+                  textShadow: textStyle.textShadow || 'none',
+                  zIndex: textStyle.zIndex || 1,
+                  whiteSpace: 'pre-wrap',
+                  wordWrap: 'break-word',
+                  overflow: 'hidden',
+                }}
+                dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
+              />
+            );
+          }
+
+          // Image element
+          const imgStyle = est as PopupImageElement['styles']['WEB'];
+          return (
             <img
-              src={popup.image[activeLang]}
+              key={child.id}
+              src={child.content[activeLang] || ''}
               alt=""
               style={{
-                maxWidth: '100%',
-                maxHeight: popup.content[activeLang] ? '60%' : '90%',
-                objectFit: 'contain',
-                borderRadius: '8px',
-                marginBottom: popup.content[activeLang] ? '16px' : 0,
+                position: 'absolute',
+                left: `${imgStyle.x}px`,
+                top: `${imgStyle.y}px`,
+                width: `${imgStyle.width}px`,
+                height: `${imgStyle.height}px`,
+                objectFit: 'cover',
+                borderRadius: `${imgStyle.borderRadius || 0}px`,
+                zIndex: imgStyle.zIndex || 1,
               }}
             />
-          )}
-
-          {popup.content[activeLang] && (
-            <div
-              style={{
-                fontSize: `${pst.fontSize}px`,
-                fontFamily: pst.fontFamily,
-                color: pst.color,
-                textAlign: 'center',
-                whiteSpace: 'pre-wrap',
-                wordWrap: 'break-word',
-                overflow: 'auto',
-                maxHeight: popup.useImage ? '40%' : '100%',
-              }}
-              dangerouslySetInnerHTML={{ __html: popup.content[activeLang] }}
-            />
-          )}
-        </div>
+          );
+        })}
       </div>
 
       <style>

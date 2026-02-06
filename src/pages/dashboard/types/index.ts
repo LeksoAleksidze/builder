@@ -36,6 +36,14 @@ export type {
   Element,
 } from './element.types';
 
-export type { Popup } from './popup.types';
+export type {
+  Popup,
+  PopupTextElement,
+  PopupImageElement,
+  PopupChildElement,
+  PopupCloseButton,
+  CloseButtonStyle,
+  ViewportCloseButtonStyles,
+} from './popup.types';
 
 export type { Section } from './section.types';
