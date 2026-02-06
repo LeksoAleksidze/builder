@@ -20,6 +20,80 @@ interface SiblingPosition {
   centerY: number;
 }
 
+interface DragPos {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+// Distance guides rendered during drag
+function DragDistanceGuides({ pos, parentWidth, parentHeight }: { pos: DragPos; parentWidth: number; parentHeight: number }) {
+  const top = Math.round(pos.y);
+  const left = Math.round(pos.x);
+  const right = Math.round(parentWidth - pos.x - pos.w);
+  const bottom = Math.round(parentHeight - pos.y - pos.h);
+
+  const labelStyle: React.CSSProperties = {
+    position: 'absolute',
+    fontSize: '10px',
+    color: '#00d4ff',
+    background: 'rgba(0,0,0,0.75)',
+    padding: '1px 5px',
+    borderRadius: '3px',
+    pointerEvents: 'none',
+    zIndex: 9999,
+    whiteSpace: 'nowrap',
+    fontFamily: 'monospace',
+  };
+
+  const lineStyle: React.CSSProperties = {
+    position: 'absolute',
+    backgroundColor: 'rgba(0,212,255,0.5)',
+    pointerEvents: 'none',
+    zIndex: 9998,
+  };
+
+  const elCenterX = pos.x + pos.w / 2;
+  const elCenterY = pos.y + pos.h / 2;
+
+  return (
+    <>
+      {/* Parent boundary highlight */}
+      <div style={{ position: 'absolute', inset: 0, border: '1px dashed rgba(0,212,255,0.4)', pointerEvents: 'none', zIndex: 9997, borderRadius: '2px' }} />
+
+      {/* Top */}
+      {top > 2 && (
+        <>
+          <div style={{ ...lineStyle, left: `${elCenterX}px`, top: 0, width: '1px', height: `${top}px` }} />
+          <div style={{ ...labelStyle, left: `${elCenterX + 6}px`, top: `${top / 2 - 7}px` }}>{top}</div>
+        </>
+      )}
+      {/* Bottom */}
+      {bottom > 2 && (
+        <>
+          <div style={{ ...lineStyle, left: `${elCenterX}px`, top: `${pos.y + pos.h}px`, width: '1px', height: `${bottom}px` }} />
+          <div style={{ ...labelStyle, left: `${elCenterX + 6}px`, top: `${pos.y + pos.h + bottom / 2 - 7}px` }}>{bottom}</div>
+        </>
+      )}
+      {/* Left */}
+      {left > 2 && (
+        <>
+          <div style={{ ...lineStyle, left: 0, top: `${elCenterY}px`, width: `${left}px`, height: '1px' }} />
+          <div style={{ ...labelStyle, left: `${left / 2 - 12}px`, top: `${elCenterY + 6}px` }}>{left}</div>
+        </>
+      )}
+      {/* Right */}
+      {right > 2 && (
+        <>
+          <div style={{ ...lineStyle, left: `${pos.x + pos.w}px`, top: `${elCenterY}px`, width: `${right}px`, height: '1px' }} />
+          <div style={{ ...labelStyle, left: `${pos.x + pos.w + right / 2 - 12}px`, top: `${elCenterY + 6}px` }}>{right}</div>
+        </>
+      )}
+    </>
+  );
+}
+
 interface ElementRendererProps {
   sectionId: number;
   element: Element;
@@ -55,6 +129,7 @@ function BoxChildRenderer({
   } = useLandingContext();
 
   const [guides, setGuides] = useState<AlignmentGuides>({ parentHorizontal: false, parentVertical: false });
+  const [dragPos, setDragPos] = useState<DragPos | null>(null);
 
   const est = child.styles[activeView];
 
@@ -73,10 +148,12 @@ function BoxChildRenderer({
 
   const handleDrag = (_: unknown, d: { x: number; y: number }) => {
     checkAlignment(d.x, d.y, est.width, est.height);
+    setDragPos({ x: d.x, y: d.y, w: est.width, h: est.height });
   };
 
   const handleDragStop = (_: unknown, d: { x: number; y: number }) => {
     setGuides({ parentHorizontal: false, parentVertical: false });
+    setDragPos(null);
     updateElementStyles(sectionId, child.id, {
       ...child.styles,
       [activeView]: { ...est, x: d.x, y: d.y },
@@ -103,6 +180,10 @@ function BoxChildRenderer({
 
   return (
     <>
+      {/* Distance guides during drag */}
+      {dragPos && !isPreview && (
+        <DragDistanceGuides pos={dragPos} parentWidth={parentWidth} parentHeight={parentHeight} />
+      )}
       {/* Alignment guides - parent center */}
       {guides.parentHorizontal && !isPreview && (
         <div
@@ -268,6 +349,7 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
   } = useLandingContext();
 
   const [guides, setGuides] = useState<AlignmentGuides>({ parentHorizontal: false, parentVertical: false });
+  const [dragPos, setDragPos] = useState<DragPos | null>(null);
 
   const est = element.styles[activeView];
 
@@ -311,10 +393,12 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
 
   const handleDrag = (_: unknown, d: { x: number; y: number }) => {
     checkAlignment(d.x, d.y, est.width, est.height);
+    setDragPos({ x: d.x, y: d.y, w: est.width, h: est.height });
   };
 
   const handleDragStop = (_: unknown, d: { x: number; y: number }) => {
     setGuides({ parentHorizontal: false, parentVertical: false, siblingHorizontalY: undefined, siblingVerticalX: undefined });
+    setDragPos(null);
     updateElementStyles(sectionId, element.id, {
       ...element.styles,
       [activeView]: { ...est, x: d.x, y: d.y },
@@ -403,6 +487,10 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
               zIndex: 1000,
             }}
           />
+        )}
+        {/* Distance guides during drag */}
+        {dragPos && !isPreview && (
+          <DragDistanceGuides pos={dragPos} parentWidth={parentWidth} parentHeight={parentHeight} />
         )}
 
         <Rnd
@@ -561,6 +649,10 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
               zIndex: 1000,
             }}
           />
+        )}
+        {/* Distance guides during drag */}
+        {dragPos && !isPreview && (
+          <DragDistanceGuides pos={dragPos} parentWidth={parentWidth} parentHeight={parentHeight} />
         )}
 
         <Rnd
@@ -733,6 +825,10 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
             zIndex: 1000,
           }}
         />
+      )}
+      {/* Distance guides during drag */}
+      {dragPos && !isPreview && (
+        <DragDistanceGuides pos={dragPos} parentWidth={parentWidth} parentHeight={parentHeight} />
       )}
 
       <Rnd
