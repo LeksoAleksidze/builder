@@ -270,6 +270,7 @@ function BoxChildRenderer({
                 }}
                 style={{
                   fontSize: `${(est as TextElement['styles']['WEB']).fontSize}px`,
+                  lineHeight: (est as TextElement['styles']['WEB']).lineHeight || 1.4,
                   fontFamily: (est as TextElement['styles']['WEB']).fontFamily,
                   color: (est as TextElement['styles']['WEB']).color,
                   textShadow: (est as TextElement['styles']['WEB']).textShadow || 'none',
@@ -294,6 +295,7 @@ function BoxChildRenderer({
                   width: '100%',
                   height: '100%',
                   fontSize: `${(est as ButtonElement['styles']['WEB']).fontSize}px`,
+                  lineHeight: (est as ButtonElement['styles']['WEB']).lineHeight || 1.4,
                   fontFamily: (est as ButtonElement['styles']['WEB']).fontFamily,
                   color: (est as ButtonElement['styles']['WEB']).color,
                   backgroundColor: (est as ButtonElement['styles']['WEB']).backgroundColor,
@@ -735,6 +737,7 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
                 width: '100%',
                 height: '100%',
                 fontSize: `${btnStyle.fontSize}px`,
+                lineHeight: btnStyle.lineHeight || 1.4,
                 fontFamily: btnStyle.fontFamily,
                 color: btnStyle.color,
                 backgroundColor: btnStyle.backgroundColor,
@@ -887,6 +890,7 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
                 }}
                 style={{
                   fontSize: `${(est as TextElement['styles']['WEB']).fontSize}px`,
+                  lineHeight: (est as TextElement['styles']['WEB']).lineHeight || 1.4,
                   fontFamily: (est as TextElement['styles']['WEB']).fontFamily,
                   color: (est as TextElement['styles']['WEB']).color,
                   textShadow: (est as TextElement['styles']['WEB']).textShadow || 'none',

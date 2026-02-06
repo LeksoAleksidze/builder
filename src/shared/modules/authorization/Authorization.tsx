@@ -8,6 +8,7 @@ interface AuthProps {
     textBgColor: string;
     textBgBorderRadius: number;
     fontSize: number;
+    lineHeight?: number;
     fontFamily?: string;
     height: number;
     padding: number;
@@ -35,6 +36,7 @@ export default function Authorization({ stylesProp }: AuthProps) {
           color: stylesProp.textColor,
           backgroundColor: stylesProp.textBgColor,
           fontSize: `${stylesProp.fontSize}px`,
+          lineHeight: stylesProp.lineHeight || 1.4,
           borderRadius: `${stylesProp.textBgBorderRadius}px`,
         }}
       >

@@ -111,6 +111,7 @@ function PopupElementRenderer({
             }}
             style={{
               fontSize: `${(est as PopupTextElement['styles']['WEB']).fontSize}px`,
+              lineHeight: (est as PopupTextElement['styles']['WEB']).lineHeight || 1.4,
               fontFamily: (est as PopupTextElement['styles']['WEB']).fontFamily,
               color: (est as PopupTextElement['styles']['WEB']).color,
               textShadow: (est as PopupTextElement['styles']['WEB']).textShadow || 'none',
@@ -411,7 +412,7 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                       {editingElement.type === 'text' ? (
                         <>
                           <div className={styles.field}>
-                            <label>Font Size / Color</label>
+                            <label>Font Size / Line Height / Color</label>
                             <div className={styles.fieldRow}>
                               <input
                                 type="number"
@@ -420,6 +421,18 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                                 onChange={(e) =>
                                   updatePopupElementStyle(popup.id, editingElement.id, 'fontSize', Number(e.target.value))
                                 }
+                              />
+                              <input
+                                type="number"
+                                className={styles.inputSmall}
+                                value={(editingElement.styles[activeView] as PopupTextElement['styles']['WEB']).lineHeight ?? 1.4}
+                                onChange={(e) =>
+                                  updatePopupElementStyle(popup.id, editingElement.id, 'lineHeight', Number(e.target.value))
+                                }
+                                placeholder="Line H"
+                                step="0.1"
+                                min="0.5"
+                                max="5"
                               />
                               <input
                                 type="color"

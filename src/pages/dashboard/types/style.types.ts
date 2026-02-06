@@ -22,6 +22,7 @@ export interface TextElementStyle {
   width: number;
   height: number;
   fontSize: number;
+  lineHeight?: number;
   fontFamily: string;
   color: string;
   textShadow?: string;
@@ -73,6 +74,7 @@ export interface AuthStyle {
   textBgColor: string;
   textBgBorderRadius: number;
   fontSize: number;
+  lineHeight?: number;
   fontFamily: string;
   height: number;
   padding: number;
@@ -90,6 +92,7 @@ export interface ButtonElementStyle {
   width: number;
   height: number;
   fontSize: number;
+  lineHeight?: number;
   fontFamily: string;
   color: string;
   backgroundColor: string;
@@ -126,6 +129,7 @@ export interface PopupStyle {
   width: number;
   height: number;
   fontSize: number;
+  lineHeight?: number;
   fontFamily: string;
   color: string;
   backgroundColor: string;

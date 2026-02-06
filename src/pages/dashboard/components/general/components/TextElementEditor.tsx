@@ -39,7 +39,7 @@ export function TextElementEditor({ sectionId, element }: TextElementEditorProps
           />
 
           <div className={styles.general__field}>
-            <label>Size / Color</label>
+            <label>Size / Line H / Color</label>
             <div style={{ display: 'flex', gap: '4px' }}>
               <input
                 type="number"
@@ -47,6 +47,18 @@ export function TextElementEditor({ sectionId, element }: TextElementEditorProps
                 onChange={(e) =>
                   updateElementStyle(sectionId, element.id, 'fontSize', Number(e.target.value))
                 }
+              />
+              <input
+                type="number"
+                value={est.lineHeight ?? 1.4}
+                onChange={(e) =>
+                  updateElementStyle(sectionId, element.id, 'lineHeight', Number(e.target.value))
+                }
+                placeholder="Line H"
+                step="0.1"
+                min="0.5"
+                max="5"
+                style={{ width: '60px' }}
               />
               <input
                 type="color"

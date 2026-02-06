@@ -556,7 +556,7 @@ function TextElementForm({
         />
       </div>
       <div className={styles.field}>
-        <label className={styles.fieldLabel}>Font Size / Color</label>
+        <label className={styles.fieldLabel}>Font Size / Line Height / Color</label>
         <div className={styles.fieldRow}>
           <input
             type="number"
@@ -570,6 +570,23 @@ function TextElementForm({
                 Number(e.target.value)
               )
             }
+          />
+          <input
+            type="number"
+            className={`${styles.input} ${styles.inputSmall}`}
+            value={est.lineHeight ?? 1.4}
+            onChange={(e) =>
+              updateElementStyle(
+                sectionId,
+                element.id,
+                'lineHeight',
+                Number(e.target.value)
+              )
+            }
+            placeholder="Line H"
+            step="0.1"
+            min="0.5"
+            max="5"
           />
           <input
             type="color"
@@ -1080,7 +1097,7 @@ function ButtonElementForm({
       {!element.useImage && (
         <>
           <div className={styles.field}>
-            <label className={styles.fieldLabel}>Font Size / Color</label>
+            <label className={styles.fieldLabel}>Font Size / Line Height / Color</label>
             <div className={styles.fieldRow}>
               <input
                 type="number"
@@ -1094,6 +1111,23 @@ function ButtonElementForm({
                     Number(e.target.value)
                   )
                 }
+              />
+              <input
+                type="number"
+                className={`${styles.input} ${styles.inputSmall}`}
+                value={est.lineHeight ?? 1.4}
+                onChange={(e) =>
+                  updateElementStyle(
+                    sectionId,
+                    element.id,
+                    'lineHeight',
+                    Number(e.target.value)
+                  )
+                }
+                placeholder="Line H"
+                step="0.1"
+                min="0.5"
+                max="5"
               />
               <input
                 type="color"
@@ -2284,7 +2318,7 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
 
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>
-                  Text Color / Font Size
+                  Text Color / Font Size / Line Height
                 </label>
                 <div className={styles.fieldRow}>
                   <input
@@ -2302,6 +2336,18 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
                     onChange={(e) =>
                       updateAuthStyle('fontSize', Number(e.target.value))
                     }
+                  />
+                  <input
+                    type="number"
+                    className={`${styles.input} ${styles.inputSmall}`}
+                    value={authStyles[activeView].lineHeight ?? 1.4}
+                    onChange={(e) =>
+                      updateAuthStyle('lineHeight', Number(e.target.value))
+                    }
+                    placeholder="Line H"
+                    step="0.1"
+                    min="0.5"
+                    max="5"
                   />
                 </div>
               </div>
