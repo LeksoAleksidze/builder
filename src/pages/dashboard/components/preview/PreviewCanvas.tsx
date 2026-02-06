@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useCallback, useRef } from 'react';
 import { Rnd } from 'react-rnd';
 import { useLandingContext } from '../../context';
 import Authorization from '../../../../shared/modules/authorization/Authorization';
@@ -20,6 +21,9 @@ export function PreviewCanvas() {
     clearAllEditing,
   } = useLandingContext();
 
+  const [showCenterGuide, setShowCenterGuide] = useState(false);
+  const landingRef = useRef<HTMLDivElement>(null);
+
   const bgKey = activeView.toLowerCase() as 'web' | 'mob';
   const currentBGImage = globalBG[activeLang]?.[bgKey] || '';
   const currentBGColor = globalBGColor[activeView] || '#1a1a2e';
@@ -29,6 +33,14 @@ export function PreviewCanvas() {
       clearAllEditing();
     }
   };
+
+  const checkCenterAlignment = useCallback((x: number, elWidth: number) => {
+    if (!landingRef.current) return;
+    const parentWidth = landingRef.current.offsetWidth;
+    const elCenterX = x + elWidth / 2;
+    const parentCenterX = parentWidth / 2;
+    setShowCenterGuide(Math.abs(elCenterX - parentCenterX) < 8);
+  }, []);
 
   // Background style based on mode
   const getBackgroundStyle = () => {
@@ -76,22 +88,37 @@ export function PreviewCanvas() {
       onClick={handleBackgroundClick}
     >
       <div
+        ref={landingRef}
         className={styles.dashboard__landing}
         style={{
           width: activeView === 'MOB' ? '375px' : '100%',
           margin: '0 auto',
           minHeight: '100vh',
           paddingTop: authStyles[activeView].marginTop,
+          position: 'relative',
         }}
         onClick={handleBackgroundClick}
       >
-        {/* Header Text — flow-based, same as landing */}
+        {/* Vertical center alignment guide */}
+        {showCenterGuide && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              bottom: 0,
+              left: '50%',
+              width: '2px',
+              backgroundColor: '#ff00ff',
+              pointerEvents: 'none',
+              zIndex: 1001,
+            }}
+          />
+        )}
+
+        {/* Header Text — draggable + resizable width */}
         {headerText.content[activeLang] && (
           <div
             style={{
-              width: '100%',
-              maxWidth: `${htStyles.maxWidth}px`,
-              margin: '0 auto',
               paddingTop: `${htStyles.paddingTop}px`,
               paddingBottom: `${htStyles.paddingBottom}px`,
               position: 'relative',
@@ -99,10 +126,8 @@ export function PreviewCanvas() {
             }}
           >
             <Rnd
-              default={{ x: 0, y: 0, width: htStyles.width, height: 'auto' as unknown as number }}
+              position={{ x: htStyles.x, y: htStyles.y }}
               size={{ width: htStyles.width, height: 'auto' }}
-              position={{ x: 0, y: 0 }}
-              disableDragging
               enableResizing={{
                 left: true,
                 right: true,
@@ -113,21 +138,29 @@ export function PreviewCanvas() {
                 bottomLeft: false,
                 bottomRight: false,
               }}
-              onResizeStop={(_e, _dir, ref) => {
+              onDrag={(_e, d) => {
+                checkCenterAlignment(d.x, htStyles.width);
+              }}
+              onDragStop={(_e, d) => {
+                setShowCenterGuide(false);
+                updateHeaderTextStyle('x', d.x);
+                updateHeaderTextStyle('y', d.y);
+              }}
+              onResizeStop={(_e, _dir, ref, _delta, pos) => {
                 updateHeaderTextStyle('width', ref.offsetWidth);
+                updateHeaderTextStyle('x', pos.x);
               }}
-              style={{
-                position: 'relative',
-                margin: '0 auto',
-              }}
+              style={{ zIndex: 10 }}
               minWidth={50}
             >
               <div
                 style={{
+                  maxWidth: `${htStyles.maxWidth}px`,
                   fontSize: `${htStyles.fontSize}px`,
                   lineHeight: htStyles.lineHeight,
                   fontFamily: htStyles.fontFamily,
                   color: htStyles.color,
+                  cursor: 'move',
                   whiteSpace: 'pre-wrap',
                   userSelect: 'none',
                   textAlign: 'center',

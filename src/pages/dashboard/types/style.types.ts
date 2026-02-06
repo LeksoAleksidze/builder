@@ -71,6 +71,7 @@ export interface AuthStyle {
   textBgColor: string;
   textBgBorderRadius: number;
   fontSize: number;
+  fontFamily: string;
   height: number;
   padding: number;
   borderRadius: number;
@@ -102,6 +103,8 @@ export type ViewportButtonElementStyles = {
 };
 
 export interface HeaderTextStyle {
+  x: number;
+  y: number;
   width: number;
   paddingTop: number;
   paddingBottom: number;

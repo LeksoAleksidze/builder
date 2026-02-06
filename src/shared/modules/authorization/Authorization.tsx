@@ -8,6 +8,7 @@ interface AuthProps {
     textBgColor: string;
     textBgBorderRadius: number;
     fontSize: number;
+    fontFamily?: string;
     height: number;
     padding: number;
     borderRadius: number;
@@ -15,6 +16,8 @@ interface AuthProps {
 }
 
 export default function Authorization({ stylesProp }: AuthProps) {
+  const fontFamily = stylesProp.fontFamily || 'CrocoSansCAPSRegular';
+
   return (
     <div
       className={styles.authorization}
@@ -23,6 +26,7 @@ export default function Authorization({ stylesProp }: AuthProps) {
         minHeight: `${stylesProp.height}px`,
         padding: `${stylesProp.padding}px`,
         borderRadius: `${stylesProp.borderRadius}px`,
+        fontFamily,
       }}
     >
       <div
@@ -37,9 +41,9 @@ export default function Authorization({ stylesProp }: AuthProps) {
         აქციაში მონაწილეობის მისაღებად, გთხოვთ, გაიაროთ რეგისტრაცია ან
         ავტორიზაცია
       </div>
-      <div className={styles.authorization__actions}>
-        <button>რეგისტრაცია</button>
-        <button>ავტორიზაცია</button>
+      <div className={styles.authorization__actions} style={{ fontFamily }}>
+        <button style={{ fontFamily }}>რეგისტრაცია</button>
+        <button style={{ fontFamily }}>ავტორიზაცია</button>
       </div>
     </div>
   );
