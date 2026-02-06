@@ -556,7 +556,9 @@ function TextElementForm({
         />
       </div>
       <div className={styles.field}>
-        <label className={styles.fieldLabel}>Font Size / Line Height / Color</label>
+        <label className={styles.fieldLabel}>
+          Font Size / Line Height / Color
+        </label>
         <div className={styles.fieldRow}>
           <input
             type="number"
@@ -629,9 +631,15 @@ function TextElementForm({
                 width: '36px',
                 height: '32px',
                 border: '1px solid',
-                borderColor: (est.textAlign || 'left') === align ? '#667eea' : 'rgba(255,255,255,0.15)',
+                borderColor:
+                  (est.textAlign || 'left') === align
+                    ? '#667eea'
+                    : 'rgba(255,255,255,0.15)',
                 borderRadius: '6px',
-                background: (est.textAlign || 'left') === align ? 'rgba(102,126,234,0.4)' : 'rgba(255,255,255,0.06)',
+                background:
+                  (est.textAlign || 'left') === align
+                    ? 'rgba(102,126,234,0.4)'
+                    : 'rgba(255,255,255,0.06)',
                 color: '#fff',
                 cursor: 'pointer',
                 display: 'flex',
@@ -643,21 +651,36 @@ function TextElementForm({
               }
             >
               {align === 'left' && (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
                   <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
                   <rect x="2" y="7" width="8" height="1.5" rx="0.5" />
                   <rect x="2" y="11" width="10" height="1.5" rx="0.5" />
                 </svg>
               )}
               {align === 'center' && (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
                   <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
                   <rect x="4" y="7" width="8" height="1.5" rx="0.5" />
                   <rect x="3" y="11" width="10" height="1.5" rx="0.5" />
                 </svg>
               )}
               {align === 'right' && (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
                   <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
                   <rect x="6" y="7" width="8" height="1.5" rx="0.5" />
                   <rect x="4" y="11" width="10" height="1.5" rx="0.5" />
@@ -1097,7 +1120,9 @@ function ButtonElementForm({
       {!element.useImage && (
         <>
           <div className={styles.field}>
-            <label className={styles.fieldLabel}>Font Size / Line Height / Color</label>
+            <label className={styles.fieldLabel}>
+              Font Size / Line Height / Color
+            </label>
             <div className={styles.fieldRow}>
               <input
                 type="number"
@@ -1532,17 +1557,34 @@ function BoxElementForm({
               const f = e.target.files?.[0];
               if (f) {
                 const r = new FileReader();
-                r.onload = () => updateElementStyle(sectionId, element.id, 'backgroundImage', r.result as string);
+                r.onload = () =>
+                  updateElementStyle(
+                    sectionId,
+                    element.id,
+                    'backgroundImage',
+                    r.result as string
+                  );
                 r.readAsDataURL(f);
               }
             }}
             accept="image/*"
           />
-          <img src={est.backgroundImage} alt="bg" style={{ maxWidth: '100%', maxHeight: '60px', marginTop: '6px', borderRadius: '4px' }} />
+          <img
+            src={est.backgroundImage}
+            alt="bg"
+            style={{
+              maxWidth: '100%',
+              maxHeight: '60px',
+              marginTop: '6px',
+              borderRadius: '4px',
+            }}
+          />
           <button
             className={styles.clearBtn}
             style={{ marginTop: '4px' }}
-            onClick={() => updateElementStyle(sectionId, element.id, 'backgroundImage', '')}
+            onClick={() =>
+              updateElementStyle(sectionId, element.id, 'backgroundImage', '')
+            }
           >
             Remove Image
           </button>
@@ -1560,12 +1602,24 @@ function BoxElementForm({
                   : est.backgroundColor
               }
               onChange={(e) =>
-                updateElementStyle(sectionId, element.id, 'backgroundColor', e.target.value)
+                updateElementStyle(
+                  sectionId,
+                  element.id,
+                  'backgroundColor',
+                  e.target.value
+                )
               }
             />
             <button
               className={styles.clearBtn}
-              onClick={() => updateElementStyle(sectionId, element.id, 'backgroundColor', 'transparent')}
+              onClick={() =>
+                updateElementStyle(
+                  sectionId,
+                  element.id,
+                  'backgroundColor',
+                  'transparent'
+                )
+              }
             >
               Clear
             </button>
@@ -1579,7 +1633,13 @@ function BoxElementForm({
                   const f = (ev.target as HTMLInputElement).files?.[0];
                   if (f) {
                     const r = new FileReader();
-                    r.onload = () => updateElementStyle(sectionId, element.id, 'backgroundImage', r.result as string);
+                    r.onload = () =>
+                      updateElementStyle(
+                        sectionId,
+                        element.id,
+                        'backgroundImage',
+                        r.result as string
+                      );
                     r.readAsDataURL(f);
                   }
                 };
@@ -1600,7 +1660,12 @@ function BoxElementForm({
           className={`${styles.input} ${styles.inputSmall}`}
           value={est.borderRadius}
           onChange={(e) =>
-            updateElementStyle(sectionId, element.id, 'borderRadius', Number(e.target.value))
+            updateElementStyle(
+              sectionId,
+              element.id,
+              'borderRadius',
+              Number(e.target.value)
+            )
           }
         />
       </div>
@@ -1629,7 +1694,12 @@ function BoxElementForm({
               className={`${styles.input} ${styles.inputSmall}`}
               value={est.borderWidth}
               onChange={(e) =>
-                updateElementStyle(sectionId, element.id, 'borderWidth', Number(e.target.value))
+                updateElementStyle(
+                  sectionId,
+                  element.id,
+                  'borderWidth',
+                  Number(e.target.value)
+                )
               }
             />
             <input
@@ -1637,7 +1707,12 @@ function BoxElementForm({
               className={styles.colorInput}
               value={est.borderColor}
               onChange={(e) =>
-                updateElementStyle(sectionId, element.id, 'borderColor', e.target.value)
+                updateElementStyle(
+                  sectionId,
+                  element.id,
+                  'borderColor',
+                  e.target.value
+                )
               }
             />
           </div>
@@ -2358,11 +2433,17 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
                 <label className={styles.fieldLabel}>Font Family</label>
                 <select
                   className={styles.select}
-                  value={authStyles[activeView].fontFamily || 'CrocoSansCAPSRegular'}
-                  onChange={(e) => updateAuthStyle('fontFamily', e.target.value)}
+                  value={
+                    authStyles[activeView].fontFamily || 'CrocoSansCAPSRegular'
+                  }
+                  onChange={(e) =>
+                    updateAuthStyle('fontFamily', e.target.value)
+                  }
                 >
                   {FONTS.map((f) => (
-                    <option key={f} value={f}>{f}</option>
+                    <option key={f} value={f}>
+                      {f}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -2417,8 +2498,7 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
             onClick={() => toggleSection('endpoints')}
           >
             <h3>
-              <span className={styles.sectionIcon}>EP</span>
-              Endpoints
+              <span className={styles.sectionIcon}>Rules</span>
             </h3>
             <span
               className={`${styles.chevron} ${openSections.includes('endpoints') ? styles['chevron--open'] : ''}`}
@@ -2444,33 +2524,50 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
                   <input
                     type="color"
                     className={styles.colorInput}
-                    value={endpoints.rulesBackground.replace(/[^#\w]/g, '').slice(0, 7) || '#37445e'}
-                    onChange={(e) => updateEndpoints('rulesBackground', e.target.value + 'e6')}
+                    value={
+                      endpoints.rulesBackground
+                        .replace(/[^#\w]/g, '')
+                        .slice(0, 7) || '#37445e'
+                    }
+                    onChange={(e) =>
+                      updateEndpoints('rulesBackground', e.target.value + 'e6')
+                    }
                   />
                   <input
                     type="text"
                     className={styles.input}
                     value={endpoints.rulesBackground}
-                    onChange={(e) => updateEndpoints('rulesBackground', e.target.value)}
+                    onChange={(e) =>
+                      updateEndpoints('rulesBackground', e.target.value)
+                    }
                     placeholder="#37445ee6"
                   />
                 </div>
               </div>
               <div className={styles.field}>
-                <label className={styles.fieldLabel}>Rules Padding (Top / Bottom)</label>
+                <label className={styles.fieldLabel}>
+                  Rules Padding (Top / Bottom)
+                </label>
                 <div className={styles.fieldRow}>
                   <input
                     type="number"
                     className={`${styles.input} ${styles.inputSmall}`}
                     value={endpoints.rulesPaddingTop}
-                    onChange={(e) => updateEndpoints('rulesPaddingTop', Number(e.target.value))}
+                    onChange={(e) =>
+                      updateEndpoints('rulesPaddingTop', Number(e.target.value))
+                    }
                     placeholder="Top"
                   />
                   <input
                     type="number"
                     className={`${styles.input} ${styles.inputSmall}`}
                     value={endpoints.rulesPaddingBottom}
-                    onChange={(e) => updateEndpoints('rulesPaddingBottom', Number(e.target.value))}
+                    onChange={(e) =>
+                      updateEndpoints(
+                        'rulesPaddingBottom',
+                        Number(e.target.value)
+                      )
+                    }
                     placeholder="Bottom"
                   />
                 </div>
