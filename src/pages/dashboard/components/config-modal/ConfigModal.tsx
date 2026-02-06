@@ -1475,86 +1475,140 @@ function BoxElementForm({
         </div>
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.fieldLabel}>Border (Width / Radius)</label>
-        <div className={styles.fieldRow}>
-          <input
-            type="number"
-            className={`${styles.input} ${styles.inputSmall}`}
-            value={est.borderWidth}
-            onChange={(e) =>
-              updateElementStyle(
-                sectionId,
-                element.id,
-                'borderWidth',
-                Number(e.target.value)
-              )
+      {/* Background: toggle between image and color */}
+      <div className={styles.toggleRow}>
+        <span className={styles.toggleLabel}>Background Image</span>
+        <button
+          className={`${styles.toggle} ${est.backgroundImage ? styles['toggle--active'] : ''}`}
+          onClick={() => {
+            if (est.backgroundImage) {
+              updateElementStyle(sectionId, element.id, 'backgroundImage', '');
             }
-          />
-          <input
-            type="number"
-            className={`${styles.input} ${styles.inputSmall}`}
-            value={est.borderRadius}
-            onChange={(e) =>
-              updateElementStyle(
-                sectionId,
-                element.id,
-                'borderRadius',
-                Number(e.target.value)
-              )
-            }
-          />
-        </div>
+          }}
+        />
       </div>
 
-      <div className={styles.field}>
-        <label className={styles.fieldLabel}>Colors (BG / Border)</label>
-        <div className={styles.fieldRow}>
+      {est.backgroundImage ? (
+        <div className={styles.field}>
+          <label className={styles.fieldLabel}>Background Image</label>
           <input
-            type="color"
-            className={styles.colorInput}
-            value={
-              est.backgroundColor === 'transparent'
-                ? '#000000'
-                : est.backgroundColor
-            }
-            onChange={(e) =>
-              updateElementStyle(
-                sectionId,
-                element.id,
-                'backgroundColor',
-                e.target.value
-              )
-            }
+            type="file"
+            className={styles.fileInput}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                const r = new FileReader();
+                r.onload = () => updateElementStyle(sectionId, element.id, 'backgroundImage', r.result as string);
+                r.readAsDataURL(f);
+              }
+            }}
+            accept="image/*"
           />
+          <img src={est.backgroundImage} alt="bg" style={{ maxWidth: '100%', maxHeight: '60px', marginTop: '6px', borderRadius: '4px' }} />
           <button
             className={styles.clearBtn}
-            onClick={() =>
-              updateElementStyle(
-                sectionId,
-                element.id,
-                'backgroundColor',
-                'transparent'
-              )
-            }
+            style={{ marginTop: '4px' }}
+            onClick={() => updateElementStyle(sectionId, element.id, 'backgroundImage', '')}
           >
-            Clear
+            Remove Image
           </button>
-          <input
-            type="color"
-            className={styles.colorInput}
-            value={est.borderColor}
-            onChange={(e) =>
-              updateElementStyle(
-                sectionId,
-                element.id,
-                'borderColor',
-                e.target.value
-              )
-            }
-          />
         </div>
+      ) : (
+        <div className={styles.field}>
+          <label className={styles.fieldLabel}>Background Color</label>
+          <div className={styles.fieldRow}>
+            <input
+              type="color"
+              className={styles.colorInput}
+              value={
+                est.backgroundColor === 'transparent'
+                  ? '#000000'
+                  : est.backgroundColor
+              }
+              onChange={(e) =>
+                updateElementStyle(sectionId, element.id, 'backgroundColor', e.target.value)
+              }
+            />
+            <button
+              className={styles.clearBtn}
+              onClick={() => updateElementStyle(sectionId, element.id, 'backgroundColor', 'transparent')}
+            >
+              Clear
+            </button>
+            <button
+              className={styles.clearBtn}
+              onClick={() => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = 'image/*';
+                input.onchange = (ev) => {
+                  const f = (ev.target as HTMLInputElement).files?.[0];
+                  if (f) {
+                    const r = new FileReader();
+                    r.onload = () => updateElementStyle(sectionId, element.id, 'backgroundImage', r.result as string);
+                    r.readAsDataURL(f);
+                  }
+                };
+                input.click();
+              }}
+            >
+              Upload Image
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Border Radius (always visible) */}
+      <div className={styles.field}>
+        <label className={styles.fieldLabel}>Border Radius</label>
+        <input
+          type="number"
+          className={`${styles.input} ${styles.inputSmall}`}
+          value={est.borderRadius}
+          onChange={(e) =>
+            updateElementStyle(sectionId, element.id, 'borderRadius', Number(e.target.value))
+          }
+        />
       </div>
+
+      {/* Border toggle */}
+      <div className={styles.toggleRow}>
+        <span className={styles.toggleLabel}>Border</span>
+        <button
+          className={`${styles.toggle} ${est.borderWidth > 0 ? styles['toggle--active'] : ''}`}
+          onClick={() => {
+            if (est.borderWidth > 0) {
+              updateElementStyle(sectionId, element.id, 'borderWidth', 0);
+            } else {
+              updateElementStyle(sectionId, element.id, 'borderWidth', 1);
+            }
+          }}
+        />
+      </div>
+
+      {est.borderWidth > 0 && (
+        <div className={styles.field}>
+          <label className={styles.fieldLabel}>Border (Width / Color)</label>
+          <div className={styles.fieldRow}>
+            <input
+              type="number"
+              className={`${styles.input} ${styles.inputSmall}`}
+              value={est.borderWidth}
+              onChange={(e) =>
+                updateElementStyle(sectionId, element.id, 'borderWidth', Number(e.target.value))
+              }
+            />
+            <input
+              type="color"
+              className={styles.colorInput}
+              value={est.borderColor}
+              onChange={(e) =>
+                updateElementStyle(sectionId, element.id, 'borderColor', e.target.value)
+              }
+            />
+          </div>
+        </div>
+      )}
 
       <div className={styles.field}>
         <label className={styles.fieldLabel}>Z-Index</label>

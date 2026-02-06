@@ -418,11 +418,14 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
             zIndex: boxStyle.zIndex || 1,
             border: !isPreview && boxEl.isEditing
               ? '2px solid #667eea'
-              : !isPreview
-              ? `${boxStyle.borderWidth}px dashed ${boxStyle.borderColor}`
-              : `${boxStyle.borderWidth}px solid ${boxStyle.borderColor}`,
+              : boxStyle.borderWidth > 0
+              ? `${boxStyle.borderWidth}px ${!isPreview ? 'dashed' : 'solid'} ${boxStyle.borderColor}`
+              : 'none',
             borderRadius: `${boxStyle.borderRadius}px`,
-            backgroundColor: boxStyle.backgroundColor,
+            backgroundColor: boxStyle.backgroundImage ? 'transparent' : boxStyle.backgroundColor,
+            backgroundImage: boxStyle.backgroundImage ? `url(${boxStyle.backgroundImage})` : 'none',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
             boxShadow: !isPreview && boxEl.isEditing ? '0 0 15px rgba(102, 126, 234, 0.5)' : 'none',
           }}
         >

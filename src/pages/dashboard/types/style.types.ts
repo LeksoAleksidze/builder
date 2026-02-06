@@ -54,6 +54,7 @@ export interface BoxElementStyle {
   width: number;
   height: number;
   backgroundColor: string;
+  backgroundImage?: string;
   borderWidth: number;
   borderRadius: number;
   borderColor: string;
