@@ -1,3 +1,4 @@
+export type AuthVisibility = 'all' | 'auth' | 'non-auth';
 export type Viewport = 'WEB' | 'MOB';
 export type Language = 'GE' | 'EN' | 'RU' | 'TR';
 export type LocalizedContent = Record<Language, string>;

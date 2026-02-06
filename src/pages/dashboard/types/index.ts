@@ -1,4 +1,5 @@
 export type {
+  AuthVisibility,
   Viewport,
   Language,
   LocalizedContent,

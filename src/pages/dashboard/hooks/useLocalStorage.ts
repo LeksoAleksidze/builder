@@ -7,6 +7,7 @@ import type {
   Popup,
   HeaderText,
   EndpointsConfig,
+  AuthVisibility,
 } from '../types';
 import {
   STORAGE_KEY,
@@ -31,6 +32,7 @@ export interface LandingData {
   popups: Popup[];
   headerText: HeaderText;
   endpoints: EndpointsConfig;
+  authBlockVisibility: AuthVisibility;
 }
 
 // Migrate old popup structure to new structure with children and closeButton
@@ -107,6 +109,7 @@ export function useLocalStorage() {
         popups: migratePopups(parsed.popups),
         headerText: parsed.headerText || { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } },
         endpoints: { ...DEFAULT_ENDPOINTS_CONFIG, ...(parsed.endpoints || {}) },
+        authBlockVisibility: parsed.authBlockVisibility || 'non-auth',
       };
     }
     return {
@@ -119,6 +122,7 @@ export function useLocalStorage() {
       popups: [],
       headerText: { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } },
       endpoints: { ...DEFAULT_ENDPOINTS_CONFIG },
+      authBlockVisibility: 'non-auth',
     };
   }, []);
 

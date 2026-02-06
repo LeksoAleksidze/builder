@@ -31,7 +31,7 @@ import {
   DEFAULT_HEADER_TEXT,
   DEFAULT_ENDPOINTS_CONFIG,
 } from '../dashboard/constants';
-import type { HeaderText, EndpointsConfig } from '../dashboard/types';
+import type { HeaderText, EndpointsConfig, AuthVisibility } from '../dashboard/types';
 import styles from './Landing.module.scss';
 
 interface LandingData {
@@ -43,6 +43,18 @@ interface LandingData {
   backgroundMode?: 'cover' | 'contain' | 'natural';
   headerText?: HeaderText;
   endpoints?: EndpointsConfig;
+  authBlockVisibility?: AuthVisibility;
+}
+
+function isUserAuthorized(): boolean {
+  const params = new URLSearchParams(window.location.search);
+  return params.has('ftk') || params.has('tk');
+}
+
+function shouldShow(visibility: AuthVisibility | undefined, isAuthorized: boolean): boolean {
+  if (!visibility || visibility === 'all') return true;
+  if (visibility === 'auth') return isAuthorized;
+  return !isAuthorized; // 'non-auth'
 }
 
 // Popup component for landing page
@@ -236,7 +248,7 @@ function LandingElement({
           overflow: 'hidden',
         }}
       >
-        {boxEl.children.map((child) => (
+        {boxEl.children.filter((c) => shouldShow(c.visibility, isUserAuthorized())).map((child) => (
           <LandingChildElement
             key={child.id}
             child={child}
@@ -488,6 +500,7 @@ export default function LandingPage() {
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const activeLang = getLanguage(lang);
   const [activeView, setActiveView] = useState<Viewport>('WEB');
+  const isAuthorized = isUserAuthorized();
 
   useEffect(() => {
     const loadConfig = async () => {
@@ -536,6 +549,7 @@ export default function LandingPage() {
             backgroundMode: parsed.backgroundMode || 'cover',
             headerText: parsed.headerText || DEFAULT_HEADER_TEXT,
             endpoints: { ...DEFAULT_ENDPOINTS_CONFIG, ...(parsed.endpoints || {}) },
+            authBlockVisibility: parsed.authBlockVisibility || 'non-auth',
           });
         } else {
           setError('კონფიგურაცია ვერ მოიძებნა');
@@ -681,10 +695,12 @@ export default function LandingPage() {
           );
         })()}
 
-        <Authorization stylesProp={data.authStyles[activeView]} />
+        {shouldShow(data.authBlockVisibility, isAuthorized) && (
+          <Authorization stylesProp={data.authStyles[activeView]} />
+        )}
 
         <div className={styles.builder}>
-          {data.sections.map((section) => {
+          {data.sections.filter((s) => shouldShow(s.visibility, isAuthorized)).map((section) => {
             const st = section.styles[activeView];
             return (
               <div
@@ -708,7 +724,7 @@ export default function LandingPage() {
                   zIndex: st.zIndex || 1,
                 }}
               >
-                {section.elements.map((el) => (
+                {section.elements.filter((el) => shouldShow(el.visibility, isAuthorized)).map((el) => (
                   <LandingElement
                     key={el.id}
                     element={el}

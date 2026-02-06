@@ -10,6 +10,7 @@ import type {
   HeaderText,
   HeaderTextStyle,
   EndpointsConfig,
+  AuthVisibility,
 } from '../types';
 import { DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES, DEFAULT_HEADER_TEXT, DEFAULT_ENDPOINTS_CONFIG, LANGUAGES } from '../constants';
 import { useLocalStorage } from './useLocalStorage';
@@ -32,6 +33,7 @@ export function useLandingData() {
   const [popups, setPopups] = useState<Popup[]>([]);
   const [headerText, setHeaderText] = useState<HeaderText>({ ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } });
   const [endpoints, setEndpoints] = useState<EndpointsConfig>({ ...DEFAULT_ENDPOINTS_CONFIG });
+  const [authBlockVisibility, setAuthBlockVisibility] = useState<AuthVisibility>('non-auth');
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const [editingPopupId, setEditingPopupId] = useState<number | null>(null);
@@ -49,12 +51,13 @@ export function useLandingData() {
     setPopups(data.popups || []);
     setHeaderText(data.headerText || { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } });
     setEndpoints(data.endpoints || { ...DEFAULT_ENDPOINTS_CONFIG });
+    setAuthBlockVisibility(data.authBlockVisibility || 'non-auth');
   }, [load]);
 
   const saveAllConfig = useCallback(() => {
-    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints });
+    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints, authBlockVisibility });
     alert('Configuration saved!');
-  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints]);
+  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints, authBlockVisibility]);
 
   const sectionActions = useSections({
     sections,
@@ -258,6 +261,7 @@ export function useLandingData() {
     editingPopupId,
     headerText,
     endpoints,
+    authBlockVisibility,
 
     // State setters
     setActiveLang,
@@ -273,6 +277,7 @@ export function useLandingData() {
     setEditingPopupId,
     setHeaderText,
     setEndpoints,
+    setAuthBlockVisibility,
 
     // Actions
     saveAllConfig,

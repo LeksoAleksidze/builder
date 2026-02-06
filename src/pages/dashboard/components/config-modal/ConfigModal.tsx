@@ -26,12 +26,36 @@ import type {
   BoxElement,
   ButtonElement,
   Popup,
+  AuthVisibility,
 } from '../../types';
 import styles from './ConfigModal.module.scss';
 
 interface ConfigModalProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+function VisibilitySelect({
+  value,
+  onChange,
+}: {
+  value: AuthVisibility;
+  onChange: (v: AuthVisibility) => void;
+}) {
+  return (
+    <div className={styles.field}>
+      <label className={styles.fieldLabel}>Visibility</label>
+      <select
+        className={styles.select}
+        value={value}
+        onChange={(e) => onChange(e.target.value as AuthVisibility)}
+      >
+        <option value="all">All</option>
+        <option value="auth">Authorized Only</option>
+        <option value="non-auth">Non-Authorized Only</option>
+      </select>
+    </div>
+  );
 }
 
 function CollapsibleElement({
@@ -98,6 +122,17 @@ function CollapsibleElement({
   popups: Popup[];
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const { setSections } = useLandingContext();
+
+  const updateElementVisibility = (v: AuthVisibility) => {
+    setSections((prev) =>
+      prev.map((s) =>
+        s.id === sectionId
+          ? { ...s, elements: s.elements.map((el) => (el.id === element.id ? { ...el, visibility: v } : el)) }
+          : s
+      )
+    );
+  };
 
   const label =
     element.type === 'box'
@@ -145,6 +180,10 @@ function CollapsibleElement({
 
       {isOpen && (
         <div className={styles.elementBody}>
+          <VisibilitySelect
+            value={element.visibility || 'all'}
+            onChange={updateElementVisibility}
+          />
           {element.type === 'text' ? (
             <TextElementForm
               sectionId={sectionId}
@@ -223,6 +262,7 @@ function SortableSectionCard({ section }: { section: Section }) {
     updateButtonImage,
     setButtonUseImage,
     popups,
+    setSections,
   } = useLandingContext();
 
   const {
@@ -279,6 +319,14 @@ function SortableSectionCard({ section }: { section: Section }) {
 
       {isOpen && (
         <div className={styles.cardContent}>
+          <VisibilitySelect
+            value={section.visibility || 'all'}
+            onChange={(v) =>
+              setSections((prev) =>
+                prev.map((s) => (s.id === section.id ? { ...s, visibility: v } : s))
+              )
+            }
+          />
           <div className={styles.field}>
             <label className={styles.fieldLabel}>Size (W / H)</label>
             <div className={styles.fieldRow}>
@@ -1866,6 +1914,8 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     setHeaderTextSameForAllLangs,
     endpoints,
     updateEndpoints,
+    authBlockVisibility,
+    setAuthBlockVisibility,
   } = useLandingContext();
 
   const [openSections, setOpenSections] = useState<string[]>([
@@ -2320,6 +2370,10 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
           </div>
           {openSections.includes('auth') && (
             <div className={styles.sectionContent}>
+              <VisibilitySelect
+                value={authBlockVisibility}
+                onChange={setAuthBlockVisibility}
+              />
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>
                   Position (Padding Top)

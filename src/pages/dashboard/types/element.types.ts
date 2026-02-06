@@ -1,4 +1,4 @@
-import type { LocalizedContent } from './common.types';
+import type { AuthVisibility, LocalizedContent } from './common.types';
 import type {
   ViewportTextElementStyles,
   ViewportImageElementStyles,
@@ -13,6 +13,7 @@ export interface TextElement {
   styles: ViewportTextElementStyles;
   isEditing?: boolean;
   sameForAllLangs?: boolean;
+  visibility?: AuthVisibility;
 }
 
 export interface ImageElement {
@@ -22,6 +23,7 @@ export interface ImageElement {
   styles: ViewportImageElementStyles;
   isEditing?: boolean;
   sameForAllLangs?: boolean;
+  visibility?: AuthVisibility;
 }
 
 export type ButtonActionType = 'link' | 'popup';
@@ -41,6 +43,7 @@ export interface ButtonElement {
   styles: ViewportButtonElementStyles;
   isEditing?: boolean;
   sameForAllLangs?: boolean;
+  visibility?: AuthVisibility;
 }
 
 // Child elements inside a box (text, image, or button)
@@ -53,6 +56,7 @@ export interface BoxElement {
   styles: ViewportBoxElementStyles;
   children: BoxChildElement[];
   isEditing?: boolean;
+  visibility?: AuthVisibility;
 }
 
 export type Element = TextElement | ImageElement | BoxElement | ButtonElement;
