@@ -1,10 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import { useLandingContext } from '../../context';
-import type { PopupTextElement, PopupImageElement } from '../../types';
+import { LANGUAGES } from '../../constants';
+import type { Language, PopupTextElement, PopupImageElement } from '../../types';
 
 export function PopupRenderer() {
   const { activePopupId, popups, activeLang, activeView, closePopup } = useLandingContext();
+  const [previewLang, setPreviewLang] = useState<Language | null>(null);
+  const lang = previewLang ?? activeLang;
 
   if (activePopupId === null) return null;
 
@@ -76,6 +80,7 @@ export function PopupRenderer() {
         backgroundColor: 'rgba(0, 0, 0, 0.7)',
         backdropFilter: 'blur(4px)',
         display: 'flex',
+        flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 2000,
@@ -83,6 +88,39 @@ export function PopupRenderer() {
       }}
       onClick={closePopup}
     >
+      {/* Language switcher bar */}
+      <div
+        style={{
+          display: 'flex',
+          gap: '4px',
+          marginBottom: '12px',
+          padding: '6px 10px',
+          background: 'rgba(0, 0, 0, 0.5)',
+          borderRadius: '8px',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {LANGUAGES.map((l) => (
+          <button
+            key={l}
+            onClick={() => setPreviewLang(l)}
+            style={{
+              padding: '4px 10px',
+              border: 'none',
+              borderRadius: '4px',
+              background: lang === l ? '#667eea' : 'rgba(255,255,255,0.1)',
+              color: lang === l ? '#fff' : '#8e8e93',
+              fontSize: '11px',
+              fontWeight: 600,
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            {l}
+          </button>
+        ))}
+      </div>
+
       <div
         style={{
           width: `${pst.width}px`,
@@ -123,9 +161,9 @@ export function PopupRenderer() {
           onMouseOver={(e) => (e.currentTarget.style.opacity = '0.8')}
           onMouseOut={(e) => (e.currentTarget.style.opacity = '1')}
         >
-          {closeBtn.useImage && closeBtn.image[activeLang] ? (
+          {closeBtn.useImage && closeBtn.image[lang] ? (
             <img
-              src={closeBtn.image[activeLang]}
+              src={closeBtn.image[lang]}
               alt="close"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
@@ -158,7 +196,7 @@ export function PopupRenderer() {
                   wordWrap: 'break-word',
                   overflow: 'hidden',
                 }}
-                dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
+                dangerouslySetInnerHTML={{ __html: child.content[lang] || '' }}
               />
             );
           }
@@ -168,7 +206,7 @@ export function PopupRenderer() {
           return (
             <img
               key={child.id}
-              src={child.content[activeLang] || ''}
+              src={child.content[lang] || ''}
               alt=""
               style={{
                 position: 'absolute',

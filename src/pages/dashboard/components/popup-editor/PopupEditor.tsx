@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Rnd } from 'react-rnd';
 import { useLandingContext } from '../../context';
-import { FONTS } from '../../constants';
+import { FONTS, LANGUAGES } from '../../constants';
 import type { Popup, PopupChildElement, PopupTextElement, PopupImageElement } from '../../types';
 import styles from './PopupEditor.module.scss';
 
@@ -75,7 +75,10 @@ function PopupElementRenderer({
     >
       <div
         style={{ width: '100%', height: '100%', position: 'relative', overflow: 'hidden' }}
-        onClick={() => setEditingElementId(element.id)}
+        onClick={(e) => {
+          e.stopPropagation();
+          setEditingElementId(element.id);
+        }}
       >
         {/* Edit/Delete controls */}
         {isEditing && (
@@ -137,8 +140,10 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
   const {
     activeView,
     activeLang,
+    setActiveLang,
     updatePopupStyle,
     updatePopupTitle,
+    setPopupSameForAllLangs,
     addPopupElement,
     updatePopupElementStyle,
     updatePopupElementContent,
@@ -146,6 +151,8 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
     setCloseButtonUseImage,
     updateCloseButtonImage,
   } = useLandingContext();
+
+  const langLabel = popup.sameForAllLangs ? 'All' : activeLang;
 
   const [editingElementId, setEditingElementId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'elements' | 'style' | 'closeBtn'>('elements');
@@ -185,6 +192,17 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
             value={popup.title}
             onChange={(e) => updatePopupTitle(popup.id, e.target.value)}
           />
+          <div className={styles.langTabs}>
+            {LANGUAGES.map((lang) => (
+              <button
+                key={lang}
+                className={`${styles.langTab} ${activeLang === lang ? styles['langTab--active'] : ''}`}
+                onClick={() => setActiveLang(lang)}
+              >
+                {lang}
+              </button>
+            ))}
+          </div>
           <button className={styles.closeEditorBtn} onClick={onClose}>
             X
           </button>
@@ -279,6 +297,14 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
               {/* Elements Tab */}
               {activeTab === 'elements' && (
                 <>
+                  <div className={styles.toggleRow}>
+                    <span>Same for all languages</span>
+                    <button
+                      className={`${styles.toggle} ${popup.sameForAllLangs ? styles['toggle--active'] : ''}`}
+                      onClick={() => setPopupSameForAllLangs(popup.id, !popup.sameForAllLangs)}
+                    />
+                  </div>
+
                   <div className={styles.addButtons}>
                     <button
                       className={styles.addTextBtn}
@@ -352,6 +378,16 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                             />
                           </div>
                           <div className={styles.field}>
+                            <label>Content ({langLabel})</label>
+                            <textarea
+                              className={styles.textarea}
+                              value={editingElement.content[activeLang] || ''}
+                              onChange={(e) =>
+                                updatePopupElementContent(popup.id, editingElement.id, e.target.value)
+                              }
+                            />
+                          </div>
+                          <div className={styles.field}>
                             <label>Rich Text Tip</label>
                             <p className={styles.helpText}>
                               To color specific words, select text in preview and use browser's format (Ctrl+B for bold, etc.)
@@ -362,7 +398,7 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                       ) : (
                         <>
                           <div className={styles.field}>
-                            <label>Image</label>
+                            <label>Image ({langLabel})</label>
                             <input
                               type="file"
                               className={styles.fileInput}
@@ -499,7 +535,7 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
 
                   {closeBtn.useImage ? (
                     <div className={styles.field}>
-                      <label>Close Button Image</label>
+                      <label>Close Button Image ({langLabel})</label>
                       <input
                         type="file"
                         className={styles.fileInput}
