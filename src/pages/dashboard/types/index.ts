@@ -6,6 +6,7 @@ export type {
   GlobalBackground,
   ViewportBGColor,
   BackgroundSettings,
+  HeaderText,
 } from './common.types';
 
 export type {
@@ -23,6 +24,8 @@ export type {
   ViewportPopupStyles,
   AuthStyle,
   ViewportAuthStyles,
+  HeaderTextStyle,
+  ViewportHeaderTextStyles,
 } from './style.types';
 
 export type {

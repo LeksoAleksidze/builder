@@ -9,3 +9,9 @@ export interface BackgroundSettings {
   sameForAllLanguages: boolean;
   backgrounds: GlobalBackground;
 }
+
+export interface HeaderText {
+  content: LocalizedContent;
+  styles: import('./style.types').ViewportHeaderTextStyles;
+  sameForAllLangs: boolean;
+}

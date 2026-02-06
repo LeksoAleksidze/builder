@@ -1,4 +1,9 @@
 export const FONTS = [
+  'Bebas Neue',
+  'Croco Sans Black',
+  'Croco Sans',
+  'Proxima Nova',
+  'TT Supermolot Neue',
   'Arial',
   'Helvetica',
   'Inter',

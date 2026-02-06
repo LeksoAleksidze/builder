@@ -1093,9 +1093,13 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     addPopup,
     deletePopup,
     setEditingPopupId,
+    headerText,
+    updateHeaderTextContent,
+    updateHeaderTextStyle,
+    setHeaderTextSameForAllLangs,
   } = useLandingContext();
 
-  const [openSections, setOpenSections] = useState<string[]>(['bg', 'sections', 'popups']);
+  const [openSections, setOpenSections] = useState<string[]>(['sections', 'popups']);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -1122,6 +1126,20 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     setOpenSections((prev) =>
       prev.includes(name) ? prev.filter((s) => s !== name) : [...prev, name]
     );
+  };
+
+  const [wordColorWord, setWordColorWord] = useState('');
+  const [wordColorValue, setWordColorValue] = useState('#ff0000');
+
+  const applyWordColor = () => {
+    if (!wordColorWord.trim()) return;
+    const currentContent = headerText.content[activeLang] || '';
+    // Escape special regex chars in the word
+    const escaped = wordColorWord.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?!<[^>]*)(${escaped})(?![^<]*>)`, 'gi');
+    const newContent = currentContent.replace(regex, `<span style="color:${wordColorValue}">${wordColorWord}</span>`);
+    updateHeaderTextContent(newContent);
+    setWordColorWord('');
   };
 
   const currentBG = globalBG[activeLang]?.[activeView.toLowerCase() as 'web' | 'mob'];
@@ -1282,6 +1300,166 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
                     <option value="natural">Natural (ორიგინალი ზომა)</option>
                     <option value="contain">Contain (მთლიანად ჩანს)</option>
                   </select>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Header Text Section */}
+          <div className={styles.section}>
+            <div
+              className={`${styles.sectionHeader} ${openSections.includes('headerText') ? styles['sectionHeader--open'] : ''}`}
+              onClick={() => toggleSection('headerText')}
+            >
+              <h3>
+                <span className={styles.sectionIcon}>TXT</span>
+                Header Text
+              </h3>
+              <span className={`${styles.chevron} ${openSections.includes('headerText') ? styles['chevron--open'] : ''}`}>
+                v
+              </span>
+            </div>
+            {openSections.includes('headerText') && (
+              <div className={styles.sectionContent}>
+                <div className={styles.checkboxField}>
+                  <label className={styles.checkboxLabel}>
+                    <input
+                      type="checkbox"
+                      checked={headerText.sameForAllLangs}
+                      onChange={(e) => setHeaderTextSameForAllLangs(e.target.checked)}
+                    />
+                    <span>Same for all languages</span>
+                  </label>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>
+                    Content {!headerText.sameForAllLangs ? `(${activeLang})` : ''}
+                  </label>
+                  <textarea
+                    className={styles.input}
+                    style={{ minHeight: '100px', resize: 'vertical', width: '100%' }}
+                    value={headerText.content[activeLang] || ''}
+                    onChange={(e) => updateHeaderTextContent(e.target.value)}
+                    placeholder="Enter header text (supports HTML)"
+                  />
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Padding Top / Bottom (px)</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={headerText.styles[activeView].paddingTop}
+                      onChange={(e) => updateHeaderTextStyle('paddingTop', Number(e.target.value))}
+                      placeholder="Top"
+                    />
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={headerText.styles[activeView].paddingBottom}
+                      onChange={(e) => updateHeaderTextStyle('paddingBottom', Number(e.target.value))}
+                      placeholder="Bottom"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Width / Max Width (px)</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={headerText.styles[activeView].width}
+                      onChange={(e) => updateHeaderTextStyle('width', Number(e.target.value))}
+                      placeholder="Width"
+                    />
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={headerText.styles[activeView].maxWidth}
+                      onChange={(e) => updateHeaderTextStyle('maxWidth', Number(e.target.value))}
+                      placeholder="Max Width"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Font Size / Line Height</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={headerText.styles[activeView].fontSize}
+                      onChange={(e) => updateHeaderTextStyle('fontSize', Number(e.target.value))}
+                      placeholder="Size"
+                    />
+                    <input
+                      type="number"
+                      className={`${styles.input} ${styles.inputSmall}`}
+                      value={headerText.styles[activeView].lineHeight}
+                      onChange={(e) => updateHeaderTextStyle('lineHeight', Number(e.target.value))}
+                      placeholder="Line H"
+                      step="0.1"
+                      min="0.5"
+                      max="5"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Font Family</label>
+                  <select
+                    className={styles.select}
+                    value={headerText.styles[activeView].fontFamily}
+                    onChange={(e) => updateHeaderTextStyle('fontFamily', e.target.value)}
+                  >
+                    {FONTS.map((f) => (
+                      <option key={f} value={f}>{f}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Default Color</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="color"
+                      className={styles.colorInput}
+                      value={headerText.styles[activeView].color}
+                      onChange={(e) => updateHeaderTextStyle('color', e.target.value)}
+                    />
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={headerText.styles[activeView].color}
+                      onChange={(e) => updateHeaderTextStyle('color', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Word Color Tool</label>
+                  <div className={styles.fieldRow}>
+                    <input
+                      type="text"
+                      className={styles.input}
+                      value={wordColorWord}
+                      onChange={(e) => setWordColorWord(e.target.value)}
+                      placeholder="Word"
+                      style={{ flex: 1 }}
+                    />
+                    <input
+                      type="color"
+                      className={styles.colorInput}
+                      value={wordColorValue}
+                      onChange={(e) => setWordColorValue(e.target.value)}
+                    />
+                    <button className={styles.addButton} style={{ padding: '6px 12px' }} onClick={applyWordColor}>
+                      Apply
+                    </button>
+                  </div>
                 </div>
               </div>
             )}

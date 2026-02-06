@@ -1,5 +1,6 @@
 'use client';
 
+import { Rnd } from 'react-rnd';
 import { useLandingContext } from '../../context';
 import Authorization from '../../../../shared/modules/authorization/Authorization';
 import { SectionRenderer } from './SectionRenderer';
@@ -14,6 +15,8 @@ export function PreviewCanvas() {
     backgroundMode,
     authStyles,
     sections,
+    headerText,
+    updateHeaderTextStyle,
     clearAllEditing,
   } = useLandingContext();
 
@@ -58,6 +61,8 @@ export function PreviewCanvas() {
     };
   };
 
+  const htStyles = headerText.styles[activeView];
+
   return (
     <div
       className={styles.dashboard__content}
@@ -80,6 +85,62 @@ export function PreviewCanvas() {
         }}
         onClick={handleBackgroundClick}
       >
+        {/* Header Text — flow-based, same as landing */}
+        {headerText.content[activeLang] && (
+          <div
+            style={{
+              width: '100%',
+              maxWidth: `${htStyles.maxWidth}px`,
+              margin: '0 auto',
+              paddingTop: `${htStyles.paddingTop}px`,
+              paddingBottom: `${htStyles.paddingBottom}px`,
+              position: 'relative',
+              zIndex: 10,
+            }}
+          >
+            <Rnd
+              default={{ x: 0, y: 0, width: htStyles.width, height: 'auto' as unknown as number }}
+              size={{ width: htStyles.width, height: 'auto' }}
+              position={{ x: 0, y: 0 }}
+              disableDragging
+              enableResizing={{
+                left: true,
+                right: true,
+                top: false,
+                bottom: false,
+                topLeft: false,
+                topRight: false,
+                bottomLeft: false,
+                bottomRight: false,
+              }}
+              onResizeStop={(_e, _dir, ref) => {
+                updateHeaderTextStyle('width', ref.offsetWidth);
+              }}
+              style={{
+                position: 'relative',
+                margin: '0 auto',
+              }}
+              minWidth={50}
+            >
+              <div
+                style={{
+                  fontSize: `${htStyles.fontSize}px`,
+                  lineHeight: htStyles.lineHeight,
+                  fontFamily: htStyles.fontFamily,
+                  color: htStyles.color,
+                  whiteSpace: 'pre-wrap',
+                  userSelect: 'none',
+                  textAlign: 'center',
+                  width: '100%',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word',
+                }}
+                dangerouslySetInnerHTML={{ __html: headerText.content[activeLang] }}
+              />
+            </Rnd>
+          </div>
+        )}
+
         <Authorization stylesProp={authStyles[activeView]} />
 
         <div className={styles.dashboard__builder}>

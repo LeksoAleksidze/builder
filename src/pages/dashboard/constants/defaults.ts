@@ -11,6 +11,8 @@ import type {
   PopupStyle,
   CloseButtonStyle,
   LocalizedContent,
+  ViewportHeaderTextStyles,
+  HeaderText,
 } from '../types';
 
 export const STORAGE_KEY = 'landing_data';
@@ -223,4 +225,36 @@ export const DEFAULT_CLOSE_BUTTON_STYLES: { WEB: CloseButtonStyle; MOB: CloseBut
     borderRadius: 14,
     fontSize: 16,
   },
+};
+
+export const DEFAULT_HEADER_TEXT_STYLES: ViewportHeaderTextStyles = {
+  WEB: {
+    width: 600,
+    paddingTop: 0,
+    paddingBottom: 0,
+    fontSize: 32,
+    lineHeight: 1.2,
+    fontFamily: 'Bebas Neue',
+    color: '#ffffff',
+    maxWidth: 800,
+  },
+  MOB: {
+    width: 340,
+    paddingTop: 0,
+    paddingBottom: 0,
+    fontSize: 24,
+    lineHeight: 1.2,
+    fontFamily: 'Bebas Neue',
+    color: '#ffffff',
+    maxWidth: 350,
+  },
+};
+
+export const DEFAULT_HEADER_TEXT: HeaderText = {
+  content: { GE: '', EN: '', RU: '', TR: '' },
+  styles: {
+    WEB: { ...DEFAULT_HEADER_TEXT_STYLES.WEB },
+    MOB: { ...DEFAULT_HEADER_TEXT_STYLES.MOB },
+  },
+  sameForAllLangs: true,
 };

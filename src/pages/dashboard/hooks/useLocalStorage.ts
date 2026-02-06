@@ -5,6 +5,7 @@ import type {
   ViewportAuthStyles,
   ViewportBGColor,
   Popup,
+  HeaderText,
 } from '../types';
 import {
   STORAGE_KEY,
@@ -13,6 +14,7 @@ import {
   DEFAULT_AUTH_STYLES,
   DEFAULT_CLOSE_BUTTON_STYLES,
   DEFAULT_LOCALIZED_CONTENT,
+  DEFAULT_HEADER_TEXT,
 } from '../constants';
 
 export type BackgroundMode = 'cover' | 'contain' | 'natural';
@@ -25,6 +27,7 @@ export interface LandingData {
   sameBackgroundForAllLangs: boolean;
   backgroundMode: BackgroundMode;
   popups: Popup[];
+  headerText: HeaderText;
 }
 
 // Migrate old popup structure to new structure with children and closeButton
@@ -99,6 +102,7 @@ export function useLocalStorage() {
         sameBackgroundForAllLangs: parsed.sameBackgroundForAllLangs ?? true,
         backgroundMode: parsed.backgroundMode || 'cover',
         popups: migratePopups(parsed.popups),
+        headerText: parsed.headerText || { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } },
       };
     }
     return {
@@ -109,6 +113,7 @@ export function useLocalStorage() {
       sameBackgroundForAllLangs: true,
       backgroundMode: 'cover',
       popups: [],
+      headerText: { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } },
     };
   }, []);
 

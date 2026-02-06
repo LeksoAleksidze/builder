@@ -101,6 +101,22 @@ export type ViewportButtonElementStyles = {
   MOB: ButtonElementStyle;
 };
 
+export interface HeaderTextStyle {
+  width: number;
+  paddingTop: number;
+  paddingBottom: number;
+  fontSize: number;
+  lineHeight: number;
+  fontFamily: string;
+  color: string;
+  maxWidth: number;
+}
+
+export type ViewportHeaderTextStyles = {
+  WEB: HeaderTextStyle;
+  MOB: HeaderTextStyle;
+};
+
 export interface PopupStyle {
   width: number;
   height: number;

@@ -27,7 +27,9 @@ import {
   DEFAULT_AUTH_STYLES,
   DEFAULT_CLOSE_BUTTON_STYLES,
   DEFAULT_LOCALIZED_CONTENT,
+  DEFAULT_HEADER_TEXT,
 } from '../dashboard/constants';
+import type { HeaderText } from '../dashboard/types';
 import styles from './Landing.module.scss';
 
 interface LandingData {
@@ -37,6 +39,7 @@ interface LandingData {
   globalBGColor: ViewportBGColor;
   popups: Popup[];
   backgroundMode?: 'cover' | 'contain' | 'natural';
+  headerText?: HeaderText;
 }
 
 // Popup component for landing page
@@ -514,6 +517,7 @@ export default function LandingPage() {
             globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
             popups,
             backgroundMode: parsed.backgroundMode || 'cover',
+            headerText: parsed.headerText || DEFAULT_HEADER_TEXT,
           });
         } else {
           setError('კონფიგურაცია ვერ მოიძებნა');
@@ -620,8 +624,43 @@ export default function LandingPage() {
           margin: '0 auto',
           minHeight: '100vh',
           paddingTop: data.authStyles[activeView].marginTop,
+          position: 'relative',
         }}
       >
+        {/* Header Text — in normal flow, responsive */}
+        {data.headerText && data.headerText.content[activeLang] && (() => {
+          const ht = data.headerText!.styles[activeView];
+          return (
+            <div
+              style={{
+                width: '100%',
+                maxWidth: `${ht.maxWidth}px`,
+                margin: '0 auto',
+                paddingTop: `${ht.paddingTop}px`,
+                paddingBottom: `${ht.paddingBottom}px`,
+                zIndex: 10,
+                position: 'relative',
+              }}
+            >
+              <div
+                style={{
+                  maxWidth: `${ht.width}px`,
+                  margin: '0 auto',
+                  fontSize: `${ht.fontSize}px`,
+                  lineHeight: ht.lineHeight,
+                  fontFamily: ht.fontFamily,
+                  color: ht.color,
+                  whiteSpace: 'pre-wrap',
+                  textAlign: 'center',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word',
+                }}
+                dangerouslySetInnerHTML={{ __html: data.headerText!.content[activeLang] }}
+              />
+            </div>
+          );
+        })()}
+
         <Authorization stylesProp={data.authStyles[activeView]} />
 
         <div className={styles.builder}>

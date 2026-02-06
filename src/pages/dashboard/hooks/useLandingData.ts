@@ -7,8 +7,10 @@ import type {
   Viewport,
   Language,
   Popup,
+  HeaderText,
+  HeaderTextStyle,
 } from '../types';
-import { DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES, LANGUAGES } from '../constants';
+import { DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES, DEFAULT_HEADER_TEXT, LANGUAGES } from '../constants';
 import { useLocalStorage } from './useLocalStorage';
 import { useSections } from './useSections';
 import { useElements } from './useElements';
@@ -27,6 +29,7 @@ export function useLandingData() {
   const [authStyles, setAuthStyles] = useState<ViewportAuthStyles>(DEFAULT_AUTH_STYLES);
   const [sections, setSections] = useState<Section[]>([]);
   const [popups, setPopups] = useState<Popup[]>([]);
+  const [headerText, setHeaderText] = useState<HeaderText>({ ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } });
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const [editingPopupId, setEditingPopupId] = useState<number | null>(null);
@@ -42,12 +45,13 @@ export function useLandingData() {
     setSameBackgroundForAllLangs(data.sameBackgroundForAllLangs ?? true);
     setBackgroundMode(data.backgroundMode || 'cover');
     setPopups(data.popups || []);
+    setHeaderText(data.headerText || { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } });
   }, [load]);
 
   const saveAllConfig = useCallback(() => {
-    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups });
+    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText });
     alert('Configuration saved!');
-  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups]);
+  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText]);
 
   const sectionActions = useSections({
     sections,
@@ -168,6 +172,55 @@ export function useLandingData() {
     [activeLang]
   );
 
+  const updateHeaderTextContent = useCallback(
+    (value: string) => {
+      setHeaderText((prev) => {
+        const newContent = { ...prev.content };
+        if (prev.sameForAllLangs) {
+          LANGUAGES.forEach((lang) => {
+            newContent[lang] = value;
+          });
+        } else {
+          newContent[activeLang] = value;
+        }
+        return { ...prev, content: newContent };
+      });
+    },
+    [activeLang]
+  );
+
+  const updateHeaderTextStyle = useCallback(
+    <K extends keyof HeaderTextStyle>(field: K, value: HeaderTextStyle[K]) => {
+      setHeaderText((prev) => ({
+        ...prev,
+        styles: {
+          ...prev.styles,
+          [activeView]: { ...prev.styles[activeView], [field]: value },
+        },
+      }));
+    },
+    [activeView]
+  );
+
+  const setHeaderTextSameForAllLangs = useCallback(
+    (value: boolean) => {
+      setHeaderText((prev) => {
+        const updated = { ...prev, sameForAllLangs: value };
+        if (value) {
+          // Sync current language content to all languages
+          const currentContent = prev.content[activeLang];
+          const newContent = { ...prev.content };
+          LANGUAGES.forEach((lang) => {
+            newContent[lang] = currentContent;
+          });
+          updated.content = newContent;
+        }
+        return updated;
+      });
+    },
+    [activeLang]
+  );
+
   const updateGlobalBGColor = useCallback(
     (color: string) => {
       setGlobalBGColor((prev) => ({
@@ -193,6 +246,7 @@ export function useLandingData() {
     activePopupId,
     popupTriggerSectionId,
     editingPopupId,
+    headerText,
 
     // State setters
     setActiveLang,
@@ -206,6 +260,7 @@ export function useLandingData() {
     setSections,
     setPopups,
     setEditingPopupId,
+    setHeaderText,
 
     // Actions
     saveAllConfig,
@@ -213,6 +268,9 @@ export function useLandingData() {
     updateGlobalBGColor,
     clearGlobalBG,
     updateAuthStyle,
+    updateHeaderTextContent,
+    updateHeaderTextStyle,
+    setHeaderTextSameForAllLangs,
     openPopup,
     closePopup,
     ...sectionActions,
