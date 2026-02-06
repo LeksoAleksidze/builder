@@ -6,9 +6,8 @@
 
   &__preview {
     flex: 1;
-    min-height: 100vh;
+    min-width: 0;
     transition: all 0.3s ease;
-    overflow: auto;
   }
 
   &__content {

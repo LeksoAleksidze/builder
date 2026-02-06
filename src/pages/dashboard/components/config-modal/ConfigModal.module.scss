@@ -1,8 +1,12 @@
-// Right sidebar style
+// Right sidebar style — fixed to viewport
 .sidebar {
   width: 420px;
   min-width: 420px;
   height: 100vh;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  flex-shrink: 0;
   background: linear-gradient(135deg, #1a1d2e 0%, #0f111a 100%);
   border-left: 1px solid rgba(255, 255, 255, 0.1);
   display: flex;
