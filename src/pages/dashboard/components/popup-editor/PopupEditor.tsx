@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Rnd } from 'react-rnd';
 import { useLandingContext } from '../../context';
 import { FONTS, LANGUAGES } from '../../constants';
@@ -17,11 +17,15 @@ function PopupElementRenderer({
   element,
   isEditing,
   setEditingElementId,
+  onDrag,
+  onDragStop: onDragStopGuide,
 }: {
   popup: Popup;
   element: PopupChildElement;
   isEditing: boolean;
   setEditingElementId: (id: number | null) => void;
+  onDrag: (x: number, y: number, elW: number, elH: number) => void;
+  onDragStop: () => void;
 }) {
   const {
     activeView,
@@ -34,6 +38,7 @@ function PopupElementRenderer({
   const est = element.styles[activeView];
 
   const handleDragStop = (_: unknown, d: { x: number; y: number }) => {
+    onDragStopGuide();
     updatePopupElementStyles(popup.id, element.id, {
       ...element.styles,
       [activeView]: { ...est, x: d.x, y: d.y },
@@ -64,6 +69,7 @@ function PopupElementRenderer({
       position={{ x: est.x, y: est.y }}
       bounds="parent"
       disableDragging={isEditing}
+      onDrag={(_e, d) => onDrag(d.x, d.y, est.width, est.height)}
       onDragStop={handleDragStop}
       onResizeStop={handleResizeStop}
       style={{
@@ -108,6 +114,7 @@ function PopupElementRenderer({
               fontFamily: (est as PopupTextElement['styles']['WEB']).fontFamily,
               color: (est as PopupTextElement['styles']['WEB']).color,
               textShadow: (est as PopupTextElement['styles']['WEB']).textShadow || 'none',
+              textAlign: (est as PopupTextElement['styles']['WEB']).textAlign || 'left',
               outline: 'none',
               width: '100%',
               height: '100%',
@@ -156,11 +163,31 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
 
   const [editingElementId, setEditingElementId] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'elements' | 'style' | 'closeBtn'>('elements');
+  const [showCenterGuideV, setShowCenterGuideV] = useState(false);
+  const [showCenterGuideH, setShowCenterGuideH] = useState(false);
 
   const pst = popup.styles[activeView];
   const closeBtn = popup.closeButton;
   const closeBtnStyle = closeBtn.styles[activeView];
   const editingElement = popup.children.find((c) => c.id === editingElementId);
+
+  const checkCenterAlignment = useCallback(
+    (x: number, y: number, elW: number, elH: number) => {
+      const elCenterX = x + elW / 2;
+      const parentCenterX = pst.width / 2;
+      setShowCenterGuideV(Math.abs(elCenterX - parentCenterX) < 6);
+
+      const elCenterY = y + elH / 2;
+      const parentCenterY = pst.height / 2;
+      setShowCenterGuideH(Math.abs(elCenterY - parentCenterY) < 6);
+    },
+    [pst.width, pst.height]
+  );
+
+  const clearCenterGuides = useCallback(() => {
+    setShowCenterGuideV(false);
+    setShowCenterGuideH(false);
+  }, []);
 
   const handleCloseButtonImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -223,17 +250,50 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                 backgroundPosition: 'center',
                 borderRadius: `${pst.borderRadius}px`,
                 border: pst.borderWidth > 0 ? `${pst.borderWidth}px solid ${pst.borderColor}` : 'none',
+                overflow: 'visible',
               }}
               onClick={() => setEditingElementId(null)}
             >
-              {/* Close button preview — draggable + resizable */}
+              {/* Vertical center guide */}
+              {showCenterGuideV && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    bottom: 0,
+                    left: '50%',
+                    width: '2px',
+                    backgroundColor: '#ff00ff',
+                    pointerEvents: 'none',
+                    zIndex: 999,
+                    transform: 'translateX(-1px)',
+                  }}
+                />
+              )}
+              {/* Horizontal center guide */}
+              {showCenterGuideH && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: 0,
+                    right: 0,
+                    top: '50%',
+                    height: '2px',
+                    backgroundColor: '#ff00ff',
+                    pointerEvents: 'none',
+                    zIndex: 999,
+                    transform: 'translateY(-1px)',
+                  }}
+                />
+              )}
+
+              {/* Close button preview — draggable + resizable, can go outside popup */}
               <Rnd
                 size={{ width: closeBtnStyle.width, height: closeBtnStyle.height }}
                 position={{
                   x: closeBtnStyle.x === -1 ? pst.width - closeBtnStyle.width - 10 : closeBtnStyle.x,
                   y: closeBtnStyle.x === -1 ? 10 : closeBtnStyle.y,
                 }}
-                bounds="parent"
                 onDragStop={(_e, d) => {
                   updateCloseButtonStyle(popup.id, 'x', Math.round(d.x));
                   updateCloseButtonStyle(popup.id, 'y', Math.round(d.y));
@@ -284,6 +344,8 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                   element={child}
                   isEditing={editingElementId === child.id}
                   setEditingElementId={setEditingElementId}
+                  onDrag={checkCenterAlignment}
+                  onDragStop={clearCenterGuides}
                 />
               ))}
             </div>
@@ -384,6 +446,52 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                                 </option>
                               ))}
                             </select>
+                          </div>
+                          <div className={styles.field}>
+                            <label>Text Align</label>
+                            <div className={styles.fieldRow}>
+                              {(['left', 'center', 'right'] as const).map((align) => (
+                                <button
+                                  key={align}
+                                  className={styles.alignBtn}
+                                  style={{
+                                    background:
+                                      ((editingElement.styles[activeView] as PopupTextElement['styles']['WEB']).textAlign || 'left') === align
+                                        ? 'rgba(102, 126, 234, 0.4)'
+                                        : 'rgba(255, 255, 255, 0.06)',
+                                    borderColor:
+                                      ((editingElement.styles[activeView] as PopupTextElement['styles']['WEB']).textAlign || 'left') === align
+                                        ? '#667eea'
+                                        : 'rgba(255, 255, 255, 0.1)',
+                                  }}
+                                  onClick={() =>
+                                    updatePopupElementStyle(popup.id, editingElement.id, 'textAlign', align)
+                                  }
+                                >
+                                  {align === 'left' && (
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                      <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
+                                      <rect x="2" y="7" width="8" height="1.5" rx="0.5" />
+                                      <rect x="2" y="11" width="10" height="1.5" rx="0.5" />
+                                    </svg>
+                                  )}
+                                  {align === 'center' && (
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                      <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
+                                      <rect x="4" y="7" width="8" height="1.5" rx="0.5" />
+                                      <rect x="3" y="11" width="10" height="1.5" rx="0.5" />
+                                    </svg>
+                                  )}
+                                  {align === 'right' && (
+                                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                                      <rect x="2" y="3" width="12" height="1.5" rx="0.5" />
+                                      <rect x="6" y="7" width="8" height="1.5" rx="0.5" />
+                                      <rect x="4" y="11" width="10" height="1.5" rx="0.5" />
+                                    </svg>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                           <div className={styles.field}>
                             <label>Text Shadow</label>

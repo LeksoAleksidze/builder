@@ -25,6 +25,7 @@ export interface TextElementStyle {
   fontFamily: string;
   color: string;
   textShadow?: string;
+  textAlign?: 'left' | 'center' | 'right';
   zIndex?: number;
 }
 

@@ -160,6 +160,7 @@ function LandingPopup({
                   fontFamily: textStyle.fontFamily,
                   color: textStyle.color,
                   textShadow: textStyle.textShadow || 'none',
+                  textAlign: textStyle.textAlign || 'left',
                   zIndex: textStyle.zIndex || 1,
                   whiteSpace: 'pre-wrap',
                   wordWrap: 'break-word',
