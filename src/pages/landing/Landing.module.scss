@@ -1,6 +1,13 @@
 .wrapper {
   min-height: 100vh;
   background-color: #1a1a2e;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .landing {

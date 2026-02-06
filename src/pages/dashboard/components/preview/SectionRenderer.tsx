@@ -36,6 +36,7 @@ export function SectionRenderer({ section }: SectionRendererProps) {
 
   return (
     <div
+      data-section-id={section.id}
       style={{
         width: st.width || '100%',
         height: st.height ? `${st.height}px` : 'auto',

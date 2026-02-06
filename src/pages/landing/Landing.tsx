@@ -44,13 +44,25 @@ function LandingPopup({
   popup,
   activeLang,
   activeView,
+  triggerSectionId,
   onClose,
 }: {
   popup: Popup;
   activeLang: Language;
   activeView: Viewport;
+  triggerSectionId: number | null;
   onClose: () => void;
 }) {
+  useEffect(() => {
+    // Scroll triggering section into view
+    if (triggerSectionId !== null) {
+      const sectionEl = document.querySelector(`[data-section-id="${triggerSectionId}"]`);
+      if (sectionEl) {
+        sectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [triggerSectionId]);
+
   const pst = popup.styles[activeView];
   const closeBtn = popup.closeButton || {
     useImage: false,
@@ -181,12 +193,14 @@ function LandingElement({
   element,
   activeLang,
   activeView,
+  sectionId,
   onOpenPopup,
 }: {
   element: Element;
   activeLang: Language;
   activeView: Viewport;
-  onOpenPopup: (popupId: number) => void;
+  sectionId: number;
+  onOpenPopup: (popupId: number, sectionId: number) => void;
 }) {
   // Render box element
   if (element.type === 'box') {
@@ -214,6 +228,7 @@ function LandingElement({
             child={child}
             activeLang={activeLang}
             activeView={activeView}
+            sectionId={sectionId}
             onOpenPopup={onOpenPopup}
           />
         ))}
@@ -230,7 +245,7 @@ function LandingElement({
       if (btnEl.action.type === 'link' && btnEl.action.value) {
         window.open(btnEl.action.value, '_blank');
       } else if (btnEl.action.type === 'popup' && btnEl.action.value) {
-        onOpenPopup(Number(btnEl.action.value));
+        onOpenPopup(Number(btnEl.action.value), sectionId);
       }
     };
 
@@ -326,12 +341,14 @@ function LandingChildElement({
   child,
   activeLang,
   activeView,
+  sectionId,
   onOpenPopup,
 }: {
   child: BoxChildElement;
   activeLang: Language;
   activeView: Viewport;
-  onOpenPopup: (popupId: number) => void;
+  sectionId: number;
+  onOpenPopup: (popupId: number, sectionId: number) => void;
 }) {
   // Button child
   if (child.type === 'button') {
@@ -342,7 +359,7 @@ function LandingChildElement({
       if (btnEl.action.type === 'link' && btnEl.action.value) {
         window.open(btnEl.action.value, '_blank');
       } else if (btnEl.action.type === 'popup' && btnEl.action.value) {
-        onOpenPopup(Number(btnEl.action.value));
+        onOpenPopup(Number(btnEl.action.value), sectionId);
       }
     };
 
@@ -448,6 +465,7 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
+  const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const activeLang = getLanguage(lang);
   const [activeView, setActiveView] = useState<Viewport>('WEB');
 
@@ -519,12 +537,14 @@ export default function LandingPage() {
     return () => window.removeEventListener('resize', checkViewport);
   }, []);
 
-  const openPopup = (popupId: number) => {
+  const openPopup = (popupId: number, sectionId?: number) => {
+    setPopupTriggerSectionId(sectionId ?? null);
     setActivePopupId(popupId);
   };
 
   const closePopup = () => {
     setActivePopupId(null);
+    setPopupTriggerSectionId(null);
   };
 
   if (loading) {
@@ -610,6 +630,7 @@ export default function LandingPage() {
             return (
               <div
                 key={section.id}
+                data-section-id={section.id}
                 style={{
                   width: st.width || '100%',
                   height: st.height ? `${st.height}px` : 'auto',
@@ -633,6 +654,7 @@ export default function LandingPage() {
                     element={el}
                     activeLang={activeLang}
                     activeView={activeView}
+                    sectionId={section.id}
                     onOpenPopup={openPopup}
                   />
                 ))}
@@ -648,6 +670,7 @@ export default function LandingPage() {
           popup={activePopup}
           activeLang={activeLang}
           activeView={activeView}
+          triggerSectionId={popupTriggerSectionId}
           onClose={closePopup}
         />
       )}

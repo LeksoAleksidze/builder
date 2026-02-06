@@ -28,6 +28,7 @@ export function useLandingData() {
   const [sections, setSections] = useState<Section[]>([]);
   const [popups, setPopups] = useState<Popup[]>([]);
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
+  const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const [editingPopupId, setEditingPopupId] = useState<number | null>(null);
 
   const { load, save } = useLocalStorage();
@@ -66,12 +67,14 @@ export function useLandingData() {
     activeLang,
   });
 
-  const openPopup = useCallback((popupId: number) => {
+  const openPopup = useCallback((popupId: number, sectionId?: number) => {
+    setPopupTriggerSectionId(sectionId ?? null);
     setActivePopupId(popupId);
   }, []);
 
   const closePopup = useCallback(() => {
     setActivePopupId(null);
+    setPopupTriggerSectionId(null);
   }, []);
 
   const updateGlobalBG = useCallback(
@@ -188,6 +191,7 @@ export function useLandingData() {
     sections,
     popups,
     activePopupId,
+    popupTriggerSectionId,
     editingPopupId,
 
     // State setters

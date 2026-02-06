@@ -205,7 +205,7 @@ function BoxChildRenderer({
                     window.open(btnEl.action.value, '_blank');
                   } else if (btnEl.action.type === 'popup' && btnEl.action.value) {
                     e.stopPropagation();
-                    openPopup(Number(btnEl.action.value));
+                    openPopup(Number(btnEl.action.value), sectionId);
                   }
                 }}
                 style={{
@@ -633,7 +633,7 @@ export function ElementRenderer({ sectionId, element, parentWidth = 0, parentHei
                   window.open(btnEl.action.value, '_blank');
                 } else if (btnEl.action.type === 'popup' && btnEl.action.value) {
                   e.stopPropagation();
-                  openPopup(Number(btnEl.action.value));
+                  openPopup(Number(btnEl.action.value), sectionId);
                 }
               }}
               style={{

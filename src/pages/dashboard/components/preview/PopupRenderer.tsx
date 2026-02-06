@@ -1,14 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLandingContext } from '../../context';
 import { LANGUAGES } from '../../constants';
 import type { Language, PopupTextElement, PopupImageElement } from '../../types';
 
 export function PopupRenderer() {
-  const { activePopupId, popups, activeLang, activeView, closePopup } = useLandingContext();
+  const { activePopupId, popupTriggerSectionId, popups, activeLang, activeView, closePopup } = useLandingContext();
   const [previewLang, setPreviewLang] = useState<Language | null>(null);
   const lang = previewLang ?? activeLang;
+
+  useEffect(() => {
+    if (activePopupId === null) return;
+
+    // Scroll triggering section into view
+    if (popupTriggerSectionId !== null) {
+      const sectionEl = document.querySelector(`[data-section-id="${popupTriggerSectionId}"]`);
+      if (sectionEl) {
+        sectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [activePopupId, popupTriggerSectionId]);
 
   if (activePopupId === null) return null;
 
