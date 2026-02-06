@@ -93,6 +93,13 @@ export default function Rules({
       });
   }, [rulesKey, lang]);
 
+  const rulesTitle: Record<string, string> = {
+    ge: 'წესები',
+    en: 'Rules',
+    ru: 'Правила',
+    tr: 'Kurallar',
+  };
+
   if (!rulesData) return null;
 
   return (
@@ -103,7 +110,7 @@ export default function Rules({
         paddingBottom: `${paddingBottom}px`,
       }}
     >
-      <RulesItem title="Rules" rulesBackground={rulesBackground}>
+      <RulesItem title={rulesTitle[lang] || 'Rules'} rulesBackground={rulesBackground}>
         {rulesData.mainRules.map((rule, idx) => (
           <RulesItem
             key={idx}

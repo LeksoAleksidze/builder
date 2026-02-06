@@ -1,5 +1,11 @@
 import styles from './Authorization.module.scss';
 
+interface AuthTexts {
+  mainText: Record<string, string>;
+  registerButton: Record<string, string>;
+  loginButton: Record<string, string>;
+}
+
 interface AuthProps {
   stylesProp: {
     marginTop: string;
@@ -14,10 +20,24 @@ interface AuthProps {
     padding: number;
     borderRadius: number;
   };
+  texts?: AuthTexts;
+  lang?: string;
 }
 
-export default function Authorization({ stylesProp }: AuthProps) {
+const defaultTexts: AuthTexts = {
+  mainText: {
+    GE: 'აქციაში მონაწილეობის მისაღებად, გთხოვთ, გაიაროთ რეგისტრაცია ან ავტორიზაცია',
+    EN: 'To participate in the promotion, please register or log in',
+    RU: 'Для участия в акции, пожалуйста, зарегистрируйтесь или авторизуйтесь',
+    TR: 'Promosyona katılmak için lütfen kayıt olun veya giriş yapın',
+  },
+  registerButton: { GE: 'რეგისტრაცია', EN: 'Register', RU: 'Регистрация', TR: 'Kayıt Ol' },
+  loginButton: { GE: 'ავტორიზაცია', EN: 'Log In', RU: 'Авторизация', TR: 'Giriş Yap' },
+};
+
+export default function Authorization({ stylesProp, texts, lang = 'GE' }: AuthProps) {
   const fontFamily = stylesProp.fontFamily || 'CrocoSansCAPSRegular';
+  const t = texts || defaultTexts;
 
   return (
     <div
@@ -40,12 +60,11 @@ export default function Authorization({ stylesProp }: AuthProps) {
           borderRadius: `${stylesProp.textBgBorderRadius}px`,
         }}
       >
-        აქციაში მონაწილეობის მისაღებად, გთხოვთ, გაიაროთ რეგისტრაცია ან
-        ავტორიზაცია
+        {t.mainText[lang] || t.mainText.GE}
       </div>
       <div className={styles.authorization__actions} style={{ fontFamily }}>
-        <button style={{ fontFamily }}>რეგისტრაცია</button>
-        <button style={{ fontFamily }}>ავტორიზაცია</button>
+        <button style={{ fontFamily }}>{t.registerButton[lang] || t.registerButton.GE}</button>
+        <button style={{ fontFamily }}>{t.loginButton[lang] || t.loginButton.GE}</button>
       </div>
     </div>
   );

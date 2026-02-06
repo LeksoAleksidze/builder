@@ -13,6 +13,7 @@ import type {
   LocalizedContent,
   ViewportHeaderTextStyles,
   HeaderText,
+  AuthTexts,
   EndpointsConfig,
 } from '../types';
 
@@ -270,6 +271,27 @@ export const DEFAULT_ENDPOINTS_CONFIG: EndpointsConfig = {
   rulesBackground: '#37445ee6',
   rulesPaddingTop: 20,
   rulesPaddingBottom: 20,
+};
+
+export const DEFAULT_AUTH_TEXTS: AuthTexts = {
+  mainText: {
+    GE: 'აქციაში მონაწილეობის მისაღებად, გთხოვთ, გაიაროთ რეგისტრაცია ან ავტორიზაცია',
+    EN: 'To participate in the promotion, please register or log in',
+    RU: 'Для участия в акции, пожалуйста, зарегистрируйтесь или авторизуйтесь',
+    TR: 'Promosyona katılmak için lütfen kayıt olun veya giriş yapın',
+  },
+  registerButton: {
+    GE: 'რეგისტრაცია',
+    EN: 'Register',
+    RU: 'Регистрация',
+    TR: 'Kayıt Ol',
+  },
+  loginButton: {
+    GE: 'ავტორიზაცია',
+    EN: 'Log In',
+    RU: 'Авторизация',
+    TR: 'Giriş Yap',
+  },
 };
 
 export const DEFAULT_HEADER_TEXT: HeaderText = {

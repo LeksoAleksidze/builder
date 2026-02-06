@@ -19,6 +19,7 @@ export function PreviewCanvas() {
     sections,
     headerText,
     endpoints,
+    authTexts,
     updateHeaderTextStyle,
     clearAllEditing,
   } = useLandingContext();
@@ -176,7 +177,7 @@ export function PreviewCanvas() {
           </div>
         )}
 
-        <Authorization stylesProp={authStyles[activeView]} />
+        <Authorization stylesProp={authStyles[activeView]} texts={authTexts} lang={activeLang} />
 
         <div className={styles.dashboard__builder}>
           {sections.map((s) => (

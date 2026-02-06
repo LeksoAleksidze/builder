@@ -1916,6 +1916,8 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     updateEndpoints,
     authBlockVisibility,
     setAuthBlockVisibility,
+    authTexts,
+    updateAuthText,
   } = useLandingContext();
 
   const [openSections, setOpenSections] = useState<string[]>([
@@ -2374,6 +2376,37 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
                 value={authBlockVisibility}
                 onChange={setAuthBlockVisibility}
               />
+
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Main Text ({activeLang})</label>
+                <textarea
+                  className={styles.input}
+                  value={authTexts.mainText[activeLang]}
+                  onChange={(e) => updateAuthText('mainText', activeLang, e.target.value)}
+                  rows={2}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Register Button ({activeLang})</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={authTexts.registerButton[activeLang]}
+                  onChange={(e) => updateAuthText('registerButton', activeLang, e.target.value)}
+                />
+              </div>
+
+              <div className={styles.field}>
+                <label className={styles.fieldLabel}>Login Button ({activeLang})</label>
+                <input
+                  type="text"
+                  className={styles.input}
+                  value={authTexts.loginButton[activeLang]}
+                  onChange={(e) => updateAuthText('loginButton', activeLang, e.target.value)}
+                />
+              </div>
+
               <div className={styles.field}>
                 <label className={styles.fieldLabel}>
                   Position (Padding Top)

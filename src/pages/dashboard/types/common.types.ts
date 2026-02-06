@@ -17,6 +17,12 @@ export interface HeaderText {
   sameForAllLangs: boolean;
 }
 
+export interface AuthTexts {
+  mainText: LocalizedContent;
+  registerButton: LocalizedContent;
+  loginButton: LocalizedContent;
+}
+
 export interface EndpointsConfig {
   rulesKey: string;
   rulesBackground: string;

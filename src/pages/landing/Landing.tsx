@@ -30,8 +30,9 @@ import {
   DEFAULT_LOCALIZED_CONTENT,
   DEFAULT_HEADER_TEXT,
   DEFAULT_ENDPOINTS_CONFIG,
+  DEFAULT_AUTH_TEXTS,
 } from '../dashboard/constants';
-import type { HeaderText, EndpointsConfig, AuthVisibility } from '../dashboard/types';
+import type { HeaderText, EndpointsConfig, AuthVisibility, AuthTexts } from '../dashboard/types';
 import styles from './Landing.module.scss';
 
 interface LandingData {
@@ -44,6 +45,7 @@ interface LandingData {
   headerText?: HeaderText;
   endpoints?: EndpointsConfig;
   authBlockVisibility?: AuthVisibility;
+  authTexts?: AuthTexts;
 }
 
 function isUserAuthorized(): boolean {
@@ -550,6 +552,7 @@ export default function LandingPage() {
             headerText: parsed.headerText || DEFAULT_HEADER_TEXT,
             endpoints: { ...DEFAULT_ENDPOINTS_CONFIG, ...(parsed.endpoints || {}) },
             authBlockVisibility: parsed.authBlockVisibility || 'non-auth',
+            authTexts: parsed.authTexts ? { ...DEFAULT_AUTH_TEXTS, ...parsed.authTexts } : { ...DEFAULT_AUTH_TEXTS },
           });
         } else {
           setError('კონფიგურაცია ვერ მოიძებნა');
@@ -696,7 +699,7 @@ export default function LandingPage() {
         })()}
 
         {shouldShow(data.authBlockVisibility, isAuthorized) && (
-          <Authorization stylesProp={data.authStyles[activeView]} />
+          <Authorization stylesProp={data.authStyles[activeView]} texts={data.authTexts} lang={activeLang} />
         )}
 
         <div className={styles.builder}>
