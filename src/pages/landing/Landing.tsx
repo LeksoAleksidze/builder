@@ -95,9 +95,12 @@ function LandingPopup({
         style={{
           width: `${pst.width}px`,
           height: `${pst.height}px`,
-          backgroundColor: pst.backgroundColor,
+          backgroundColor: pst.backgroundImage ? 'transparent' : pst.backgroundColor,
+          backgroundImage: pst.backgroundImage ? `url(${pst.backgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
           borderRadius: `${pst.borderRadius}px`,
-          border: `${pst.borderWidth}px solid ${pst.borderColor}`,
+          border: pst.borderWidth > 0 ? `${pst.borderWidth}px solid ${pst.borderColor}` : 'none',
           position: 'relative',
           overflow: 'hidden',
         }}

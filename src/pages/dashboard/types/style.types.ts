@@ -127,6 +127,7 @@ export interface PopupStyle {
   fontFamily: string;
   color: string;
   backgroundColor: string;
+  backgroundImage?: string;
   borderWidth: number;
   borderRadius: number;
   borderColor: string;

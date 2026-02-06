@@ -217,44 +217,64 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
               style={{
                 width: `${pst.width}px`,
                 height: `${pst.height}px`,
-                backgroundColor: pst.backgroundColor,
+                backgroundColor: pst.backgroundImage ? 'transparent' : pst.backgroundColor,
+                backgroundImage: pst.backgroundImage ? `url(${pst.backgroundImage})` : 'none',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
                 borderRadius: `${pst.borderRadius}px`,
-                border: `${pst.borderWidth}px solid ${pst.borderColor}`,
+                border: pst.borderWidth > 0 ? `${pst.borderWidth}px solid ${pst.borderColor}` : 'none',
               }}
               onClick={() => setEditingElementId(null)}
             >
-              {/* Close button preview */}
-              <div
-                className={styles.closeButtonPreview}
-                style={{
-                  position: 'absolute',
-                  top: closeBtnStyle.x === -1 ? '10px' : `${closeBtnStyle.y}px`,
-                  right: closeBtnStyle.x === -1 ? '10px' : 'auto',
-                  left: closeBtnStyle.x === -1 ? 'auto' : `${closeBtnStyle.x}px`,
-                  width: `${closeBtnStyle.width}px`,
-                  height: `${closeBtnStyle.height}px`,
-                  backgroundColor: closeBtn.useImage ? 'transparent' : closeBtnStyle.backgroundColor,
-                  color: closeBtnStyle.color,
-                  borderRadius: `${closeBtnStyle.borderRadius}px`,
-                  fontSize: `${closeBtnStyle.fontSize}px`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  zIndex: 100,
-                  overflow: 'hidden',
+              {/* Close button preview — draggable + resizable */}
+              <Rnd
+                size={{ width: closeBtnStyle.width, height: closeBtnStyle.height }}
+                position={{
+                  x: closeBtnStyle.x === -1 ? pst.width - closeBtnStyle.width - 10 : closeBtnStyle.x,
+                  y: closeBtnStyle.x === -1 ? 10 : closeBtnStyle.y,
                 }}
+                bounds="parent"
+                onDragStop={(_e, d) => {
+                  updateCloseButtonStyle(popup.id, 'x', Math.round(d.x));
+                  updateCloseButtonStyle(popup.id, 'y', Math.round(d.y));
+                }}
+                onResizeStop={(_e, _dir, ref, _delta, pos) => {
+                  updateCloseButtonStyle(popup.id, 'width', ref.offsetWidth);
+                  updateCloseButtonStyle(popup.id, 'height', ref.offsetHeight);
+                  updateCloseButtonStyle(popup.id, 'x', Math.round(pos.x));
+                  updateCloseButtonStyle(popup.id, 'y', Math.round(pos.y));
+                }}
+                style={{ zIndex: 100 }}
+                minWidth={16}
+                minHeight={16}
               >
-                {closeBtn.useImage && closeBtn.image[activeLang] ? (
-                  <img
-                    src={closeBtn.image[activeLang]}
-                    alt="close"
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                ) : (
-                  'X'
-                )}
-              </div>
+                <div
+                  className={styles.closeButtonPreview}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: closeBtn.useImage ? 'transparent' : closeBtnStyle.backgroundColor,
+                    color: closeBtnStyle.color,
+                    borderRadius: `${closeBtnStyle.borderRadius}px`,
+                    fontSize: `${closeBtnStyle.fontSize}px`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'move',
+                    overflow: 'hidden',
+                  }}
+                >
+                  {closeBtn.useImage && closeBtn.image[activeLang] ? (
+                    <img
+                      src={closeBtn.image[activeLang]}
+                      alt="close"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  ) : (
+                    'X'
+                  )}
+                </div>
+              </Rnd>
 
               {/* Popup elements */}
               {popup.children.map((child) => (
@@ -478,47 +498,134 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                     </div>
                   </div>
 
-                  <div className={styles.field}>
-                    <label>Background Color</label>
-                    <div className={styles.fieldRow}>
-                      <input
-                        type="color"
-                        className={styles.colorInput}
-                        value={pst.backgroundColor === 'transparent' ? '#000000' : pst.backgroundColor}
-                        onChange={(e) => updatePopupStyle(popup.id, 'backgroundColor', e.target.value)}
-                      />
-                      <button
-                        className={styles.clearBtn}
-                        onClick={() => updatePopupStyle(popup.id, 'backgroundColor', 'transparent')}
-                      >
-                        Clear
-                      </button>
-                    </div>
+                  {/* Background: toggle between image and color */}
+                  <div className={styles.toggleRow}>
+                    <span>Background Image</span>
+                    <button
+                      className={`${styles.toggle} ${pst.backgroundImage ? styles['toggle--active'] : ''}`}
+                      onClick={() => {
+                        if (pst.backgroundImage) {
+                          updatePopupStyle(popup.id, 'backgroundImage', '');
+                        }
+                      }}
+                    />
                   </div>
 
-                  <div className={styles.field}>
-                    <label>Border (Width / Radius / Color)</label>
-                    <div className={styles.fieldRow}>
+                  {pst.backgroundImage ? (
+                    <div className={styles.field}>
+                      <label>Background Image</label>
                       <input
-                        type="number"
-                        className={styles.inputSmall}
-                        value={pst.borderWidth}
-                        onChange={(e) => updatePopupStyle(popup.id, 'borderWidth', Number(e.target.value))}
+                        type="file"
+                        className={styles.fileInput}
+                        onChange={(e) => {
+                          const f = e.target.files?.[0];
+                          if (f) {
+                            const r = new FileReader();
+                            r.onload = () => updatePopupStyle(popup.id, 'backgroundImage', r.result as string);
+                            r.readAsDataURL(f);
+                          }
+                        }}
+                        accept="image/*"
                       />
-                      <input
-                        type="number"
-                        className={styles.inputSmall}
-                        value={pst.borderRadius}
-                        onChange={(e) => updatePopupStyle(popup.id, 'borderRadius', Number(e.target.value))}
-                      />
-                      <input
-                        type="color"
-                        className={styles.colorInput}
-                        value={pst.borderColor}
-                        onChange={(e) => updatePopupStyle(popup.id, 'borderColor', e.target.value)}
-                      />
+                      {pst.backgroundImage && (
+                        <img
+                          src={pst.backgroundImage}
+                          alt="bg preview"
+                          className={styles.imagePreview}
+                        />
+                      )}
+                      <button
+                        className={styles.clearBtn}
+                        onClick={() => updatePopupStyle(popup.id, 'backgroundImage', '')}
+                        style={{ marginTop: '4px' }}
+                      >
+                        Remove Image
+                      </button>
                     </div>
+                  ) : (
+                    <div className={styles.field}>
+                      <label>Background Color</label>
+                      <div className={styles.fieldRow}>
+                        <input
+                          type="color"
+                          className={styles.colorInput}
+                          value={pst.backgroundColor === 'transparent' ? '#000000' : pst.backgroundColor}
+                          onChange={(e) => updatePopupStyle(popup.id, 'backgroundColor', e.target.value)}
+                        />
+                        <button
+                          className={styles.clearBtn}
+                          onClick={() => updatePopupStyle(popup.id, 'backgroundColor', 'transparent')}
+                        >
+                          Clear
+                        </button>
+                        <button
+                          className={styles.clearBtn}
+                          onClick={() => {
+                            const input = document.createElement('input');
+                            input.type = 'file';
+                            input.accept = 'image/*';
+                            input.onchange = (ev) => {
+                              const f = (ev.target as HTMLInputElement).files?.[0];
+                              if (f) {
+                                const r = new FileReader();
+                                r.onload = () => updatePopupStyle(popup.id, 'backgroundImage', r.result as string);
+                                r.readAsDataURL(f);
+                              }
+                            };
+                            input.click();
+                          }}
+                        >
+                          Upload Image
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Border Radius (always visible) */}
+                  <div className={styles.field}>
+                    <label>Border Radius</label>
+                    <input
+                      type="number"
+                      className={styles.inputSmall}
+                      value={pst.borderRadius}
+                      onChange={(e) => updatePopupStyle(popup.id, 'borderRadius', Number(e.target.value))}
+                    />
                   </div>
+
+                  {/* Border toggle */}
+                  <div className={styles.toggleRow}>
+                    <span>Border</span>
+                    <button
+                      className={`${styles.toggle} ${pst.borderWidth > 0 ? styles['toggle--active'] : ''}`}
+                      onClick={() => {
+                        if (pst.borderWidth > 0) {
+                          updatePopupStyle(popup.id, 'borderWidth', 0);
+                        } else {
+                          updatePopupStyle(popup.id, 'borderWidth', 1);
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {pst.borderWidth > 0 && (
+                    <div className={styles.field}>
+                      <label>Border (Width / Color)</label>
+                      <div className={styles.fieldRow}>
+                        <input
+                          type="number"
+                          className={styles.inputSmall}
+                          value={pst.borderWidth}
+                          onChange={(e) => updatePopupStyle(popup.id, 'borderWidth', Number(e.target.value))}
+                        />
+                        <input
+                          type="color"
+                          className={styles.colorInput}
+                          value={pst.borderColor}
+                          onChange={(e) => updatePopupStyle(popup.id, 'borderColor', e.target.value)}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
 
@@ -610,20 +717,11 @@ export function PopupEditor({ popup, onClose }: PopupEditorProps) {
                   </div>
 
                   <div className={styles.field}>
-                    <label>Position (X / Y) - use -1 for auto</label>
+                    <label>Position (drag in preview to move)</label>
                     <div className={styles.fieldRow}>
-                      <input
-                        type="number"
-                        className={styles.inputSmall}
-                        value={closeBtnStyle.x}
-                        onChange={(e) => updateCloseButtonStyle(popup.id, 'x', Number(e.target.value))}
-                      />
-                      <input
-                        type="number"
-                        className={styles.inputSmall}
-                        value={closeBtnStyle.y}
-                        onChange={(e) => updateCloseButtonStyle(popup.id, 'y', Number(e.target.value))}
-                      />
+                      <span style={{ fontSize: '12px', color: '#999' }}>
+                        X: {closeBtnStyle.x === -1 ? 'auto' : closeBtnStyle.x}, Y: {closeBtnStyle.x === -1 ? 'auto' : closeBtnStyle.y}
+                      </span>
                     </div>
                   </div>
                 </>
