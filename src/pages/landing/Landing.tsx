@@ -500,7 +500,7 @@ export default function LandingPage() {
   const [error, setError] = useState<string | null>(null);
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
-  const activeLang = getLanguage(lang);
+  const [activeLang, setActiveLang] = useState<Language>(getLanguage(lang));
   const [activeView, setActiveView] = useState<Viewport>('WEB');
   const isAuthorized = isUserAuthorized();
 
@@ -566,6 +566,23 @@ export default function LandingPage() {
 
     loadConfig();
   }, [key]);
+
+  // Sync activeLang when URL param changes (React Router navigation)
+  useEffect(() => {
+    setActiveLang(getLanguage(lang));
+  }, [lang]);
+
+  // Listen for language change from parent window (postMessage)
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      const msg = event.data;
+      if (msg && typeof msg === 'object' && msg.type === 'changeLang' && msg.lang) {
+        setActiveLang(getLanguage(msg.lang));
+      }
+    };
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
 
   useEffect(() => {
     const checkViewport = () => {
