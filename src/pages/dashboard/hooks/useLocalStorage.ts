@@ -1,5 +1,11 @@
 import { useCallback } from 'react';
-import type { Section, GlobalBackground, ViewportAuthStyles, ViewportBGColor, Popup } from '../types';
+import type {
+  Section,
+  GlobalBackground,
+  ViewportAuthStyles,
+  ViewportBGColor,
+  Popup,
+} from '../types';
 import {
   STORAGE_KEY,
   DEFAULT_GLOBAL_BG,
@@ -9,12 +15,15 @@ import {
   DEFAULT_LOCALIZED_CONTENT,
 } from '../constants';
 
+export type BackgroundMode = 'cover' | 'contain' | 'natural';
+
 export interface LandingData {
   sections: Section[];
   authStyles: ViewportAuthStyles;
   globalBG: GlobalBackground;
   globalBGColor: ViewportBGColor;
   sameBackgroundForAllLangs: boolean;
+  backgroundMode: BackgroundMode;
   popups: Popup[];
 }
 
@@ -83,8 +92,12 @@ export function useLocalStorage() {
         sections: parsed.sections || [],
         authStyles,
         globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
-        globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
+        globalBGColor: {
+          ...DEFAULT_GLOBAL_BG_COLOR,
+          ...(parsed.globalBGColor || {}),
+        },
         sameBackgroundForAllLangs: parsed.sameBackgroundForAllLangs ?? true,
+        backgroundMode: parsed.backgroundMode || 'cover',
         popups: migratePopups(parsed.popups),
       };
     }
@@ -94,6 +107,7 @@ export function useLocalStorage() {
       globalBG: DEFAULT_GLOBAL_BG,
       globalBGColor: DEFAULT_GLOBAL_BG_COLOR,
       sameBackgroundForAllLangs: true,
+      backgroundMode: 'cover',
       popups: [],
     };
   }, []);

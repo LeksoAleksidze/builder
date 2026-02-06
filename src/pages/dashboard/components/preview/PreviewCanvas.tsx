@@ -11,6 +11,7 @@ export function PreviewCanvas() {
     activeView,
     globalBG,
     globalBGColor,
+    backgroundMode,
     authStyles,
     sections,
     clearAllEditing,
@@ -26,6 +27,37 @@ export function PreviewCanvas() {
     }
   };
 
+  // Background style based on mode
+  const getBackgroundStyle = () => {
+    if (!currentBGImage) return {};
+
+    if (backgroundMode === 'natural') {
+      return {
+        backgroundImage: `url(${currentBGImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: '50% 0',
+        backgroundSize: 'auto',
+      };
+    }
+
+    if (backgroundMode === 'contain') {
+      return {
+        backgroundImage: `url(${currentBGImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'top center',
+        backgroundSize: 'contain',
+      };
+    }
+
+    // Default: cover
+    return {
+      backgroundImage: `url(${currentBGImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'top center',
+      backgroundRepeat: 'no-repeat',
+    };
+  };
+
   return (
     <div
       className={styles.dashboard__content}
@@ -33,10 +65,7 @@ export function PreviewCanvas() {
         width: '100%',
         minHeight: '100vh',
         backgroundColor: currentBGColor,
-        backgroundImage: currentBGImage ? `url(${currentBGImage})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'top center',
-        backgroundRepeat: 'no-repeat',
+        ...getBackgroundStyle(),
         transition: 'all 0.3s ease',
       }}
       onClick={handleBackgroundClick}

@@ -943,6 +943,8 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     clearGlobalBG,
     sameBackgroundForAllLangs,
     setSameBackgroundForAllLangs,
+    backgroundMode,
+    setBackgroundMode,
     authStyles,
     updateAuthStyle,
     sections,
@@ -1129,6 +1131,19 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
                       placeholder="#1a1a2e"
                     />
                   </div>
+                </div>
+
+                <div className={styles.field}>
+                  <label className={styles.fieldLabel}>Background Mode</label>
+                  <select
+                    className={styles.select}
+                    value={backgroundMode}
+                    onChange={(e) => setBackgroundMode(e.target.value as 'cover' | 'contain' | 'natural')}
+                  >
+                    <option value="cover">Cover (სქეილებადი)</option>
+                    <option value="natural">Natural (ორიგინალი ზომა)</option>
+                    <option value="contain">Contain (მთლიანად ჩანს)</option>
+                  </select>
                 </div>
               </div>
             )}

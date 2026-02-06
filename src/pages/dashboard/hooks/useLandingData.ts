@@ -14,6 +14,8 @@ import { useSections } from './useSections';
 import { useElements } from './useElements';
 import { usePopups } from './usePopups';
 
+export type BackgroundMode = 'cover' | 'contain' | 'natural';
+
 export function useLandingData() {
   const [activeLang, setActiveLang] = useState<Language>('GE');
   const [activeView, setActiveView] = useState<Viewport>('WEB');
@@ -21,6 +23,7 @@ export function useLandingData() {
   const [globalBG, setGlobalBG] = useState<GlobalBackground>(DEFAULT_GLOBAL_BG);
   const [globalBGColor, setGlobalBGColor] = useState<ViewportBGColor>(DEFAULT_GLOBAL_BG_COLOR);
   const [sameBackgroundForAllLangs, setSameBackgroundForAllLangs] = useState(true);
+  const [backgroundMode, setBackgroundMode] = useState<BackgroundMode>('cover');
   const [authStyles, setAuthStyles] = useState<ViewportAuthStyles>(DEFAULT_AUTH_STYLES);
   const [sections, setSections] = useState<Section[]>([]);
   const [popups, setPopups] = useState<Popup[]>([]);
@@ -36,13 +39,14 @@ export function useLandingData() {
     setGlobalBG(data.globalBG);
     setGlobalBGColor(data.globalBGColor);
     setSameBackgroundForAllLangs(data.sameBackgroundForAllLangs ?? true);
+    setBackgroundMode(data.backgroundMode || 'cover');
     setPopups(data.popups || []);
   }, [load]);
 
   const saveAllConfig = useCallback(() => {
-    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, popups });
+    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups });
     alert('Configuration saved!');
-  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, popups]);
+  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups]);
 
   const sectionActions = useSections({
     sections,
@@ -179,6 +183,7 @@ export function useLandingData() {
     globalBG,
     globalBGColor,
     sameBackgroundForAllLangs,
+    backgroundMode,
     authStyles,
     sections,
     popups,
@@ -192,6 +197,7 @@ export function useLandingData() {
     setGlobalBG,
     setGlobalBGColor,
     setSameBackgroundForAllLangs: setSameBackgroundForAllLangsWithSync,
+    setBackgroundMode,
     setAuthStyles,
     setSections,
     setPopups,

@@ -14,13 +14,19 @@ import type {
   BoxElement,
   TextElement,
   ImageElement,
+  ButtonElement,
   BoxChildElement,
+  Popup,
+  PopupTextElement,
+  PopupImageElement,
 } from '../dashboard/types';
 import {
   STORAGE_KEY,
   DEFAULT_GLOBAL_BG,
   DEFAULT_GLOBAL_BG_COLOR,
   DEFAULT_AUTH_STYLES,
+  DEFAULT_CLOSE_BUTTON_STYLES,
+  DEFAULT_LOCALIZED_CONTENT,
 } from '../dashboard/constants';
 import styles from './Landing.module.scss';
 
@@ -29,17 +35,158 @@ interface LandingData {
   authStyles: ViewportAuthStyles;
   globalBG: GlobalBackground;
   globalBGColor: ViewportBGColor;
+  popups: Popup[];
+  backgroundMode?: 'cover' | 'contain' | 'natural';
 }
 
-// Render a single element (text, image, or box)
+// Popup component for landing page
+function LandingPopup({
+  popup,
+  activeLang,
+  activeView,
+  onClose,
+}: {
+  popup: Popup;
+  activeLang: Language;
+  activeView: Viewport;
+  onClose: () => void;
+}) {
+  const pst = popup.styles[activeView];
+  const closeBtn = popup.closeButton || {
+    useImage: false,
+    image: DEFAULT_LOCALIZED_CONTENT,
+    styles: { WEB: DEFAULT_CLOSE_BUTTON_STYLES.WEB, MOB: DEFAULT_CLOSE_BUTTON_STYLES.MOB },
+  };
+  const closeBtnStyle = closeBtn.styles?.[activeView] || DEFAULT_CLOSE_BUTTON_STYLES[activeView];
+
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2000,
+      }}
+      onClick={onClose}
+    >
+      <div
+        style={{
+          width: `${pst.width}px`,
+          height: `${pst.height}px`,
+          backgroundColor: pst.backgroundColor,
+          borderRadius: `${pst.borderRadius}px`,
+          border: `${pst.borderWidth}px solid ${pst.borderColor}`,
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: closeBtnStyle.x === -1 ? '10px' : `${closeBtnStyle.y}px`,
+            right: closeBtnStyle.x === -1 ? '10px' : 'auto',
+            left: closeBtnStyle.x === -1 ? 'auto' : `${closeBtnStyle.x}px`,
+            width: `${closeBtnStyle.width}px`,
+            height: `${closeBtnStyle.height}px`,
+            borderRadius: `${closeBtnStyle.borderRadius}px`,
+            border: 'none',
+            background: closeBtn.useImage ? 'transparent' : closeBtnStyle.backgroundColor,
+            color: closeBtnStyle.color,
+            fontSize: `${closeBtnStyle.fontSize}px`,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            overflow: 'hidden',
+            padding: 0,
+          }}
+        >
+          {closeBtn.useImage && closeBtn.image[activeLang] ? (
+            <img
+              src={closeBtn.image[activeLang]}
+              alt="close"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            'X'
+          )}
+        </button>
+
+        {/* Popup children elements */}
+        {(popup.children || []).map((child) => {
+          const est = child.styles[activeView];
+
+          if (child.type === 'text') {
+            const textStyle = est as PopupTextElement['styles']['WEB'];
+            return (
+              <div
+                key={child.id}
+                style={{
+                  position: 'absolute',
+                  left: `${textStyle.x}px`,
+                  top: `${textStyle.y}px`,
+                  width: `${textStyle.width}px`,
+                  height: `${textStyle.height}px`,
+                  fontSize: `${textStyle.fontSize}px`,
+                  fontFamily: textStyle.fontFamily,
+                  color: textStyle.color,
+                  textShadow: textStyle.textShadow || 'none',
+                  zIndex: textStyle.zIndex || 1,
+                  whiteSpace: 'pre-wrap',
+                  wordWrap: 'break-word',
+                  overflow: 'hidden',
+                }}
+                dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
+              />
+            );
+          }
+
+          const imgStyle = est as PopupImageElement['styles']['WEB'];
+          return (
+            <img
+              key={child.id}
+              src={child.content[activeLang] || ''}
+              alt=""
+              style={{
+                position: 'absolute',
+                left: `${imgStyle.x}px`,
+                top: `${imgStyle.y}px`,
+                width: `${imgStyle.width}px`,
+                height: `${imgStyle.height}px`,
+                objectFit: 'cover',
+                borderRadius: `${imgStyle.borderRadius || 0}px`,
+                zIndex: imgStyle.zIndex || 1,
+              }}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// Render a single element (text, image, box, or button)
 function LandingElement({
   element,
   activeLang,
   activeView,
+  onOpenPopup,
 }: {
   element: Element;
   activeLang: Language;
   activeView: Viewport;
+  onOpenPopup: (popupId: number) => void;
 }) {
   // Render box element
   if (element.type === 'box') {
@@ -62,9 +209,62 @@ function LandingElement({
         }}
       >
         {boxEl.children.map((child) => (
-          <LandingChildElement key={child.id} child={child} activeLang={activeLang} activeView={activeView} />
+          <LandingChildElement
+            key={child.id}
+            child={child}
+            activeLang={activeLang}
+            activeView={activeView}
+            onOpenPopup={onOpenPopup}
+          />
         ))}
       </div>
+    );
+  }
+
+  // Render button element
+  if (element.type === 'button') {
+    const btnEl = element as ButtonElement;
+    const btnStyle = btnEl.styles[activeView];
+
+    const handleClick = () => {
+      if (btnEl.action.type === 'link' && btnEl.action.value) {
+        window.open(btnEl.action.value, '_blank');
+      } else if (btnEl.action.type === 'popup' && btnEl.action.value) {
+        onOpenPopup(Number(btnEl.action.value));
+      }
+    };
+
+    return (
+      <button
+        onClick={handleClick}
+        style={{
+          position: 'absolute',
+          left: `${btnStyle.x}px`,
+          top: `${btnStyle.y}px`,
+          width: `${btnStyle.width}px`,
+          height: `${btnStyle.height}px`,
+          backgroundColor: btnEl.useImage ? 'transparent' : btnStyle.backgroundColor,
+          border: btnEl.useImage ? 'none' : `${btnStyle.borderWidth}px solid ${btnStyle.borderColor}`,
+          borderRadius: `${btnStyle.borderRadius}px`,
+          fontSize: `${btnStyle.fontSize}px`,
+          fontFamily: btnStyle.fontFamily,
+          color: btnStyle.color,
+          cursor: 'pointer',
+          zIndex: btnStyle.zIndex || 1,
+          padding: 0,
+          overflow: 'hidden',
+        }}
+      >
+        {btnEl.useImage && btnEl.image[activeLang] ? (
+          <img
+            src={btnEl.image[activeLang]}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          btnEl.content[activeLang] || ''
+        )}
+      </button>
     );
   }
 
@@ -126,11 +326,60 @@ function LandingChildElement({
   child,
   activeLang,
   activeView,
+  onOpenPopup,
 }: {
   child: BoxChildElement;
   activeLang: Language;
   activeView: Viewport;
+  onOpenPopup: (popupId: number) => void;
 }) {
+  // Button child
+  if (child.type === 'button') {
+    const btnEl = child as ButtonElement;
+    const btnStyle = btnEl.styles[activeView];
+
+    const handleClick = () => {
+      if (btnEl.action.type === 'link' && btnEl.action.value) {
+        window.open(btnEl.action.value, '_blank');
+      } else if (btnEl.action.type === 'popup' && btnEl.action.value) {
+        onOpenPopup(Number(btnEl.action.value));
+      }
+    };
+
+    return (
+      <button
+        onClick={handleClick}
+        style={{
+          position: 'absolute',
+          left: `${btnStyle.x}px`,
+          top: `${btnStyle.y}px`,
+          width: `${btnStyle.width}px`,
+          height: `${btnStyle.height}px`,
+          backgroundColor: btnEl.useImage ? 'transparent' : btnStyle.backgroundColor,
+          border: btnEl.useImage ? 'none' : `${btnStyle.borderWidth}px solid ${btnStyle.borderColor}`,
+          borderRadius: `${btnStyle.borderRadius}px`,
+          fontSize: `${btnStyle.fontSize}px`,
+          fontFamily: btnStyle.fontFamily,
+          color: btnStyle.color,
+          cursor: 'pointer',
+          zIndex: btnStyle.zIndex || 1,
+          padding: 0,
+          overflow: 'hidden',
+        }}
+      >
+        {btnEl.useImage && btnEl.image[activeLang] ? (
+          <img
+            src={btnEl.image[activeLang]}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        ) : (
+          btnEl.content[activeLang] || ''
+        )}
+      </button>
+    );
+  }
+
   if (child.type === 'text') {
     const textStyle = child.styles[activeView];
 
@@ -198,6 +447,7 @@ export default function LandingPage() {
   const [data, setData] = useState<LandingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [activePopupId, setActivePopupId] = useState<number | null>(null);
   const activeLang = getLanguage(lang);
   const [activeView, setActiveView] = useState<Viewport>('WEB');
 
@@ -223,11 +473,29 @@ export default function LandingPage() {
             MOB: { ...DEFAULT_AUTH_STYLES.MOB, ...(parsed.authStyles?.MOB || {}) },
           };
 
+          // Migrate popups if needed
+          const popups = (parsed.popups || []).map((p: Popup) => {
+            if (!p.children) p.children = [];
+            if (!p.closeButton) {
+              p.closeButton = {
+                useImage: false,
+                image: { ...DEFAULT_LOCALIZED_CONTENT },
+                styles: {
+                  WEB: { ...DEFAULT_CLOSE_BUTTON_STYLES.WEB },
+                  MOB: { ...DEFAULT_CLOSE_BUTTON_STYLES.MOB },
+                },
+              };
+            }
+            return p;
+          });
+
           setData({
             sections: parsed.sections || [],
             authStyles,
             globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
             globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
+            popups,
+            backgroundMode: parsed.backgroundMode || 'cover',
           });
         } else {
           setError('კონფიგურაცია ვერ მოიძებნა');
@@ -250,6 +518,14 @@ export default function LandingPage() {
     window.addEventListener('resize', checkViewport);
     return () => window.removeEventListener('resize', checkViewport);
   }, []);
+
+  const openPopup = (popupId: number) => {
+    setActivePopupId(popupId);
+  };
+
+  const closePopup = () => {
+    setActivePopupId(null);
+  };
 
   if (loading) {
     return (
@@ -274,6 +550,39 @@ export default function LandingPage() {
   const currentBGImage = data.globalBG[activeLang]?.[bgKey] || '';
   const currentBGColor = data.globalBGColor[activeView] || '#1a1a2e';
 
+  // Background style based on mode
+  const getBackgroundStyle = () => {
+    if (!currentBGImage) return {};
+
+    if (data.backgroundMode === 'natural') {
+      return {
+        backgroundImage: `url(${currentBGImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: '50% 0',
+        backgroundSize: 'auto',
+      };
+    }
+
+    if (data.backgroundMode === 'contain') {
+      return {
+        backgroundImage: `url(${currentBGImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'top center',
+        backgroundSize: 'contain',
+      };
+    }
+
+    // Default: cover
+    return {
+      backgroundImage: `url(${currentBGImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'top center',
+      backgroundRepeat: 'no-repeat',
+    };
+  };
+
+  const activePopup = activePopupId !== null ? data.popups.find((p) => p.id === activePopupId) : null;
+
   return (
     <div
       className={styles.wrapper}
@@ -281,10 +590,7 @@ export default function LandingPage() {
         width: '100%',
         minHeight: '100vh',
         backgroundColor: currentBGColor,
-        backgroundImage: currentBGImage ? `url(${currentBGImage})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'top center',
-        backgroundRepeat: 'no-repeat',
+        ...getBackgroundStyle(),
       }}
     >
       <div
@@ -322,13 +628,29 @@ export default function LandingPage() {
                 }}
               >
                 {section.elements.map((el) => (
-                  <LandingElement key={el.id} element={el} activeLang={activeLang} activeView={activeView} />
+                  <LandingElement
+                    key={el.id}
+                    element={el}
+                    activeLang={activeLang}
+                    activeView={activeView}
+                    onOpenPopup={openPopup}
+                  />
                 ))}
               </div>
             );
           })}
         </div>
       </div>
+
+      {/* Popup */}
+      {activePopup && (
+        <LandingPopup
+          popup={activePopup}
+          activeLang={activeLang}
+          activeView={activeView}
+          onClose={closePopup}
+        />
+      )}
     </div>
   );
 }
