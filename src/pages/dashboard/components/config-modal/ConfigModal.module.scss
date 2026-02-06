@@ -488,9 +488,9 @@
 .boxChildItem {
   background: rgba(0, 0, 0, 0.3);
   border-left: 2px solid #764ba2;
-  padding: 10px;
   margin-top: 10px;
   border-radius: 0 6px 6px 0;
+  overflow: hidden;
 }
 
 .sectionCard {
@@ -571,16 +571,30 @@
 .elementItem {
   background: rgba(0, 0, 0, 0.3);
   border-left: 3px solid #667eea;
-  padding: 12px;
   margin-top: 12px;
   border-radius: 0 8px 8px 0;
+  overflow: hidden;
 }
 
 .elementHeader {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  padding: 12px;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+.elementBody {
+  padding: 0 12px 12px;
+}
+
+.collapseArrow {
+  font-size: 8px;
+  color: #6272a4;
+  transition: transform 0.2s;
 }
 
 .elementType {

@@ -27,6 +27,133 @@ interface ConfigModalProps {
   onClose: () => void;
 }
 
+function CollapsibleElement({
+  sectionId,
+  element,
+  activeView,
+  activeLang,
+  updateElementStyle,
+  updateElementContent,
+  setElementSameForAllLangs,
+  duplicateElement,
+  deleteElement,
+  addElementToBox,
+  deleteBoxChild,
+  updateBoxTitle,
+  updateButtonAction,
+  updateButtonImage,
+  setButtonUseImage,
+  popups,
+}: {
+  sectionId: number;
+  element: Section['elements'][number];
+  activeView: 'WEB' | 'MOB';
+  activeLang: 'GE' | 'EN' | 'RU' | 'TR';
+  updateElementStyle: (sId: number, elId: number, field: string, value: unknown) => void;
+  updateElementContent: (sId: number, elId: number, content: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
+  setElementSameForAllLangs: (sId: number, elId: number, value: boolean) => void;
+  duplicateElement: (sId: number, elId: number) => void;
+  deleteElement: (sId: number, elId: number) => void;
+  addElementToBox: (sId: number, boxId: number, type: 'text' | 'image' | 'button') => void;
+  deleteBoxChild: (sId: number, boxId: number, childId: number) => void;
+  updateBoxTitle: (sId: number, boxId: number, title: string) => void;
+  updateButtonAction: (sId: number, elId: number, actionType: 'link' | 'popup', actionValue: string) => void;
+  updateButtonImage: (sId: number, elId: number, imageData: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
+  setButtonUseImage: (sId: number, elId: number, useImage: boolean) => void;
+  popups: Popup[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const label = element.type === 'box' ? `BOX: ${(element as BoxElement).title}` : element.type.toUpperCase();
+
+  return (
+    <div className={styles.elementItem}>
+      <div
+        className={styles.elementHeader}
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ cursor: 'pointer', userSelect: 'none' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span className={styles.collapseArrow} style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>&#9654;</span>
+          <span className={styles.elementType}>{label}</span>
+        </div>
+        <div style={{ display: 'flex', gap: '4px' }}>
+          <button
+            className={styles.duplicateBtn}
+            onClick={(e) => { e.stopPropagation(); duplicateElement(sectionId, element.id); }}
+            title="Duplicate"
+          >
+            ++
+          </button>
+          <button
+            className={styles.deleteBtn}
+            onClick={(e) => { e.stopPropagation(); deleteElement(sectionId, element.id); }}
+          >
+            X
+          </button>
+        </div>
+      </div>
+
+      {isOpen && (
+        <div className={styles.elementBody}>
+          {element.type === 'text' ? (
+            <TextElementForm
+              sectionId={sectionId}
+              element={element as TextElement}
+              activeView={activeView}
+              activeLang={activeLang}
+              updateElementStyle={updateElementStyle}
+              updateElementContent={updateElementContent}
+              setElementSameForAllLangs={setElementSameForAllLangs}
+            />
+          ) : element.type === 'image' ? (
+            <ImageElementForm
+              sectionId={sectionId}
+              element={element as ImageElement}
+              activeView={activeView}
+              activeLang={activeLang}
+              updateElementStyle={updateElementStyle}
+              updateElementContent={updateElementContent}
+              setElementSameForAllLangs={setElementSameForAllLangs}
+            />
+          ) : element.type === 'button' ? (
+            <ButtonElementForm
+              sectionId={sectionId}
+              element={element as ButtonElement}
+              activeView={activeView}
+              activeLang={activeLang}
+              updateElementStyle={updateElementStyle}
+              updateElementContent={updateElementContent}
+              setElementSameForAllLangs={setElementSameForAllLangs}
+              updateButtonAction={updateButtonAction}
+              updateButtonImage={updateButtonImage}
+              setButtonUseImage={setButtonUseImage}
+              popups={popups}
+            />
+          ) : (
+            <BoxElementForm
+              sectionId={sectionId}
+              element={element as BoxElement}
+              activeView={activeView}
+              activeLang={activeLang}
+              updateElementStyle={updateElementStyle}
+              updateElementContent={updateElementContent}
+              setElementSameForAllLangs={setElementSameForAllLangs}
+              addElementToBox={addElementToBox}
+              deleteBoxChild={deleteBoxChild}
+              updateBoxTitle={updateBoxTitle}
+              updateButtonAction={updateButtonAction}
+              updateButtonImage={updateButtonImage}
+              setButtonUseImage={setButtonUseImage}
+              popups={popups}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SortableSectionCard({ section }: { section: Section }) {
   const [isOpen, setIsOpen] = useState(false);
   const {
@@ -196,76 +323,25 @@ function SortableSectionCard({ section }: { section: Section }) {
           </div>
 
           {section.elements.map((el) => (
-            <div key={el.id} className={styles.elementItem}>
-              <div className={styles.elementHeader}>
-                <span className={styles.elementType}>{el.type}</span>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <button
-                    className={styles.duplicateBtn}
-                    onClick={() => duplicateElement(section.id, el.id)}
-                    title="Duplicate"
-                  >
-                    ++
-                  </button>
-                  <button className={styles.deleteBtn} onClick={() => deleteElement(section.id, el.id)}>
-                    X
-                  </button>
-                </div>
-              </div>
-
-              {el.type === 'text' ? (
-                <TextElementForm
-                  sectionId={section.id}
-                  element={el as TextElement}
-                  activeView={activeView}
-                  activeLang={activeLang}
-                  updateElementStyle={updateElementStyle}
-                  updateElementContent={updateElementContent}
-                  setElementSameForAllLangs={setElementSameForAllLangs}
-                />
-              ) : el.type === 'image' ? (
-                <ImageElementForm
-                  sectionId={section.id}
-                  element={el as ImageElement}
-                  activeView={activeView}
-                  activeLang={activeLang}
-                  updateElementStyle={updateElementStyle}
-                  updateElementContent={updateElementContent}
-                  setElementSameForAllLangs={setElementSameForAllLangs}
-                />
-              ) : el.type === 'button' ? (
-                <ButtonElementForm
-                  sectionId={section.id}
-                  element={el as ButtonElement}
-                  activeView={activeView}
-                  activeLang={activeLang}
-                  updateElementStyle={updateElementStyle}
-                  updateElementContent={updateElementContent}
-                  setElementSameForAllLangs={setElementSameForAllLangs}
-                  updateButtonAction={updateButtonAction}
-                  updateButtonImage={updateButtonImage}
-                  setButtonUseImage={setButtonUseImage}
-                  popups={popups}
-                />
-              ) : (
-                <BoxElementForm
-                  sectionId={section.id}
-                  element={el as BoxElement}
-                  activeView={activeView}
-                  activeLang={activeLang}
-                  updateElementStyle={updateElementStyle}
-                  updateElementContent={updateElementContent}
-                  setElementSameForAllLangs={setElementSameForAllLangs}
-                  addElementToBox={addElementToBox}
-                  deleteBoxChild={deleteBoxChild}
-                  updateBoxTitle={updateBoxTitle}
-                  updateButtonAction={updateButtonAction}
-                  updateButtonImage={updateButtonImage}
-                  setButtonUseImage={setButtonUseImage}
-                  popups={popups}
-                />
-              )}
-            </div>
+            <CollapsibleElement
+              key={el.id}
+              sectionId={section.id}
+              element={el}
+              activeView={activeView}
+              activeLang={activeLang}
+              updateElementStyle={updateElementStyle}
+              updateElementContent={updateElementContent}
+              setElementSameForAllLangs={setElementSameForAllLangs}
+              duplicateElement={duplicateElement}
+              deleteElement={deleteElement}
+              addElementToBox={addElementToBox}
+              deleteBoxChild={deleteBoxChild}
+              updateBoxTitle={updateBoxTitle}
+              updateButtonAction={updateButtonAction}
+              updateButtonImage={updateButtonImage}
+              setButtonUseImage={setButtonUseImage}
+              popups={popups}
+            />
           ))}
         </div>
       )}
@@ -694,6 +770,99 @@ function ButtonElementForm({
   );
 }
 
+function CollapsibleBoxChild({
+  sectionId,
+  boxId,
+  child,
+  activeView,
+  activeLang,
+  updateElementStyle,
+  updateElementContent,
+  setElementSameForAllLangs,
+  deleteBoxChild,
+  updateButtonAction,
+  updateButtonImage,
+  setButtonUseImage,
+  popups,
+}: {
+  sectionId: number;
+  boxId: number;
+  child: BoxElement['children'][number];
+  activeView: 'WEB' | 'MOB';
+  activeLang: 'GE' | 'EN' | 'RU' | 'TR';
+  updateElementStyle: (sId: number, elId: number, field: string, value: unknown) => void;
+  updateElementContent: (sId: number, elId: number, content: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
+  setElementSameForAllLangs: (sId: number, elId: number, value: boolean) => void;
+  deleteBoxChild: (sId: number, boxId: number, childId: number) => void;
+  updateButtonAction: (sId: number, elId: number, actionType: 'link' | 'popup', actionValue: string) => void;
+  updateButtonImage: (sId: number, elId: number, imageData: string, targetLang?: 'GE' | 'EN' | 'RU' | 'TR') => void;
+  setButtonUseImage: (sId: number, elId: number, useImage: boolean) => void;
+  popups: Popup[];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className={styles.boxChildItem}>
+      <div
+        className={styles.elementHeader}
+        onClick={() => setIsOpen(!isOpen)}
+        style={{ cursor: 'pointer', userSelect: 'none' }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span className={styles.collapseArrow} style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)', fontSize: '7px' }}>&#9654;</span>
+          <span className={styles.elementType} style={{ fontSize: '9px' }}>{child.type}</span>
+        </div>
+        <button
+          className={styles.deleteBtn}
+          style={{ width: '18px', height: '18px', fontSize: '10px' }}
+          onClick={(e) => { e.stopPropagation(); deleteBoxChild(sectionId, boxId, child.id); }}
+        >
+          X
+        </button>
+      </div>
+      {isOpen && (
+        <div className={styles.elementBody}>
+          {child.type === 'text' ? (
+            <TextElementForm
+              sectionId={sectionId}
+              element={child as TextElement}
+              activeView={activeView}
+              activeLang={activeLang}
+              updateElementStyle={updateElementStyle}
+              updateElementContent={updateElementContent}
+              setElementSameForAllLangs={setElementSameForAllLangs}
+            />
+          ) : child.type === 'button' ? (
+            <ButtonElementForm
+              sectionId={sectionId}
+              element={child as ButtonElement}
+              activeView={activeView}
+              activeLang={activeLang}
+              updateElementStyle={updateElementStyle}
+              updateElementContent={updateElementContent}
+              setElementSameForAllLangs={setElementSameForAllLangs}
+              updateButtonAction={updateButtonAction}
+              updateButtonImage={updateButtonImage}
+              setButtonUseImage={setButtonUseImage}
+              popups={popups}
+            />
+          ) : (
+            <ImageElementForm
+              sectionId={sectionId}
+              element={child as ImageElement}
+              activeView={activeView}
+              activeLang={activeLang}
+              updateElementStyle={updateElementStyle}
+              updateElementContent={updateElementContent}
+              setElementSameForAllLangs={setElementSameForAllLangs}
+            />
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BoxElementForm({
   sectionId,
   element,
@@ -837,53 +1006,22 @@ function BoxElementForm({
         </div>
 
         {element.children.map((child) => (
-          <div key={child.id} className={styles.boxChildItem}>
-            <div className={styles.elementHeader}>
-              <span className={styles.elementType} style={{ fontSize: '9px' }}>{child.type}</span>
-              <button
-                className={styles.deleteBtn}
-                style={{ width: '18px', height: '18px', fontSize: '10px' }}
-                onClick={() => deleteBoxChild(sectionId, element.id, child.id)}
-              >
-                X
-              </button>
-            </div>
-            {child.type === 'text' ? (
-              <TextElementForm
-                sectionId={sectionId}
-                element={child as TextElement}
-                activeView={activeView}
-                activeLang={activeLang}
-                updateElementStyle={updateElementStyle}
-                updateElementContent={updateElementContent}
-                setElementSameForAllLangs={setElementSameForAllLangs}
-              />
-            ) : child.type === 'button' ? (
-              <ButtonElementForm
-                sectionId={sectionId}
-                element={child as ButtonElement}
-                activeView={activeView}
-                activeLang={activeLang}
-                updateElementStyle={updateElementStyle}
-                updateElementContent={updateElementContent}
-                setElementSameForAllLangs={setElementSameForAllLangs}
-                updateButtonAction={updateButtonAction}
-                updateButtonImage={updateButtonImage}
-                setButtonUseImage={setButtonUseImage}
-                popups={popups}
-              />
-            ) : (
-              <ImageElementForm
-                sectionId={sectionId}
-                element={child as ImageElement}
-                activeView={activeView}
-                activeLang={activeLang}
-                updateElementStyle={updateElementStyle}
-                updateElementContent={updateElementContent}
-                setElementSameForAllLangs={setElementSameForAllLangs}
-              />
-            )}
-          </div>
+          <CollapsibleBoxChild
+            key={child.id}
+            sectionId={sectionId}
+            boxId={element.id}
+            child={child}
+            activeView={activeView}
+            activeLang={activeLang}
+            updateElementStyle={updateElementStyle}
+            updateElementContent={updateElementContent}
+            setElementSameForAllLangs={setElementSameForAllLangs}
+            deleteBoxChild={deleteBoxChild}
+            updateButtonAction={updateButtonAction}
+            updateButtonImage={updateButtonImage}
+            setButtonUseImage={setButtonUseImage}
+            popups={popups}
+          />
         ))}
       </div>
     </>

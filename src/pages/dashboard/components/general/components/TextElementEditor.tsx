@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useLandingContext } from '../../../context';
 import { FONTS } from '../../../constants';
 import type { TextElement } from '../../../types';
@@ -13,73 +14,78 @@ interface TextElementEditorProps {
 export function TextElementEditor({ sectionId, element }: TextElementEditorProps) {
   const { activeView, activeLang, updateElementStyle, updateElementContent, deleteElement } =
     useLandingContext();
+  const [isOpen, setIsOpen] = useState(false);
 
   const est = element.styles[activeView];
 
   return (
     <div className={styles.general__elItem}>
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginBottom: '8px',
-        }}
+        className={styles.general__elHeader}
+        onClick={() => setIsOpen(!isOpen)}
       >
-        <span style={{ fontSize: '10px', fontWeight: 700 }}>TEXT</span>
-        <button onClick={() => deleteElement(sectionId, element.id)}>X</button>
-      </div>
-
-      <textarea
-        value={element.content[activeLang] || ''}
-        onChange={(e) => updateElementContent(sectionId, element.id, e.target.value)}
-      />
-
-      <div className={styles.general__field}>
-        <label>Size / Color</label>
-        <div style={{ display: 'flex', gap: '4px' }}>
-          <input
-            type="number"
-            value={est.fontSize}
-            onChange={(e) =>
-              updateElementStyle(sectionId, element.id, 'fontSize', Number(e.target.value))
-            }
-          />
-          <input
-            type="color"
-            value={est.color}
-            onChange={(e) =>
-              updateElementStyle(sectionId, element.id, 'color', e.target.value)
-            }
-          />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span className={styles.general__elArrow} style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>&#9654;</span>
+          <span style={{ fontSize: '10px', fontWeight: 700 }}>TEXT</span>
         </div>
+        <button onClick={(e) => { e.stopPropagation(); deleteElement(sectionId, element.id); }}>X</button>
       </div>
 
-      <div className={styles.general__field}>
-        <label>Font</label>
-        <select
-          value={est.fontFamily}
-          onChange={(e) =>
-            updateElementStyle(sectionId, element.id, 'fontFamily', e.target.value)
-          }
-        >
-          {FONTS.map((f) => (
-            <option key={f} value={f}>
-              {f}
-            </option>
-          ))}
-        </select>
-      </div>
+      {isOpen && (
+        <div className={styles.general__elBody}>
+          <textarea
+            value={element.content[activeLang] || ''}
+            onChange={(e) => updateElementContent(sectionId, element.id, e.target.value)}
+          />
 
-      <div className={styles.general__field}>
-        <label>Shadow CSS</label>
-        <input
-          type="text"
-          value={est.textShadow || ''}
-          onChange={(e) =>
-            updateElementStyle(sectionId, element.id, 'textShadow', e.target.value)
-          }
-        />
-      </div>
+          <div className={styles.general__field}>
+            <label>Size / Color</label>
+            <div style={{ display: 'flex', gap: '4px' }}>
+              <input
+                type="number"
+                value={est.fontSize}
+                onChange={(e) =>
+                  updateElementStyle(sectionId, element.id, 'fontSize', Number(e.target.value))
+                }
+              />
+              <input
+                type="color"
+                value={est.color}
+                onChange={(e) =>
+                  updateElementStyle(sectionId, element.id, 'color', e.target.value)
+                }
+              />
+            </div>
+          </div>
+
+          <div className={styles.general__field}>
+            <label>Font</label>
+            <select
+              value={est.fontFamily}
+              onChange={(e) =>
+                updateElementStyle(sectionId, element.id, 'fontFamily', e.target.value)
+              }
+            >
+              {FONTS.map((f) => (
+                <option key={f} value={f}>
+                  {f}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.general__field}>
+            <label>Shadow CSS</label>
+            <input
+              type="text"
+              value={est.textShadow || ''}
+              onChange={(e) =>
+                updateElementStyle(sectionId, element.id, 'textShadow', e.target.value)
+              }
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

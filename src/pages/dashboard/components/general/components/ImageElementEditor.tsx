@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useLandingContext } from '../../../context';
 import type { ImageElement } from '../../../types';
 import styles from '../General.module.scss';
@@ -12,6 +13,7 @@ interface ImageElementEditorProps {
 export function ImageElementEditor({ sectionId, element }: ImageElementEditorProps) {
   const { activeView, updateElementStyle, updateElementContent, deleteElement } =
     useLandingContext();
+  const [isOpen, setIsOpen] = useState(false);
 
   const est = element.styles[activeView];
 
@@ -27,44 +29,48 @@ export function ImageElementEditor({ sectionId, element }: ImageElementEditorPro
   return (
     <div className={styles.general__elItem}>
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          marginBottom: '8px',
-        }}
+        className={styles.general__elHeader}
+        onClick={() => setIsOpen(!isOpen)}
       >
-        <span style={{ fontSize: '10px', fontWeight: 700 }}>IMAGE</span>
-        <button onClick={() => deleteElement(sectionId, element.id)}>X</button>
-      </div>
-
-      <input type="file" onChange={handleFileChange} accept="image/*" />
-
-      <div className={styles.general__field}>
-        <label>W / H / Rad</label>
-        <div style={{ display: 'flex', gap: '3px' }}>
-          <input
-            type="number"
-            value={est.width}
-            onChange={(e) =>
-              updateElementStyle(sectionId, element.id, 'width', Number(e.target.value))
-            }
-          />
-          <input
-            type="number"
-            value={est.height}
-            onChange={(e) =>
-              updateElementStyle(sectionId, element.id, 'height', Number(e.target.value))
-            }
-          />
-          <input
-            type="number"
-            value={est.borderRadius}
-            onChange={(e) =>
-              updateElementStyle(sectionId, element.id, 'borderRadius', Number(e.target.value))
-            }
-          />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <span className={styles.general__elArrow} style={{ transform: isOpen ? 'rotate(90deg)' : 'rotate(0deg)' }}>&#9654;</span>
+          <span style={{ fontSize: '10px', fontWeight: 700 }}>IMAGE</span>
         </div>
+        <button onClick={(e) => { e.stopPropagation(); deleteElement(sectionId, element.id); }}>X</button>
       </div>
+
+      {isOpen && (
+        <div className={styles.general__elBody}>
+          <input type="file" onChange={handleFileChange} accept="image/*" />
+
+          <div className={styles.general__field}>
+            <label>W / H / Rad</label>
+            <div style={{ display: 'flex', gap: '3px' }}>
+              <input
+                type="number"
+                value={est.width}
+                onChange={(e) =>
+                  updateElementStyle(sectionId, element.id, 'width', Number(e.target.value))
+                }
+              />
+              <input
+                type="number"
+                value={est.height}
+                onChange={(e) =>
+                  updateElementStyle(sectionId, element.id, 'height', Number(e.target.value))
+                }
+              />
+              <input
+                type="number"
+                value={est.borderRadius}
+                onChange={(e) =>
+                  updateElementStyle(sectionId, element.id, 'borderRadius', Number(e.target.value))
+                }
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
