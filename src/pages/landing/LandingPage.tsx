@@ -52,7 +52,10 @@ function isUserAuthorized(): boolean {
   return params.has('ftk') || params.has('tk');
 }
 
-function shouldShow(visibility: AuthVisibility | undefined, authorized: boolean): boolean {
+function shouldShow(
+  visibility: AuthVisibility | undefined,
+  authorized: boolean
+): boolean {
   if (!visibility || visibility === 'all') return true;
   if (visibility === 'auth') return authorized;
   return !authorized;
@@ -60,19 +63,15 @@ function shouldShow(visibility: AuthVisibility | undefined, authorized: boolean)
 
 export default function LandingPage() {
   const { lang } = useParams<{ lang: string }>();
-  const [activeLang, setActiveLang] = useState<Language>(() => getLanguage(lang));
+  const activeLang = getLanguage(lang);
+
   const [data, setData] = useState<ProdConfig | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeView, setActiveView] = useState<Viewport>('WEB');
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
-  const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
+  const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<
+    number | null
+  >(null);
   const isAuthorized = isUserAuthorized();
-
-  // Sync language from URL param without page refresh
-  useEffect(() => {
-    setActiveLang(getLanguage(lang));
-  }, [lang]);
 
   // Measure container width for proportional header text positioning
   const containerRef = useRef<HTMLDivElement>(null);
@@ -89,22 +88,18 @@ export default function LandingPage() {
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, [loading]);
+  }, [data]);
 
-  // Load config.json from local (Vite public/)
+  // Load config.json from build (public/)
   useEffect(() => {
     const BASE = import.meta.env.BASE_URL || '/';
     fetch(`${BASE}config.json`)
-      .then((res) => {
-        if (!res.ok) throw new Error('not found');
-        return res.text();
-      })
+      .then((res) => res.text())
       .then((text) => {
         const resolved = text.replace(/"assets\//g, `"${BASE}assets/`);
         setData(JSON.parse(resolved));
       })
-      .catch(() => setError('კონფიგურაციის ჩატვირთვა ვერ მოხერხდა'))
-      .finally(() => setLoading(false));
+      .catch(() => {});
   }, []);
 
   // Viewport detection
@@ -127,12 +122,7 @@ export default function LandingPage() {
     document.body.style.overflow = '';
   };
 
-  if (loading) {
-    return <div className={styles.landing__empty}><p>იტვირთება...</p></div>;
-  }
-  if (error || !data) {
-    return <div className={styles.landing__empty}><p>{error || 'კონფიგურაცია ვერ მოიძებნა'}</p></div>;
-  }
+  if (!data) return null;
 
   const bgKey = activeView.toLowerCase() as 'web' | 'mob';
   const currentBGImage = data.globalBG[activeLang]?.[bgKey] || '';
@@ -141,22 +131,45 @@ export default function LandingPage() {
   const getBackgroundStyle = (): React.CSSProperties => {
     if (!currentBGImage) return {};
     if (data.backgroundMode === 'natural') {
-      return { backgroundImage: `url(${currentBGImage})`, backgroundRepeat: 'no-repeat', backgroundPosition: '50% 0', backgroundSize: 'auto' };
+      return {
+        backgroundImage: `url(${currentBGImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: '50% 0',
+        backgroundSize: 'auto',
+      };
     }
     if (data.backgroundMode === 'contain') {
-      return { backgroundImage: `url(${currentBGImage})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'top center', backgroundSize: 'contain' };
+      return {
+        backgroundImage: `url(${currentBGImage})`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'top center',
+        backgroundSize: 'contain',
+      };
     }
-    return { backgroundImage: `url(${currentBGImage})`, backgroundSize: 'cover', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat' };
+    return {
+      backgroundImage: `url(${currentBGImage})`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'top center',
+      backgroundRepeat: 'no-repeat',
+    };
   };
 
   const ht = data.headerText;
   const htStyle = ht?.styles?.[activeView];
-  const activePopup = activePopupId !== null ? data.popups?.find((p) => p.id === activePopupId) : null;
+  const activePopup =
+    activePopupId !== null
+      ? data.popups?.find((p) => p.id === activePopupId)
+      : null;
 
   return (
     <div
       className={styles.landing}
-      style={{ width: '100%', minHeight: '100vh', backgroundColor: currentBGColor, ...getBackgroundStyle() }}
+      style={{
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: currentBGColor,
+        ...getBackgroundStyle(),
+      }}
     >
       <div
         ref={containerRef}
@@ -169,58 +182,74 @@ export default function LandingPage() {
         }}
       >
         {/* Header Text — positioned proportionally to container width */}
-        {ht && htStyle && ht.content[activeLang] && (() => {
-          const refW = htStyle.referenceWidth || initialWidthRef.current;
-          const scale = refW && containerWidth ? containerWidth / refW : 1;
-          const scaledX = htStyle.x * scale;
-          const scaledWidth = htStyle.width * scale;
-          return (
-          <div
-            style={{
-              paddingTop: `${htStyle.paddingTop}px`,
-              paddingBottom: `${htStyle.paddingBottom}px`,
-              position: 'relative',
-              zIndex: 10,
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                left: `${scaledX}px`,
-                top: `${htStyle.y}px`,
-                width: `${scaledWidth}px`,
-              }}
-            >
+        {ht &&
+          htStyle &&
+          ht.content[activeLang] &&
+          (() => {
+            const refW = htStyle.referenceWidth || initialWidthRef.current;
+            const scale = refW && containerWidth ? containerWidth / refW : 1;
+            const scaledX = htStyle.x * scale;
+            const scaledWidth = htStyle.width * scale;
+            return (
               <div
                 style={{
-                  maxWidth: `${htStyle.maxWidth}px`,
-                  fontSize: `${htStyle.fontSize}px`,
-                  lineHeight: htStyle.lineHeight,
-                  fontFamily: htStyle.fontFamily,
-                  color: htStyle.color,
-                  whiteSpace: 'pre-wrap',
-                  textAlign: 'center',
-                  width: '100%',
-                  wordWrap: 'break-word',
-                  overflowWrap: 'break-word',
+                  paddingTop: `${htStyle.paddingTop}px`,
+                  paddingBottom: `${htStyle.paddingBottom}px`,
+                  position: 'relative',
+                  zIndex: 10,
                 }}
-                dangerouslySetInnerHTML={{ __html: ht.content[activeLang] }}
-              />
-            </div>
-          </div>
-          );
-        })()}
+              >
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: `${scaledX}px`,
+                    top: `${htStyle.y}px`,
+                    width: `${scaledWidth}px`,
+                  }}
+                >
+                  <div
+                    style={{
+                      maxWidth: `${htStyle.maxWidth}px`,
+                      fontSize: `${htStyle.fontSize}px`,
+                      lineHeight: htStyle.lineHeight,
+                      fontFamily: htStyle.fontFamily,
+                      color: htStyle.color,
+                      whiteSpace: 'pre-wrap',
+                      textAlign: 'center',
+                      width: '100%',
+                      wordWrap: 'break-word',
+                      overflowWrap: 'break-word',
+                    }}
+                    dangerouslySetInnerHTML={{ __html: ht.content[activeLang] }}
+                  />
+                </div>
+              </div>
+            );
+          })()}
 
         {/* Authorization */}
         {shouldShow(data.authBlockVisibility, isAuthorized) && (
-          <Authorization stylesProp={data.authStyles[activeView]} texts={data.authTexts} lang={activeLang} />
+          <Authorization
+            stylesProp={data.authStyles[activeView]}
+            texts={data.authTexts}
+            lang={activeLang}
+          />
         )}
 
         {/* Sections */}
         <div className={styles.landing__content}>
-          {data.sections.filter((s) => shouldShow(s.visibility, isAuthorized)).map((section) => (
-            <ProdSection key={section.id} section={section} activeView={activeView} activeLang={activeLang} isAuthorized={isAuthorized} onOpenPopup={openPopup} />
-          ))}
+          {data.sections
+            .filter((s) => shouldShow(s.visibility, isAuthorized))
+            .map((section) => (
+              <ProdSection
+                key={section.id}
+                section={section}
+                activeView={activeView}
+                activeLang={activeLang}
+                isAuthorized={isAuthorized}
+                onOpenPopup={openPopup}
+              />
+            ))}
         </div>
 
         {/* Rules */}
@@ -237,7 +266,13 @@ export default function LandingPage() {
 
       {/* Popup overlay */}
       {activePopup && (
-        <ProdPopup popup={activePopup} activeLang={activeLang} activeView={activeView} triggerSectionId={popupTriggerSectionId} onClose={closePopup} />
+        <ProdPopup
+          popup={activePopup}
+          activeLang={activeLang}
+          activeView={activeView}
+          triggerSectionId={popupTriggerSectionId}
+          onClose={closePopup}
+        />
       )}
     </div>
   );
@@ -245,8 +280,17 @@ export default function LandingPage() {
 
 /* ─── Section ─── */
 
-function ProdSection({ section, activeView, activeLang, isAuthorized, onOpenPopup }: {
-  section: Section; activeView: Viewport; activeLang: Language; isAuthorized: boolean;
+function ProdSection({
+  section,
+  activeView,
+  activeLang,
+  isAuthorized,
+  onOpenPopup,
+}: {
+  section: Section;
+  activeView: Viewport;
+  activeLang: Language;
+  isAuthorized: boolean;
   onOpenPopup: (popupId: number, sectionId: number) => void;
 }) {
   const st = section.styles[activeView];
@@ -261,10 +305,14 @@ function ProdSection({ section, activeView, activeLang, isAuthorized, onOpenPopu
         marginBottom: `${st.marginBottom || 0}px`,
         marginLeft: 'auto',
         marginRight: 'auto',
-        backgroundColor: st.backgroundImage ? 'transparent' : (st.backgroundColor || 'transparent'),
+        backgroundColor: st.backgroundImage
+          ? 'transparent'
+          : st.backgroundColor || 'transparent',
         border: `${st.borderWidth || 0}px solid ${st.borderColor || 'transparent'}`,
         borderRadius: `${st.borderRadius || 0}px`,
-        backgroundImage: st.backgroundImage ? `url(${st.backgroundImage})` : 'none',
+        backgroundImage: st.backgroundImage
+          ? `url(${st.backgroundImage})`
+          : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         position: 'relative',
@@ -272,17 +320,38 @@ function ProdSection({ section, activeView, activeLang, isAuthorized, onOpenPopu
         zIndex: st.zIndex || 1,
       }}
     >
-      {section.elements.filter((el) => shouldShow(el.visibility, isAuthorized)).map((el) => (
-        <ProdElement key={el.id} element={el} sectionId={section.id} activeView={activeView} activeLang={activeLang} isAuthorized={isAuthorized} onOpenPopup={onOpenPopup} />
-      ))}
+      {section.elements
+        .filter((el) => shouldShow(el.visibility, isAuthorized))
+        .map((el) => (
+          <ProdElement
+            key={el.id}
+            element={el}
+            sectionId={section.id}
+            activeView={activeView}
+            activeLang={activeLang}
+            isAuthorized={isAuthorized}
+            onOpenPopup={onOpenPopup}
+          />
+        ))}
     </div>
   );
 }
 
 /* ─── Element (text / image / button / box) ─── */
 
-function ProdElement({ element, sectionId, activeView, activeLang, isAuthorized, onOpenPopup }: {
-  element: Element; sectionId: number; activeView: Viewport; activeLang: Language; isAuthorized: boolean;
+function ProdElement({
+  element,
+  sectionId,
+  activeView,
+  activeLang,
+  isAuthorized,
+  onOpenPopup,
+}: {
+  element: Element;
+  sectionId: number;
+  activeView: Viewport;
+  activeLang: Language;
+  isAuthorized: boolean;
   onOpenPopup: (popupId: number, sectionId: number) => void;
 }) {
   // Box
@@ -297,19 +366,35 @@ function ProdElement({ element, sectionId, activeView, activeLang, isAuthorized,
           top: `${bs.y}px`,
           width: `${bs.width}px`,
           height: `${bs.height}px`,
-          backgroundColor: bs.backgroundImage ? 'transparent' : bs.backgroundColor,
-          backgroundImage: bs.backgroundImage ? `url(${bs.backgroundImage})` : 'none',
+          backgroundColor: bs.backgroundImage
+            ? 'transparent'
+            : bs.backgroundColor,
+          backgroundImage: bs.backgroundImage
+            ? `url(${bs.backgroundImage})`
+            : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          border: bs.borderWidth > 0 ? `${bs.borderWidth}px solid ${bs.borderColor}` : 'none',
+          border:
+            bs.borderWidth > 0
+              ? `${bs.borderWidth}px solid ${bs.borderColor}`
+              : 'none',
           borderRadius: `${bs.borderRadius}px`,
           zIndex: bs.zIndex || 1,
           overflow: 'hidden',
         }}
       >
-        {box.children.filter((c) => shouldShow(c.visibility, isAuthorized)).map((child) => (
-          <ProdBoxChild key={child.id} child={child} sectionId={sectionId} activeView={activeView} activeLang={activeLang} onOpenPopup={onOpenPopup} />
-        ))}
+        {box.children
+          .filter((c) => shouldShow(c.visibility, isAuthorized))
+          .map((child) => (
+            <ProdBoxChild
+              key={child.id}
+              child={child}
+              sectionId={sectionId}
+              activeView={activeView}
+              activeLang={activeLang}
+              onOpenPopup={onOpenPopup}
+            />
+          ))}
       </div>
     );
   }
@@ -335,7 +420,9 @@ function ProdElement({ element, sectionId, activeView, activeLang, isAuthorized,
           width: `${bs.width}px`,
           height: `${bs.height}px`,
           backgroundColor: btn.useImage ? 'transparent' : bs.backgroundColor,
-          border: btn.useImage ? 'none' : `${bs.borderWidth}px solid ${bs.borderColor}`,
+          border: btn.useImage
+            ? 'none'
+            : `${bs.borderWidth}px solid ${bs.borderColor}`,
           borderRadius: `${bs.borderRadius}px`,
           fontSize: `${bs.fontSize}px`,
           lineHeight: bs.lineHeight || 1.4,
@@ -351,7 +438,11 @@ function ProdElement({ element, sectionId, activeView, activeLang, isAuthorized,
         }}
       >
         {btn.useImage && btn.image[activeLang] ? (
-          <img src={btn.image[activeLang]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img
+            src={btn.image[activeLang]}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
         ) : (
           btn.content[activeLang] || ''
         )}
@@ -390,24 +481,53 @@ function ProdElement({ element, sectionId, activeView, activeLang, isAuthorized,
   const img = element as ImageElement;
   const is = img.styles[activeView];
   return (
-    <div style={{ position: 'absolute', left: `${is.x}px`, top: `${is.y}px`, width: `${is.width}px`, height: `${is.height}px`, zIndex: is.zIndex || 1 }}>
-      <img src={img.content[activeLang] || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: `${is.borderRadius || 0}px` }} />
+    <div
+      style={{
+        position: 'absolute',
+        left: `${is.x}px`,
+        top: `${is.y}px`,
+        width: `${is.width}px`,
+        height: `${is.height}px`,
+        zIndex: is.zIndex || 1,
+      }}
+    >
+      <img
+        src={img.content[activeLang] || ''}
+        alt=""
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          borderRadius: `${is.borderRadius || 0}px`,
+        }}
+      />
     </div>
   );
 }
 
 /* ─── Box Child (text / image / button) ─── */
 
-function ProdBoxChild({ child, sectionId, activeView, activeLang, onOpenPopup }: {
-  child: BoxChildElement; sectionId: number; activeView: Viewport; activeLang: Language;
+function ProdBoxChild({
+  child,
+  sectionId,
+  activeView,
+  activeLang,
+  onOpenPopup,
+}: {
+  child: BoxChildElement;
+  sectionId: number;
+  activeView: Viewport;
+  activeLang: Language;
   onOpenPopup: (popupId: number, sectionId: number) => void;
 }) {
   if (child.type === 'button') {
     const btn = child as ButtonElement;
     const bs = btn.styles[activeView];
     const handleClick = () => {
-      if (btn.action.type === 'link' && btn.action.value) window.open(btn.action.value, '_blank');
-      else if (btn.action.type === 'popup' && btn.action.value) onOpenPopup(Number(btn.action.value), sectionId);
+      if (btn.action.type === 'link' && btn.action.value)
+        window.open(btn.action.value, '_blank');
+      else if (btn.action.type === 'popup' && btn.action.value)
+        onOpenPopup(Number(btn.action.value), sectionId);
     };
     return (
       <button
@@ -419,7 +539,9 @@ function ProdBoxChild({ child, sectionId, activeView, activeLang, onOpenPopup }:
           width: `${bs.width}px`,
           height: `${bs.height}px`,
           backgroundColor: btn.useImage ? 'transparent' : bs.backgroundColor,
-          border: btn.useImage ? 'none' : `${bs.borderWidth}px solid ${bs.borderColor}`,
+          border: btn.useImage
+            ? 'none'
+            : `${bs.borderWidth}px solid ${bs.borderColor}`,
           borderRadius: `${bs.borderRadius}px`,
           fontSize: `${bs.fontSize}px`,
           lineHeight: bs.lineHeight || 1.4,
@@ -435,7 +557,11 @@ function ProdBoxChild({ child, sectionId, activeView, activeLang, onOpenPopup }:
         }}
       >
         {btn.useImage && btn.image[activeLang] ? (
-          <img src={btn.image[activeLang]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <img
+            src={btn.image[activeLang]}
+            alt=""
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
         ) : (
           btn.content[activeLang] || ''
         )}
@@ -474,20 +600,50 @@ function ProdBoxChild({ child, sectionId, activeView, activeLang, onOpenPopup }:
   const img = child as ImageElement;
   const is = img.styles[activeView];
   return (
-    <div style={{ position: 'absolute', left: `${is.x}px`, top: `${is.y}px`, width: `${is.width}px`, height: `${is.height}px`, zIndex: is.zIndex || 1 }}>
-      <img src={img.content[activeLang] || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: `${is.borderRadius || 0}px` }} />
+    <div
+      style={{
+        position: 'absolute',
+        left: `${is.x}px`,
+        top: `${is.y}px`,
+        width: `${is.width}px`,
+        height: `${is.height}px`,
+        zIndex: is.zIndex || 1,
+      }}
+    >
+      <img
+        src={img.content[activeLang] || ''}
+        alt=""
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          borderRadius: `${is.borderRadius || 0}px`,
+        }}
+      />
     </div>
   );
 }
 
 /* ─── Popup ─── */
 
-function ProdPopup({ popup, activeLang, activeView, triggerSectionId, onClose }: {
-  popup: Popup; activeLang: Language; activeView: Viewport; triggerSectionId: number | null; onClose: () => void;
+function ProdPopup({
+  popup,
+  activeLang,
+  activeView,
+  triggerSectionId,
+  onClose,
+}: {
+  popup: Popup;
+  activeLang: Language;
+  activeView: Viewport;
+  triggerSectionId: number | null;
+  onClose: () => void;
 }) {
   useEffect(() => {
     if (triggerSectionId !== null) {
-      const el = document.querySelector(`[data-section-id="${triggerSectionId}"]`);
+      const el = document.querySelector(
+        `[data-section-id="${triggerSectionId}"]`
+      );
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [triggerSectionId]);
@@ -500,7 +656,10 @@ function ProdPopup({ popup, activeLang, activeView, triggerSectionId, onClose }:
     <div
       style={{
         position: 'fixed',
-        top: 0, left: 0, right: 0, bottom: 0,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
         backgroundColor: 'rgba(0,0,0,0.7)',
         backdropFilter: 'blur(4px)',
         display: 'flex',
@@ -514,12 +673,19 @@ function ProdPopup({ popup, activeLang, activeView, triggerSectionId, onClose }:
         style={{
           width: `${pst.width}px`,
           height: `${pst.height}px`,
-          backgroundColor: pst.backgroundImage ? 'transparent' : pst.backgroundColor,
-          backgroundImage: pst.backgroundImage ? `url(${pst.backgroundImage})` : 'none',
+          backgroundColor: pst.backgroundImage
+            ? 'transparent'
+            : pst.backgroundColor,
+          backgroundImage: pst.backgroundImage
+            ? `url(${pst.backgroundImage})`
+            : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderRadius: `${pst.borderRadius}px`,
-          border: pst.borderWidth > 0 ? `${pst.borderWidth}px solid ${pst.borderColor}` : 'none',
+          border:
+            pst.borderWidth > 0
+              ? `${pst.borderWidth}px solid ${pst.borderColor}`
+              : 'none',
           position: 'relative',
           overflow: 'hidden',
         }}
@@ -530,14 +696,22 @@ function ProdPopup({ popup, activeLang, activeView, triggerSectionId, onClose }:
           onClick={onClose}
           style={{
             position: 'absolute',
-            top: closeBtnStyle && closeBtnStyle.x !== -1 ? `${closeBtnStyle.y}px` : '10px',
+            top:
+              closeBtnStyle && closeBtnStyle.x !== -1
+                ? `${closeBtnStyle.y}px`
+                : '10px',
             right: closeBtnStyle && closeBtnStyle.x !== -1 ? 'auto' : '10px',
-            left: closeBtnStyle && closeBtnStyle.x !== -1 ? `${closeBtnStyle.x}px` : 'auto',
+            left:
+              closeBtnStyle && closeBtnStyle.x !== -1
+                ? `${closeBtnStyle.x}px`
+                : 'auto',
             width: `${closeBtnStyle?.width || 32}px`,
             height: `${closeBtnStyle?.height || 32}px`,
             borderRadius: `${closeBtnStyle?.borderRadius || 16}px`,
             border: 'none',
-            background: closeBtn?.useImage ? 'transparent' : (closeBtnStyle?.backgroundColor || 'rgba(255,255,255,0.1)'),
+            background: closeBtn?.useImage
+              ? 'transparent'
+              : closeBtnStyle?.backgroundColor || 'rgba(255,255,255,0.1)',
             color: closeBtnStyle?.color || '#fff',
             fontSize: `${closeBtnStyle?.fontSize || 16}px`,
             cursor: 'pointer',
@@ -550,8 +724,14 @@ function ProdPopup({ popup, activeLang, activeView, triggerSectionId, onClose }:
           }}
         >
           {closeBtn?.useImage && closeBtn.image[activeLang] ? (
-            <img src={closeBtn.image[activeLang]} alt="close" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-          ) : 'X'}
+            <img
+              src={closeBtn.image[activeLang]}
+              alt="close"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            'X'
+          )}
         </button>
 
         {/* Popup children */}
@@ -570,13 +750,17 @@ function ProdPopup({ popup, activeLang, activeView, triggerSectionId, onClose }:
                   fontSize: `${'fontSize' in est ? est.fontSize : 16}px`,
                   fontFamily: 'fontFamily' in est ? est.fontFamily : undefined,
                   color: 'color' in est ? est.color : undefined,
-                  textShadow: ('textShadow' in est ? est.textShadow : undefined) || 'none',
+                  textShadow:
+                    ('textShadow' in est ? est.textShadow : undefined) ||
+                    'none',
                   zIndex: est.zIndex || 1,
                   whiteSpace: 'pre-wrap',
                   wordWrap: 'break-word',
                   overflow: 'hidden',
                 }}
-                dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
+                dangerouslySetInnerHTML={{
+                  __html: child.content[activeLang] || '',
+                }}
               />
             );
           }
