@@ -104,7 +104,7 @@ export default function LandingPage() {
 
   // Viewport detection
   useEffect(() => {
-    const check = () => setActiveView(window.innerWidth <= 768 ? 'MOB' : 'WEB');
+    const check = () => setActiveView(window.innerWidth <= 937 ? 'MOB' : 'WEB');
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);

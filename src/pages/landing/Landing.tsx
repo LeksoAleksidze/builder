@@ -31,7 +31,12 @@ import {
   DEFAULT_ENDPOINTS_CONFIG,
   DEFAULT_AUTH_TEXTS,
 } from '../dashboard/constants';
-import type { HeaderText, EndpointsConfig, AuthVisibility, AuthTexts } from '../dashboard/types';
+import type {
+  HeaderText,
+  EndpointsConfig,
+  AuthVisibility,
+  AuthTexts,
+} from '../dashboard/types';
 import styles from './Landing.module.scss';
 
 interface LandingData {
@@ -52,7 +57,10 @@ function isUserAuthorized(): boolean {
   return params.has('ftk') || params.has('tk');
 }
 
-function shouldShow(visibility: AuthVisibility | undefined, isAuthorized: boolean): boolean {
+function shouldShow(
+  visibility: AuthVisibility | undefined,
+  isAuthorized: boolean
+): boolean {
   if (!visibility || visibility === 'all') return true;
   if (visibility === 'auth') return isAuthorized;
   return !isAuthorized; // 'non-auth'
@@ -75,7 +83,9 @@ function LandingPopup({
   useEffect(() => {
     // Scroll triggering section into view
     if (triggerSectionId !== null) {
-      const sectionEl = document.querySelector(`[data-section-id="${triggerSectionId}"]`);
+      const sectionEl = document.querySelector(
+        `[data-section-id="${triggerSectionId}"]`
+      );
       if (sectionEl) {
         sectionEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
       }
@@ -86,9 +96,13 @@ function LandingPopup({
   const closeBtn = popup.closeButton || {
     useImage: false,
     image: DEFAULT_LOCALIZED_CONTENT,
-    styles: { WEB: DEFAULT_CLOSE_BUTTON_STYLES.WEB, MOB: DEFAULT_CLOSE_BUTTON_STYLES.MOB },
+    styles: {
+      WEB: DEFAULT_CLOSE_BUTTON_STYLES.WEB,
+      MOB: DEFAULT_CLOSE_BUTTON_STYLES.MOB,
+    },
   };
-  const closeBtnStyle = closeBtn.styles?.[activeView] || DEFAULT_CLOSE_BUTTON_STYLES[activeView];
+  const closeBtnStyle =
+    closeBtn.styles?.[activeView] || DEFAULT_CLOSE_BUTTON_STYLES[activeView];
 
   return (
     <div
@@ -111,12 +125,19 @@ function LandingPopup({
         style={{
           width: `${pst.width}px`,
           height: `${pst.height}px`,
-          backgroundColor: pst.backgroundImage ? 'transparent' : pst.backgroundColor,
-          backgroundImage: pst.backgroundImage ? `url(${pst.backgroundImage})` : 'none',
+          backgroundColor: pst.backgroundImage
+            ? 'transparent'
+            : pst.backgroundColor,
+          backgroundImage: pst.backgroundImage
+            ? `url(${pst.backgroundImage})`
+            : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderRadius: `${pst.borderRadius}px`,
-          border: pst.borderWidth > 0 ? `${pst.borderWidth}px solid ${pst.borderColor}` : 'none',
+          border:
+            pst.borderWidth > 0
+              ? `${pst.borderWidth}px solid ${pst.borderColor}`
+              : 'none',
           position: 'relative',
           overflow: 'visible',
         }}
@@ -134,7 +155,9 @@ function LandingPopup({
             height: `${closeBtnStyle.height}px`,
             borderRadius: `${closeBtnStyle.borderRadius}px`,
             border: 'none',
-            background: closeBtn.useImage ? 'transparent' : closeBtnStyle.backgroundColor,
+            background: closeBtn.useImage
+              ? 'transparent'
+              : closeBtnStyle.backgroundColor,
             color: closeBtnStyle.color,
             fontSize: `${closeBtnStyle.fontSize}px`,
             cursor: 'pointer',
@@ -183,7 +206,9 @@ function LandingPopup({
                   wordWrap: 'break-word',
                   overflow: 'hidden',
                 }}
-                dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
+                dangerouslySetInnerHTML={{
+                  __html: child.content[activeLang] || '',
+                }}
               />
             );
           }
@@ -239,26 +264,35 @@ function LandingElement({
           top: `${boxStyle.y}px`,
           width: `${boxStyle.width}px`,
           height: `${boxStyle.height}px`,
-          backgroundColor: boxStyle.backgroundImage ? 'transparent' : boxStyle.backgroundColor,
-          backgroundImage: boxStyle.backgroundImage ? `url(${boxStyle.backgroundImage})` : 'none',
+          backgroundColor: boxStyle.backgroundImage
+            ? 'transparent'
+            : boxStyle.backgroundColor,
+          backgroundImage: boxStyle.backgroundImage
+            ? `url(${boxStyle.backgroundImage})`
+            : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          border: boxStyle.borderWidth > 0 ? `${boxStyle.borderWidth}px solid ${boxStyle.borderColor}` : 'none',
+          border:
+            boxStyle.borderWidth > 0
+              ? `${boxStyle.borderWidth}px solid ${boxStyle.borderColor}`
+              : 'none',
           borderRadius: `${boxStyle.borderRadius}px`,
           zIndex: boxStyle.zIndex || 1,
           overflow: 'hidden',
         }}
       >
-        {boxEl.children.filter((c) => shouldShow(c.visibility, isUserAuthorized())).map((child) => (
-          <LandingChildElement
-            key={child.id}
-            child={child}
-            activeLang={activeLang}
-            activeView={activeView}
-            sectionId={sectionId}
-            onOpenPopup={onOpenPopup}
-          />
-        ))}
+        {boxEl.children
+          .filter((c) => shouldShow(c.visibility, isUserAuthorized()))
+          .map((child) => (
+            <LandingChildElement
+              key={child.id}
+              child={child}
+              activeLang={activeLang}
+              activeView={activeView}
+              sectionId={sectionId}
+              onOpenPopup={onOpenPopup}
+            />
+          ))}
       </div>
     );
   }
@@ -285,8 +319,12 @@ function LandingElement({
           top: `${btnStyle.y}px`,
           width: `${btnStyle.width}px`,
           height: `${btnStyle.height}px`,
-          backgroundColor: btnEl.useImage ? 'transparent' : btnStyle.backgroundColor,
-          border: btnEl.useImage ? 'none' : `${btnStyle.borderWidth}px solid ${btnStyle.borderColor}`,
+          backgroundColor: btnEl.useImage
+            ? 'transparent'
+            : btnStyle.backgroundColor,
+          border: btnEl.useImage
+            ? 'none'
+            : `${btnStyle.borderWidth}px solid ${btnStyle.borderColor}`,
           borderRadius: `${btnStyle.borderRadius}px`,
           fontSize: `${btnStyle.fontSize}px`,
           lineHeight: btnStyle.lineHeight || 1.4,
@@ -402,8 +440,12 @@ function LandingChildElement({
           top: `${btnStyle.y}px`,
           width: `${btnStyle.width}px`,
           height: `${btnStyle.height}px`,
-          backgroundColor: btnEl.useImage ? 'transparent' : btnStyle.backgroundColor,
-          border: btnEl.useImage ? 'none' : `${btnStyle.borderWidth}px solid ${btnStyle.borderColor}`,
+          backgroundColor: btnEl.useImage
+            ? 'transparent'
+            : btnStyle.backgroundColor,
+          border: btnEl.useImage
+            ? 'none'
+            : `${btnStyle.borderWidth}px solid ${btnStyle.borderColor}`,
           borderRadius: `${btnStyle.borderRadius}px`,
           fontSize: `${btnStyle.fontSize}px`,
           lineHeight: btnStyle.lineHeight || 1.4,
@@ -440,11 +482,14 @@ function LandingChildElement({
           width: `${textStyle.width}px`,
           height: `${textStyle.height}px`,
           fontSize: `${(textStyle as TextElement['styles']['WEB']).fontSize}px`,
-          lineHeight: (textStyle as TextElement['styles']['WEB']).lineHeight || 1.4,
+          lineHeight:
+            (textStyle as TextElement['styles']['WEB']).lineHeight || 1.4,
           fontFamily: (textStyle as TextElement['styles']['WEB']).fontFamily,
           color: (textStyle as TextElement['styles']['WEB']).color,
-          textShadow: (textStyle as TextElement['styles']['WEB']).textShadow || 'none',
-          textAlign: (textStyle as TextElement['styles']['WEB']).textAlign || 'left',
+          textShadow:
+            (textStyle as TextElement['styles']['WEB']).textShadow || 'none',
+          textAlign:
+            (textStyle as TextElement['styles']['WEB']).textAlign || 'left',
           zIndex: textStyle.zIndex || 1,
         }}
         dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
@@ -498,7 +543,9 @@ export default function LandingPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
-  const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
+  const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<
+    number | null
+  >(null);
   const [activeLang, setActiveLang] = useState<Language>(getLanguage(lang));
   const [activeView, setActiveView] = useState<Viewport>('WEB');
   const isAuthorized = isUserAuthorized();
@@ -523,8 +570,14 @@ export default function LandingPage() {
 
         // Merge authStyles with defaults to ensure new properties have values
         const authStyles: ViewportAuthStyles = {
-          WEB: { ...DEFAULT_AUTH_STYLES.WEB, ...(parsed.authStyles?.WEB || {}) },
-          MOB: { ...DEFAULT_AUTH_STYLES.MOB, ...(parsed.authStyles?.MOB || {}) },
+          WEB: {
+            ...DEFAULT_AUTH_STYLES.WEB,
+            ...(parsed.authStyles?.WEB || {}),
+          },
+          MOB: {
+            ...DEFAULT_AUTH_STYLES.MOB,
+            ...(parsed.authStyles?.MOB || {}),
+          },
         };
 
         // Migrate popups if needed
@@ -547,13 +600,21 @@ export default function LandingPage() {
           sections: parsed.sections || [],
           authStyles,
           globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
-          globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
+          globalBGColor: {
+            ...DEFAULT_GLOBAL_BG_COLOR,
+            ...(parsed.globalBGColor || {}),
+          },
           popups,
           backgroundMode: parsed.backgroundMode || 'cover',
           headerText: parsed.headerText || DEFAULT_HEADER_TEXT,
-          endpoints: { ...DEFAULT_ENDPOINTS_CONFIG, ...(parsed.endpoints || {}) },
+          endpoints: {
+            ...DEFAULT_ENDPOINTS_CONFIG,
+            ...(parsed.endpoints || {}),
+          },
           authBlockVisibility: parsed.authBlockVisibility || 'non-auth',
-          authTexts: parsed.authTexts ? { ...DEFAULT_AUTH_TEXTS, ...parsed.authTexts } : { ...DEFAULT_AUTH_TEXTS },
+          authTexts: parsed.authTexts
+            ? { ...DEFAULT_AUTH_TEXTS, ...parsed.authTexts }
+            : { ...DEFAULT_AUTH_TEXTS },
         });
       } catch (err) {
         setError('კონფიგურაციის ჩატვირთვა ვერ მოხერხდა');
@@ -574,7 +635,12 @@ export default function LandingPage() {
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const msg = event.data;
-      if (msg && typeof msg === 'object' && msg.type === 'changeLang' && msg.lang) {
+      if (
+        msg &&
+        typeof msg === 'object' &&
+        msg.type === 'changeLang' &&
+        msg.lang
+      ) {
         setActiveLang(getLanguage(msg.lang));
       }
     };
@@ -584,7 +650,7 @@ export default function LandingPage() {
 
   useEffect(() => {
     const checkViewport = () => {
-      setActiveView(window.innerWidth <= 768 ? 'MOB' : 'WEB');
+      setActiveView(window.innerWidth <= 937 ? 'MOB' : 'WEB');
     };
     checkViewport();
     window.addEventListener('resize', checkViewport);
@@ -656,7 +722,10 @@ export default function LandingPage() {
     };
   };
 
-  const activePopup = activePopupId !== null ? data.popups.find((p) => p.id === activePopupId) : null;
+  const activePopup =
+    activePopupId !== null
+      ? data.popups.find((p) => p.id === activePopupId)
+      : null;
 
   return (
     <div
@@ -679,81 +748,95 @@ export default function LandingPage() {
         }}
       >
         {/* Header Text — in normal flow, responsive */}
-        {data.headerText && data.headerText.content[activeLang] && (() => {
-          const ht = data.headerText!.styles[activeView];
-          return (
-            <div
-              style={{
-                width: '100%',
-                maxWidth: `${ht.maxWidth}px`,
-                margin: '0 auto',
-                paddingTop: `${ht.paddingTop}px`,
-                paddingBottom: `${ht.paddingBottom}px`,
-                zIndex: 10,
-                position: 'relative',
-              }}
-            >
+        {data.headerText &&
+          data.headerText.content[activeLang] &&
+          (() => {
+            const ht = data.headerText!.styles[activeView];
+            return (
               <div
                 style={{
-                  maxWidth: `${ht.width}px`,
+                  width: '100%',
+                  maxWidth: `${ht.maxWidth}px`,
                   margin: '0 auto',
-                  fontSize: `${ht.fontSize}px`,
-                  lineHeight: ht.lineHeight,
-                  fontFamily: ht.fontFamily,
-                  color: ht.color,
-                  whiteSpace: 'pre-wrap',
-                  textAlign: 'center',
-                  wordWrap: 'break-word',
-                  overflowWrap: 'break-word',
+                  paddingTop: `${ht.paddingTop}px`,
+                  paddingBottom: `${ht.paddingBottom}px`,
+                  zIndex: 10,
+                  position: 'relative',
                 }}
-                dangerouslySetInnerHTML={{ __html: data.headerText!.content[activeLang] }}
-              />
-            </div>
-          );
-        })()}
+              >
+                <div
+                  style={{
+                    maxWidth: `${ht.width}px`,
+                    margin: '0 auto',
+                    fontSize: `${ht.fontSize}px`,
+                    lineHeight: ht.lineHeight,
+                    fontFamily: ht.fontFamily,
+                    color: ht.color,
+                    whiteSpace: 'pre-wrap',
+                    textAlign: 'center',
+                    wordWrap: 'break-word',
+                    overflowWrap: 'break-word',
+                  }}
+                  dangerouslySetInnerHTML={{
+                    __html: data.headerText!.content[activeLang],
+                  }}
+                />
+              </div>
+            );
+          })()}
 
         {shouldShow(data.authBlockVisibility, isAuthorized) && (
-          <Authorization stylesProp={data.authStyles[activeView]} texts={data.authTexts} lang={activeLang} />
+          <Authorization
+            stylesProp={data.authStyles[activeView]}
+            texts={data.authTexts}
+            lang={activeLang}
+          />
         )}
 
         <div className={styles.builder}>
-          {data.sections.filter((s) => shouldShow(s.visibility, isAuthorized)).map((section) => {
-            const st = section.styles[activeView];
-            return (
-              <div
-                key={section.id}
-                data-section-id={section.id}
-                style={{
-                  width: st.width || '100%',
-                  height: st.height ? `${st.height}px` : 'auto',
-                  marginTop: `${st.marginTop || 0}px`,
-                  marginBottom: `${st.marginBottom || 0}px`,
-                  marginLeft: 'auto',
-                  marginRight: 'auto',
-                  backgroundColor: st.backgroundColor || 'transparent',
-                  border: `${st.borderWidth || 0}px solid ${st.borderColor || 'transparent'}`,
-                  borderRadius: `${st.borderRadius || 0}px`,
-                  backgroundImage: st.backgroundImage ? `url(${st.backgroundImage})` : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  position: 'relative',
-                  overflow: 'visible',
-                  zIndex: st.zIndex || 1,
-                }}
-              >
-                {section.elements.filter((el) => shouldShow(el.visibility, isAuthorized)).map((el) => (
-                  <LandingElement
-                    key={el.id}
-                    element={el}
-                    activeLang={activeLang}
-                    activeView={activeView}
-                    sectionId={section.id}
-                    onOpenPopup={openPopup}
-                  />
-                ))}
-              </div>
-            );
-          })}
+          {data.sections
+            .filter((s) => shouldShow(s.visibility, isAuthorized))
+            .map((section) => {
+              const st = section.styles[activeView];
+              return (
+                <div
+                  key={section.id}
+                  data-section-id={section.id}
+                  style={{
+                    width: st.width || '100%',
+                    height: st.height ? `${st.height}px` : 'auto',
+                    marginTop: `${st.marginTop || 0}px`,
+                    marginBottom: `${st.marginBottom || 0}px`,
+                    marginLeft: 'auto',
+                    marginRight: 'auto',
+                    backgroundColor: st.backgroundColor || 'transparent',
+                    border: `${st.borderWidth || 0}px solid ${st.borderColor || 'transparent'}`,
+                    borderRadius: `${st.borderRadius || 0}px`,
+                    backgroundImage: st.backgroundImage
+                      ? `url(${st.backgroundImage})`
+                      : 'none',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    position: 'relative',
+                    overflow: 'visible',
+                    zIndex: st.zIndex || 1,
+                  }}
+                >
+                  {section.elements
+                    .filter((el) => shouldShow(el.visibility, isAuthorized))
+                    .map((el) => (
+                      <LandingElement
+                        key={el.id}
+                        element={el}
+                        activeLang={activeLang}
+                        activeView={activeView}
+                        sectionId={section.id}
+                        onOpenPopup={openPopup}
+                      />
+                    ))}
+                </div>
+              );
+            })}
         </div>
 
         {data.endpoints?.rulesKey && (
