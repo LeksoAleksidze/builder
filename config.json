@@ -59,19 +59,19 @@
   },
   "globalBG": {
     "GE": {
-      "web": "https://raw.githubusercontent.com/LeksoAleksidze/builder/testing/assets/bg-GE-web.jpg",
+      "web": "assets/bg-GE-web.jpg",
       "mob": ""
     },
     "EN": {
-      "web": "https://raw.githubusercontent.com/LeksoAleksidze/builder/testing/assets/bg-EN-web.jpg",
+      "web": "assets/bg-EN-web.jpg",
       "mob": ""
     },
     "RU": {
-      "web": "https://raw.githubusercontent.com/LeksoAleksidze/builder/testing/assets/bg-RU-web.jpg",
+      "web": "assets/bg-RU-web.jpg",
       "mob": ""
     },
     "TR": {
-      "web": "https://raw.githubusercontent.com/LeksoAleksidze/builder/testing/assets/bg-TR-web.jpg",
+      "web": "assets/bg-TR-web.jpg",
       "mob": ""
     }
   },
@@ -126,7 +126,7 @@
   "authBlockVisibility": "non-auth",
   "authTexts": {
     "mainText": {
-      "GE": "áá¥áªááá¨á ááááá¬ááááááá¡ ááá¡áá¦áááá, ááá®ááá, ááááá áá á áááá¡á¢á ááªáá áá ááá¢áá ááááªáá",
+      "GE": "ავტორიზაციაააა",
       "EN": "To participate in the promotion, please register or log in",
       "RU": "ÐÐ»Ñ ÑÑÐ°ÑÑÐ¸Ñ Ð² Ð°ÐºÑÐ¸Ð¸, Ð¿Ð¾Ð¶Ð°Ð»ÑÐ¹ÑÑÐ°, Ð·Ð°ÑÐµÐ³Ð¸ÑÑÑÐ¸ÑÑÐ¹ÑÐµÑÑ Ð¸Ð»Ð¸ Ð°Ð²ÑÐ¾ÑÐ¸Ð·ÑÐ¹ÑÐµÑÑ",
       "TR": "Promosyona katÄ±lmak iÃ§in lÃ¼tfen kayÄ±t olun veya giriÅ yapÄ±n"
