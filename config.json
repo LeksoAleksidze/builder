@@ -1,5 +1,34 @@
 {
-  "sections": [],
+  "sections": [
+    {
+      "id": 1770479088760,
+      "title": "Sec 1",
+      "styles": {
+        "WEB": {
+          "width": "740px",
+          "height": 488,
+          "marginTop": 40,
+          "marginBottom": 30,
+          "backgroundColor": "transparent",
+          "borderWidth": 0,
+          "borderRadius": 0,
+          "borderColor": "#333",
+          "backgroundImage": "assets/section-1770479088760-bg-WEB.png"
+        },
+        "MOB": {
+          "width": "100%",
+          "height": 300,
+          "marginTop": 0,
+          "marginBottom": 0,
+          "backgroundColor": "#161925",
+          "borderWidth": 0,
+          "borderRadius": 0,
+          "borderColor": "#333"
+        }
+      },
+      "elements": []
+    }
+  ],
   "authStyles": {
     "WEB": {
       "marginTop": "700px",
