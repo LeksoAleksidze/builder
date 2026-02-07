@@ -30,19 +30,19 @@
   },
   "globalBG": {
     "GE": {
-      "web": "assets/bg-GE-web.jpg",
+      "web": "https://raw.githubusercontent.com/LeksoAleksidze/builder/testing/assets/bg-GE-web.jpg",
       "mob": ""
     },
     "EN": {
-      "web": "assets/bg-EN-web.jpg",
+      "web": "https://raw.githubusercontent.com/LeksoAleksidze/builder/testing/assets/bg-EN-web.jpg",
       "mob": ""
     },
     "RU": {
-      "web": "assets/bg-RU-web.jpg",
+      "web": "https://raw.githubusercontent.com/LeksoAleksidze/builder/testing/assets/bg-RU-web.jpg",
       "mob": ""
     },
     "TR": {
-      "web": "assets/bg-TR-web.jpg",
+      "web": "https://raw.githubusercontent.com/LeksoAleksidze/builder/testing/assets/bg-TR-web.jpg",
       "mob": ""
     }
   },
@@ -51,7 +51,7 @@
     "MOB": "#1a1a2e"
   },
   "sameBackgroundForAllLangs": true,
-  "backgroundMode": "cover",
+  "backgroundMode": "natural",
   "popups": [],
   "headerText": {
     "content": {
