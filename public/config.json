@@ -1,5 +1,34 @@
 {
-  "sections": [],
+  "sections": [
+    {
+      "id": 1770481582266,
+      "title": "Sec 1",
+      "styles": {
+        "WEB": {
+          "width": "840px",
+          "height": 556,
+          "marginTop": 77,
+          "marginBottom": 0,
+          "backgroundColor": "transparent",
+          "borderWidth": 0,
+          "borderRadius": 0,
+          "borderColor": "#333",
+          "backgroundImage": "assets/section-1770481582266-bg-WEB.png"
+        },
+        "MOB": {
+          "width": "100%",
+          "height": 300,
+          "marginTop": 0,
+          "marginBottom": 0,
+          "backgroundColor": "#161925",
+          "borderWidth": 0,
+          "borderRadius": 0,
+          "borderColor": "#333"
+        }
+      },
+      "elements": []
+    }
+  ],
   "authStyles": {
     "WEB": {
       "marginTop": "700px",
@@ -51,7 +80,7 @@
     "MOB": "#1a1a2e"
   },
   "sameBackgroundForAllLangs": true,
-  "backgroundMode": "cover",
+  "backgroundMode": "natural",
   "popups": [],
   "headerText": {
     "content": {
@@ -62,8 +91,8 @@
     },
     "styles": {
       "WEB": {
-        "x": 111,
-        "y": -218,
+        "x": 180,
+        "y": -198,
         "width": 600,
         "paddingTop": 0,
         "paddingBottom": 0,
