@@ -173,15 +173,15 @@
   "popups": [],
   "headerText": {
     "content": {
-      "GE": "ქართული",
+      "GE": "ქართული ტექსტი <span style=\"color:#ff0000\">რომელიც </span>რამე გამორჩე ულია",
       "EN": "English",
       "RU": "Russian",
       "TR": "Turkey"
     },
     "styles": {
       "WEB": {
-        "x": 371,
-        "y": -134,
+        "x": 478.84993025305573,
+        "y": -82,
         "width": 600,
         "paddingTop": 0,
         "paddingBottom": 0,
@@ -190,7 +190,7 @@
         "fontFamily": "BebasNeueRegular",
         "color": "#ffffff",
         "maxWidth": 800,
-        "referenceWidth": 1328
+        "referenceWidth": 1569
       },
       "MOB": {
         "x": 0,
