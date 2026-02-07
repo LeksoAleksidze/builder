@@ -1,14 +1,31 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import Authorization from '../../shared/modules/authorization/Authorization';
 import type { Section, Language, ViewMode } from '../../shared/types';
 import styles from './Landing.module.scss';
+
+interface HeaderTextConfig {
+  content: Record<string, string>;
+  styles: Record<string, {
+    width: number;
+    paddingTop: number;
+    paddingBottom: number;
+    fontSize: number;
+    lineHeight: number;
+    fontFamily: string;
+    color: string;
+    maxWidth: number;
+  }>;
+}
 
 interface ProdConfig {
   sections: Section[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   authStyles: Record<string, any>;
   globalBG: Record<string, { web: string; mob: string }>;
+  headerText?: HeaderTextConfig;
+  authTexts?: { mainText: Record<string, string>; registerButton: Record<string, string>; loginButton: Record<string, string> };
+  authBlockVisibility?: string;
 }
 
 function getLanguage(l?: string): Language {
@@ -44,6 +61,8 @@ export default function LandingPage() {
       .finally(() => setLoading(false));
   }, []);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     setActiveLang(getLanguage(lang));
   }, [lang]);
@@ -59,12 +78,14 @@ export default function LandingPage() {
     const handler = (e: MessageEvent) => {
       const msg = e.data;
       if (msg && typeof msg === 'object' && msg.type === 'changeLang' && msg.lang) {
-        setActiveLang(getLanguage(msg.lang));
+        const newLang = getLanguage(msg.lang);
+        setActiveLang(newLang);
+        navigate(`/${msg.lang.toLowerCase()}`, { replace: true });
       }
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, []);
+  }, [navigate]);
 
   if (loading) {
     return (
@@ -85,6 +106,9 @@ export default function LandingPage() {
   const bgKey = activeView.toLowerCase() as 'web' | 'mob';
   const bgUrl = data.globalBG[activeLang]?.[bgKey] || '';
 
+  const ht = data.headerText;
+  const htStyle = ht?.styles?.[activeView];
+
   return (
     <div
       className={styles.landing}
@@ -94,8 +118,42 @@ export default function LandingPage() {
         backgroundPosition: 'top center',
       }}
     >
-      <div style={{ paddingTop: data.authStyles[activeView].marginTop }}>
-        <Authorization stylesProp={data.authStyles[activeView]} />
+      <div style={{ paddingTop: data.authStyles[activeView].marginTop, position: 'relative' }}>
+        {/* Header Text */}
+        {ht && htStyle && ht.content[activeLang] && (
+          <div
+            style={{
+              width: '100%',
+              maxWidth: `${htStyle.maxWidth}px`,
+              margin: '0 auto',
+              paddingTop: `${htStyle.paddingTop}px`,
+              paddingBottom: `${htStyle.paddingBottom}px`,
+              position: 'relative',
+              zIndex: 10,
+            }}
+          >
+            <div
+              style={{
+                maxWidth: `${htStyle.width}px`,
+                margin: '0 auto',
+                fontSize: `${htStyle.fontSize}px`,
+                lineHeight: htStyle.lineHeight,
+                fontFamily: htStyle.fontFamily,
+                color: htStyle.color,
+                whiteSpace: 'pre-wrap',
+                textAlign: 'center',
+                wordWrap: 'break-word',
+              }}
+              dangerouslySetInnerHTML={{ __html: ht.content[activeLang] }}
+            />
+          </div>
+        )}
+
+        <Authorization
+          stylesProp={data.authStyles[activeView]}
+          texts={data.authTexts}
+          lang={activeLang}
+        />
       </div>
 
       <div className={styles.landing__content}>
