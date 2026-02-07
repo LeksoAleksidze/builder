@@ -18,6 +18,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useLandingContext } from '../../context';
+import GitHubSettings from '../github-settings/GitHubSettings';
 import { FONTS, LANGUAGES, VIEWPORTS } from '../../constants';
 import type {
   Section,
@@ -1904,6 +1905,7 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
     addSection,
     reorderSections,
     saveAllConfig,
+    gitHub,
     popups,
     addPopup,
     deletePopup,
@@ -2744,8 +2746,9 @@ export function ConfigModal({ isOpen, onClose }: ConfigModalProps) {
       </div>
 
       <div className={styles.footer}>
-        <button className={styles.publishBtn} onClick={saveAllConfig}>
-          Publish Config
+        <GitHubSettings />
+        <button className={styles.publishBtn} onClick={saveAllConfig} disabled={gitHub.isPublishing || gitHub.isLoading}>
+          {gitHub.isLoading ? 'Loading from GitHub...' : gitHub.isPublishing ? 'Publishing...' : 'Publish Config'}
         </button>
       </div>
     </div>

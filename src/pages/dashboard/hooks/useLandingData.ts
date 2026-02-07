@@ -14,10 +14,10 @@ import type {
   AuthTexts,
 } from '../types';
 import { DEFAULT_GLOBAL_BG, DEFAULT_GLOBAL_BG_COLOR, DEFAULT_AUTH_STYLES, DEFAULT_HEADER_TEXT, DEFAULT_ENDPOINTS_CONFIG, DEFAULT_AUTH_TEXTS, LANGUAGES } from '../constants';
-import { useLocalStorage } from './useLocalStorage';
 import { useSections } from './useSections';
 import { useElements } from './useElements';
 import { usePopups } from './usePopups';
+import { useGitHub } from './useGitHub';
 
 export type BackgroundMode = 'cover' | 'contain' | 'natural';
 
@@ -40,27 +40,39 @@ export function useLandingData() {
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const [editingPopupId, setEditingPopupId] = useState<number | null>(null);
 
-  const { load, save } = useLocalStorage();
+  const gitHub = useGitHub();
 
   useEffect(() => {
-    const data = load();
-    setSections(data.sections);
-    setAuthStyles(data.authStyles);
-    setGlobalBG(data.globalBG);
-    setGlobalBGColor(data.globalBGColor);
-    setSameBackgroundForAllLangs(data.sameBackgroundForAllLangs ?? true);
-    setBackgroundMode(data.backgroundMode || 'cover');
-    setPopups(data.popups || []);
-    setHeaderText(data.headerText || { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } });
-    setEndpoints(data.endpoints || { ...DEFAULT_ENDPOINTS_CONFIG });
-    setAuthBlockVisibility(data.authBlockVisibility || 'non-auth');
-    setAuthTexts(data.authTexts || { ...DEFAULT_AUTH_TEXTS });
-  }, [load]);
+    if (!gitHub.isConfigured) return;
+
+    let cancelled = false;
+    gitHub.loadConfig().then((data) => {
+      if (cancelled || !data) return;
+      setSections(data.sections || []);
+      setAuthStyles(data.authStyles || DEFAULT_AUTH_STYLES);
+      setGlobalBG(data.globalBG || DEFAULT_GLOBAL_BG);
+      setGlobalBGColor(data.globalBGColor || DEFAULT_GLOBAL_BG_COLOR);
+      setSameBackgroundForAllLangs(data.sameBackgroundForAllLangs ?? true);
+      setBackgroundMode(data.backgroundMode || 'cover');
+      setPopups(data.popups || []);
+      setHeaderText(data.headerText || { ...DEFAULT_HEADER_TEXT, content: { ...DEFAULT_HEADER_TEXT.content }, styles: { WEB: { ...DEFAULT_HEADER_TEXT.styles.WEB }, MOB: { ...DEFAULT_HEADER_TEXT.styles.MOB } } });
+      setEndpoints(data.endpoints || { ...DEFAULT_ENDPOINTS_CONFIG });
+      setAuthBlockVisibility(data.authBlockVisibility || 'non-auth');
+      setAuthTexts(data.authTexts || { ...DEFAULT_AUTH_TEXTS });
+    });
+
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gitHub.isConfigured]);
 
   const saveAllConfig = useCallback(() => {
-    save({ sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints, authBlockVisibility, authTexts });
-    alert('Configuration saved!');
-  }, [save, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints, authBlockVisibility, authTexts]);
+    const data = { sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints, authBlockVisibility, authTexts };
+    if (gitHub.isConfigured) {
+      gitHub.publish(data);
+    } else {
+      alert('Please configure GitHub settings first.');
+    }
+  }, [gitHub, sections, authStyles, globalBG, globalBGColor, sameBackgroundForAllLangs, backgroundMode, popups, headerText, endpoints, authBlockVisibility, authTexts]);
 
   const sectionActions = useSections({
     sections,
@@ -293,6 +305,9 @@ export function useLandingData() {
     setEndpoints,
     setAuthBlockVisibility,
     setAuthTexts,
+
+    // GitHub
+    gitHub,
 
     // Actions
     saveAllConfig,

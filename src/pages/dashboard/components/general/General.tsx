@@ -9,9 +9,10 @@ import {
   GlobalBackgroundBlock,
   SectionsBlock,
 } from './components';
+import GitHubSettings from '../github-settings/GitHubSettings';
 
 export default function General() {
-  const { saveAllConfig } = useLandingContext();
+  const { saveAllConfig, gitHub } = useLandingContext();
   const [openBlocks, setOpenBlocks] = useState<string[]>(['bg', 'sections']);
 
   const toggleBlock = (block: string) => {
@@ -27,9 +28,15 @@ export default function General() {
         <LanguageTabs />
       </div>
 
-      <button className={styles.general__saveBtn} onClick={saveAllConfig}>
-        PUBLISH CONFIG
+      <button
+        className={styles.general__saveBtn}
+        onClick={saveAllConfig}
+        disabled={gitHub.isPublishing}
+      >
+        {gitHub.isPublishing ? 'PUBLISHING...' : 'PUBLISH CONFIG'}
       </button>
+
+      <GitHubSettings />
 
       <GlobalBackgroundBlock
         isOpen={openBlocks.includes('bg')}
