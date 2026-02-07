@@ -1,31 +1,40 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import Authorization from '../../shared/modules/authorization/Authorization';
-import type { Section, Language, ViewMode } from '../../shared/types';
+import Rules from '../../shared/modules/rules/Rules';
+import type {
+  Section,
+  Element,
+  TextElement,
+  ImageElement,
+  BoxElement,
+  ButtonElement,
+  BoxChildElement,
+  Popup,
+  PopupCloseButton,
+  Language,
+  Viewport,
+  HeaderText,
+  EndpointsConfig,
+  AuthTexts,
+  AuthVisibility,
+  ViewportAuthStyles,
+  GlobalBackground,
+  ViewportBGColor,
+} from '../dashboard/types';
 import styles from './Landing.module.scss';
-
-interface HeaderTextConfig {
-  content: Record<string, string>;
-  styles: Record<string, {
-    width: number;
-    paddingTop: number;
-    paddingBottom: number;
-    fontSize: number;
-    lineHeight: number;
-    fontFamily: string;
-    color: string;
-    maxWidth: number;
-  }>;
-}
 
 interface ProdConfig {
   sections: Section[];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  authStyles: Record<string, any>;
-  globalBG: Record<string, { web: string; mob: string }>;
-  headerText?: HeaderTextConfig;
-  authTexts?: { mainText: Record<string, string>; registerButton: Record<string, string>; loginButton: Record<string, string> };
-  authBlockVisibility?: string;
+  authStyles: ViewportAuthStyles;
+  globalBG: GlobalBackground;
+  globalBGColor: ViewportBGColor;
+  backgroundMode?: 'cover' | 'contain' | 'natural';
+  popups: Popup[];
+  headerText?: HeaderText;
+  endpoints?: EndpointsConfig;
+  authBlockVisibility?: AuthVisibility;
+  authTexts?: AuthTexts;
 }
 
 function getLanguage(l?: string): Language {
@@ -38,14 +47,29 @@ function getLanguage(l?: string): Language {
   return 'GE';
 }
 
+function isUserAuthorized(): boolean {
+  const params = new URLSearchParams(window.location.search);
+  return params.has('ftk') || params.has('tk');
+}
+
+function shouldShow(visibility: AuthVisibility | undefined, authorized: boolean): boolean {
+  if (!visibility || visibility === 'all') return true;
+  if (visibility === 'auth') return authorized;
+  return !authorized;
+}
+
 export default function LandingPage() {
   const { lang } = useParams<{ lang: string }>();
   const [data, setData] = useState<ProdConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeLang, setActiveLang] = useState<Language>(getLanguage(lang));
-  const [activeView, setActiveView] = useState<ViewMode>('WEB');
+  const [activeView, setActiveView] = useState<Viewport>('WEB');
+  const [activePopupId, setActivePopupId] = useState<number | null>(null);
+  const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
+  const isAuthorized = isUserAuthorized();
 
+  // Load config.json from local (Vite public/)
   useEffect(() => {
     const BASE = import.meta.env.BASE_URL || '/';
     fetch(`${BASE}config.json`)
@@ -61,12 +85,12 @@ export default function LandingPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const navigate = useNavigate();
-
+  // Sync lang from URL param (no refresh — React Router handles it)
   useEffect(() => {
     setActiveLang(getLanguage(lang));
   }, [lang]);
 
+  // Viewport detection
   useEffect(() => {
     const check = () => setActiveView(window.innerWidth <= 768 ? 'MOB' : 'WEB');
     check();
@@ -74,51 +98,73 @@ export default function LandingPage() {
     return () => window.removeEventListener('resize', check);
   }, []);
 
+  // postMessage language change (from parent iframe)
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       const msg = e.data;
       if (msg && typeof msg === 'object' && msg.type === 'changeLang' && msg.lang) {
-        const newLang = getLanguage(msg.lang);
-        setActiveLang(newLang);
-        navigate(`/${msg.lang.toLowerCase()}`, { replace: true });
+        setActiveLang(getLanguage(msg.lang));
+        // Update URL without refresh
+        const newPath = `/${msg.lang.toLowerCase()}${window.location.search}`;
+        window.history.replaceState(null, '', newPath);
       }
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [navigate]);
+  }, []);
+
+  // Popup helpers
+  const openPopup = (popupId: number, sectionId: number) => {
+    setPopupTriggerSectionId(sectionId);
+    setActivePopupId(popupId);
+    document.body.style.overflow = 'hidden';
+  };
+  const closePopup = () => {
+    setActivePopupId(null);
+    setPopupTriggerSectionId(null);
+    document.body.style.overflow = '';
+  };
 
   if (loading) {
-    return (
-      <div className={styles.landing__empty}>
-        <p>იტვირთება...</p>
-      </div>
-    );
+    return <div className={styles.landing__empty}><p>იტვირთება...</p></div>;
   }
-
   if (error || !data) {
-    return (
-      <div className={styles.landing__empty}>
-        <p>{error || 'კონფიგურაცია ვერ მოიძებნა'}</p>
-      </div>
-    );
+    return <div className={styles.landing__empty}><p>{error || 'კონფიგურაცია ვერ მოიძებნა'}</p></div>;
   }
 
   const bgKey = activeView.toLowerCase() as 'web' | 'mob';
-  const bgUrl = data.globalBG[activeLang]?.[bgKey] || '';
+  const currentBGImage = data.globalBG[activeLang]?.[bgKey] || '';
+  const currentBGColor = data.globalBGColor?.[activeView] || '#1a1a2e';
+
+  const getBackgroundStyle = (): React.CSSProperties => {
+    if (!currentBGImage) return {};
+    if (data.backgroundMode === 'natural') {
+      return { backgroundImage: `url(${currentBGImage})`, backgroundRepeat: 'no-repeat', backgroundPosition: '50% 0', backgroundSize: 'auto' };
+    }
+    if (data.backgroundMode === 'contain') {
+      return { backgroundImage: `url(${currentBGImage})`, backgroundRepeat: 'no-repeat', backgroundPosition: 'top center', backgroundSize: 'contain' };
+    }
+    return { backgroundImage: `url(${currentBGImage})`, backgroundSize: 'cover', backgroundPosition: 'top center', backgroundRepeat: 'no-repeat' };
+  };
 
   const ht = data.headerText;
   const htStyle = ht?.styles?.[activeView];
+  const activePopup = activePopupId !== null ? data.popups?.find((p) => p.id === activePopupId) : null;
 
   return (
     <div
       className={styles.landing}
-      style={{
-        backgroundImage: bgUrl ? `url(${bgUrl})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'top center',
-      }}
+      style={{ width: '100%', minHeight: '100vh', backgroundColor: currentBGColor, ...getBackgroundStyle() }}
     >
-      <div style={{ paddingTop: data.authStyles[activeView].marginTop, position: 'relative' }}>
+      <div
+        style={{
+          width: activeView === 'MOB' ? '375px' : '100%',
+          margin: '0 auto',
+          minHeight: '100vh',
+          paddingTop: data.authStyles[activeView].marginTop,
+          position: 'relative',
+        }}
+      >
         {/* Header Text */}
         {ht && htStyle && ht.content[activeLang] && (
           <div
@@ -143,47 +189,56 @@ export default function LandingPage() {
                 whiteSpace: 'pre-wrap',
                 textAlign: 'center',
                 wordWrap: 'break-word',
+                overflowWrap: 'break-word',
               }}
               dangerouslySetInnerHTML={{ __html: ht.content[activeLang] }}
             />
           </div>
         )}
 
-        <Authorization
-          stylesProp={data.authStyles[activeView]}
-          texts={data.authTexts}
-          lang={activeLang}
-        />
+        {/* Authorization */}
+        {shouldShow(data.authBlockVisibility, isAuthorized) && (
+          <Authorization stylesProp={data.authStyles[activeView]} texts={data.authTexts} lang={activeLang} />
+        )}
+
+        {/* Sections */}
+        <div className={styles.landing__content}>
+          {data.sections.filter((s) => shouldShow(s.visibility, isAuthorized)).map((section) => (
+            <ProdSection key={section.id} section={section} activeView={activeView} activeLang={activeLang} isAuthorized={isAuthorized} onOpenPopup={openPopup} />
+          ))}
+        </div>
+
+        {/* Rules */}
+        {data.endpoints?.rulesKey && (
+          <Rules
+            rulesKey={data.endpoints.rulesKey}
+            rulesBackground={data.endpoints.rulesBackground}
+            lang={activeLang.toLowerCase()}
+            paddingTop={data.endpoints.rulesPaddingTop}
+            paddingBottom={data.endpoints.rulesPaddingBottom}
+          />
+        )}
       </div>
 
-      <div className={styles.landing__content}>
-        {data.sections.map((section) => (
-          <ProdSection
-            key={section.id}
-            section={section}
-            activeView={activeView}
-            activeLang={activeLang}
-          />
-        ))}
-      </div>
+      {/* Popup overlay */}
+      {activePopup && (
+        <ProdPopup popup={activePopup} activeLang={activeLang} activeView={activeView} triggerSectionId={popupTriggerSectionId} onClose={closePopup} />
+      )}
     </div>
   );
 }
 
-function ProdSection({
-  section,
-  activeView,
-  activeLang,
-}: {
-  section: Section;
-  activeView: ViewMode;
-  activeLang: Language;
+/* ─── Section ─── */
+
+function ProdSection({ section, activeView, activeLang, isAuthorized, onOpenPopup }: {
+  section: Section; activeView: Viewport; activeLang: Language; isAuthorized: boolean;
+  onOpenPopup: (popupId: number, sectionId: number) => void;
 }) {
   const st = section.styles[activeView];
-
   return (
     <div
       className={styles.landing__section}
+      data-section-id={section.id}
       style={{
         width: st.width || '100%',
         height: st.height ? `${st.height}px` : 'auto',
@@ -191,7 +246,7 @@ function ProdSection({
         marginBottom: `${st.marginBottom || 0}px`,
         marginLeft: 'auto',
         marginRight: 'auto',
-        backgroundColor: st.backgroundColor || 'transparent',
+        backgroundColor: st.backgroundImage ? 'transparent' : (st.backgroundColor || 'transparent'),
         border: `${st.borderWidth || 0}px solid ${st.borderColor || 'transparent'}`,
         borderRadius: `${st.borderRadius || 0}px`,
         backgroundImage: st.backgroundImage ? `url(${st.backgroundImage})` : 'none',
@@ -202,67 +257,333 @@ function ProdSection({
         zIndex: st.zIndex || 1,
       }}
     >
-      {section.elements.map((el) => (
-        <ProdElement key={el.id} element={el} activeView={activeView} activeLang={activeLang} />
+      {section.elements.filter((el) => shouldShow(el.visibility, isAuthorized)).map((el) => (
+        <ProdElement key={el.id} element={el} sectionId={section.id} activeView={activeView} activeLang={activeLang} isAuthorized={isAuthorized} onOpenPopup={onOpenPopup} />
       ))}
     </div>
   );
 }
 
-function ProdElement({
-  element,
-  activeView,
-  activeLang,
-}: {
-  element: Section['elements'][number];
-  activeView: ViewMode;
-  activeLang: Language;
-}) {
-  const est = element.styles[activeView];
+/* ─── Element (text / image / button / box) ─── */
 
-  if (element.type === 'text') {
+function ProdElement({ element, sectionId, activeView, activeLang, isAuthorized, onOpenPopup }: {
+  element: Element; sectionId: number; activeView: Viewport; activeLang: Language; isAuthorized: boolean;
+  onOpenPopup: (popupId: number, sectionId: number) => void;
+}) {
+  // Box
+  if (element.type === 'box') {
+    const box = element as BoxElement;
+    const bs = box.styles[activeView];
     return (
       <div
         style={{
           position: 'absolute',
-          left: `${est.x}px`,
-          top: `${est.y}px`,
-          width: `${est.width}px`,
-          height: `${est.height}px`,
-          fontSize: `${est.fontSize}px`,
-          fontFamily: est.fontFamily,
-          color: est.color,
-          textShadow: est.textShadow || 'none',
-          zIndex: est.zIndex || 1,
+          left: `${bs.x}px`,
+          top: `${bs.y}px`,
+          width: `${bs.width}px`,
+          height: `${bs.height}px`,
+          backgroundColor: bs.backgroundImage ? 'transparent' : bs.backgroundColor,
+          backgroundImage: bs.backgroundImage ? `url(${bs.backgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          border: bs.borderWidth > 0 ? `${bs.borderWidth}px solid ${bs.borderColor}` : 'none',
+          borderRadius: `${bs.borderRadius}px`,
+          zIndex: bs.zIndex || 1,
+          overflow: 'hidden',
+        }}
+      >
+        {box.children.filter((c) => shouldShow(c.visibility, isAuthorized)).map((child) => (
+          <ProdBoxChild key={child.id} child={child} sectionId={sectionId} activeView={activeView} activeLang={activeLang} onOpenPopup={onOpenPopup} />
+        ))}
+      </div>
+    );
+  }
+
+  // Button
+  if (element.type === 'button') {
+    const btn = element as ButtonElement;
+    const bs = btn.styles[activeView];
+    const handleClick = () => {
+      if (btn.action.type === 'link' && btn.action.value) {
+        window.open(btn.action.value, '_blank');
+      } else if (btn.action.type === 'popup' && btn.action.value) {
+        onOpenPopup(Number(btn.action.value), sectionId);
+      }
+    };
+    return (
+      <button
+        onClick={handleClick}
+        style={{
+          position: 'absolute',
+          left: `${bs.x}px`,
+          top: `${bs.y}px`,
+          width: `${bs.width}px`,
+          height: `${bs.height}px`,
+          backgroundColor: btn.useImage ? 'transparent' : bs.backgroundColor,
+          border: btn.useImage ? 'none' : `${bs.borderWidth}px solid ${bs.borderColor}`,
+          borderRadius: `${bs.borderRadius}px`,
+          fontSize: `${bs.fontSize}px`,
+          lineHeight: bs.lineHeight || 1.4,
+          fontFamily: bs.fontFamily,
+          color: bs.color,
+          cursor: 'pointer',
+          zIndex: bs.zIndex || 1,
+          padding: 0,
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {btn.useImage && btn.image[activeLang] ? (
+          <img src={btn.image[activeLang]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          btn.content[activeLang] || ''
+        )}
+      </button>
+    );
+  }
+
+  // Text
+  if (element.type === 'text') {
+    const txt = element as TextElement;
+    const ts = txt.styles[activeView];
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: `${ts.x}px`,
+          top: `${ts.y}px`,
+          width: `${ts.width}px`,
+          height: `${ts.height}px`,
+          fontSize: `${ts.fontSize}px`,
+          lineHeight: ts.lineHeight || 1.4,
+          fontFamily: ts.fontFamily,
+          color: ts.color,
+          textShadow: ts.textShadow || 'none',
+          textAlign: ts.textAlign || 'left',
+          zIndex: ts.zIndex || 1,
           whiteSpace: 'pre-wrap',
           wordWrap: 'break-word',
         }}
-        dangerouslySetInnerHTML={{ __html: element.content[activeLang] || '' }}
+        dangerouslySetInnerHTML={{ __html: txt.content[activeLang] || '' }}
       />
     );
   }
 
+  // Image
+  const img = element as ImageElement;
+  const is = img.styles[activeView];
+  return (
+    <div style={{ position: 'absolute', left: `${is.x}px`, top: `${is.y}px`, width: `${is.width}px`, height: `${is.height}px`, zIndex: is.zIndex || 1 }}>
+      <img src={img.content[activeLang] || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: `${is.borderRadius || 0}px` }} />
+    </div>
+  );
+}
+
+/* ─── Box Child (text / image / button) ─── */
+
+function ProdBoxChild({ child, sectionId, activeView, activeLang, onOpenPopup }: {
+  child: BoxChildElement; sectionId: number; activeView: Viewport; activeLang: Language;
+  onOpenPopup: (popupId: number, sectionId: number) => void;
+}) {
+  if (child.type === 'button') {
+    const btn = child as ButtonElement;
+    const bs = btn.styles[activeView];
+    const handleClick = () => {
+      if (btn.action.type === 'link' && btn.action.value) window.open(btn.action.value, '_blank');
+      else if (btn.action.type === 'popup' && btn.action.value) onOpenPopup(Number(btn.action.value), sectionId);
+    };
+    return (
+      <button
+        onClick={handleClick}
+        style={{
+          position: 'absolute',
+          left: `${bs.x}px`,
+          top: `${bs.y}px`,
+          width: `${bs.width}px`,
+          height: `${bs.height}px`,
+          backgroundColor: btn.useImage ? 'transparent' : bs.backgroundColor,
+          border: btn.useImage ? 'none' : `${bs.borderWidth}px solid ${bs.borderColor}`,
+          borderRadius: `${bs.borderRadius}px`,
+          fontSize: `${bs.fontSize}px`,
+          lineHeight: bs.lineHeight || 1.4,
+          fontFamily: bs.fontFamily,
+          color: bs.color,
+          cursor: 'pointer',
+          zIndex: bs.zIndex || 1,
+          padding: 0,
+          overflow: 'hidden',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        {btn.useImage && btn.image[activeLang] ? (
+          <img src={btn.image[activeLang]} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          btn.content[activeLang] || ''
+        )}
+      </button>
+    );
+  }
+
+  if (child.type === 'text') {
+    const txt = child as TextElement;
+    const ts = txt.styles[activeView];
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          left: `${ts.x}px`,
+          top: `${ts.y}px`,
+          width: `${ts.width}px`,
+          height: `${ts.height}px`,
+          fontSize: `${ts.fontSize}px`,
+          lineHeight: ts.lineHeight || 1.4,
+          fontFamily: ts.fontFamily,
+          color: ts.color,
+          textShadow: ts.textShadow || 'none',
+          textAlign: ts.textAlign || 'left',
+          zIndex: ts.zIndex || 1,
+          whiteSpace: 'pre-wrap',
+          wordWrap: 'break-word',
+          overflow: 'hidden',
+        }}
+        dangerouslySetInnerHTML={{ __html: txt.content[activeLang] || '' }}
+      />
+    );
+  }
+
+  // Image
+  const img = child as ImageElement;
+  const is = img.styles[activeView];
+  return (
+    <div style={{ position: 'absolute', left: `${is.x}px`, top: `${is.y}px`, width: `${is.width}px`, height: `${is.height}px`, zIndex: is.zIndex || 1 }}>
+      <img src={img.content[activeLang] || ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: `${is.borderRadius || 0}px` }} />
+    </div>
+  );
+}
+
+/* ─── Popup ─── */
+
+function ProdPopup({ popup, activeLang, activeView, triggerSectionId, onClose }: {
+  popup: Popup; activeLang: Language; activeView: Viewport; triggerSectionId: number | null; onClose: () => void;
+}) {
+  useEffect(() => {
+    if (triggerSectionId !== null) {
+      const el = document.querySelector(`[data-section-id="${triggerSectionId}"]`);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [triggerSectionId]);
+
+  const pst = popup.styles[activeView];
+  const closeBtn: PopupCloseButton | undefined = popup.closeButton;
+  const closeBtnStyle = closeBtn?.styles?.[activeView];
+
   return (
     <div
       style={{
-        position: 'absolute',
-        left: `${est.x}px`,
-        top: `${est.y}px`,
-        width: `${est.width}px`,
-        height: `${est.height}px`,
-        zIndex: est.zIndex || 1,
+        position: 'fixed',
+        top: 0, left: 0, right: 0, bottom: 0,
+        backgroundColor: 'rgba(0,0,0,0.7)',
+        backdropFilter: 'blur(4px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2000,
       }}
+      onClick={onClose}
     >
-      <img
-        src={element.content[activeLang] || ''}
-        alt=""
+      <div
         style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'cover',
-          borderRadius: `${est.borderRadius || 0}px`,
+          width: `${pst.width}px`,
+          height: `${pst.height}px`,
+          backgroundColor: pst.backgroundImage ? 'transparent' : pst.backgroundColor,
+          backgroundImage: pst.backgroundImage ? `url(${pst.backgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          borderRadius: `${pst.borderRadius}px`,
+          border: pst.borderWidth > 0 ? `${pst.borderWidth}px solid ${pst.borderColor}` : 'none',
+          position: 'relative',
+          overflow: 'hidden',
         }}
-      />
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Close button */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute',
+            top: closeBtnStyle && closeBtnStyle.x !== -1 ? `${closeBtnStyle.y}px` : '10px',
+            right: closeBtnStyle && closeBtnStyle.x !== -1 ? 'auto' : '10px',
+            left: closeBtnStyle && closeBtnStyle.x !== -1 ? `${closeBtnStyle.x}px` : 'auto',
+            width: `${closeBtnStyle?.width || 32}px`,
+            height: `${closeBtnStyle?.height || 32}px`,
+            borderRadius: `${closeBtnStyle?.borderRadius || 16}px`,
+            border: 'none',
+            background: closeBtn?.useImage ? 'transparent' : (closeBtnStyle?.backgroundColor || 'rgba(255,255,255,0.1)'),
+            color: closeBtnStyle?.color || '#fff',
+            fontSize: `${closeBtnStyle?.fontSize || 16}px`,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 100,
+            overflow: 'hidden',
+            padding: 0,
+          }}
+        >
+          {closeBtn?.useImage && closeBtn.image[activeLang] ? (
+            <img src={closeBtn.image[activeLang]} alt="close" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : 'X'}
+        </button>
+
+        {/* Popup children */}
+        {(popup.children || []).map((child) => {
+          const est = child.styles[activeView];
+          if (child.type === 'text') {
+            return (
+              <div
+                key={child.id}
+                style={{
+                  position: 'absolute',
+                  left: `${est.x}px`,
+                  top: `${est.y}px`,
+                  width: `${est.width}px`,
+                  height: `${est.height}px`,
+                  fontSize: `${'fontSize' in est ? est.fontSize : 16}px`,
+                  fontFamily: 'fontFamily' in est ? est.fontFamily : undefined,
+                  color: 'color' in est ? est.color : undefined,
+                  textShadow: ('textShadow' in est ? est.textShadow : undefined) || 'none',
+                  zIndex: est.zIndex || 1,
+                  whiteSpace: 'pre-wrap',
+                  wordWrap: 'break-word',
+                  overflow: 'hidden',
+                }}
+                dangerouslySetInnerHTML={{ __html: child.content[activeLang] || '' }}
+              />
+            );
+          }
+          return (
+            <img
+              key={child.id}
+              src={child.content[activeLang] || ''}
+              alt=""
+              style={{
+                position: 'absolute',
+                left: `${est.x}px`,
+                top: `${est.y}px`,
+                width: `${est.width}px`,
+                height: `${est.height}px`,
+                objectFit: 'cover',
+                borderRadius: `${'borderRadius' in est ? est.borderRadius : 0}px`,
+                zIndex: est.zIndex || 1,
+              }}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }
