@@ -1,16 +1,25 @@
 .authorization {
-  background-color: #37445ee6;
-  padding: 20px;
-  max-width: 700px;
+  max-width: 760px;
   display: flex;
-  margin: 600px auto auto;
-  border-radius: 4px;
+  margin-left: auto;
+  margin-right: auto;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+
   &__text {
-    color: #ffffff;
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 12px;
+    border-radius: 4px;
   }
+
   &__actions {
     display: flex;
     gap: 10px;
+    flex-shrink: 0;
+
     button {
       border: none;
       outline: none;
@@ -19,10 +28,13 @@
       cursor: pointer;
       border-radius: 6px;
       font-size: 16px;
+      white-space: nowrap;
+
       &:nth-of-type(1) {
         background-color: #15af44;
         animation: 1s pulse ease-in-out infinite both;
       }
+
       &:nth-of-type(2) {
         background-color: #252b33;
         animation: 1s pulseDark ease-in-out infinite both;

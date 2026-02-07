@@ -1,57 +1,51 @@
+'use client';
+
+import { useState } from 'react';
 import styles from './General.module.scss';
-import ViewLanguageTabs from './ViewLanguageTabs';
-import GlobalBackgroundBlock from './GlobalBackgroundBlock';
-import SectionsBlock from './SectionsBlock';
-import type { Section, ViewMode, Language, GlobalBackground } from '../../../../shared/types';
+import { useLandingContext } from '../../context';
+import {
+  ViewportTabs,
+  LanguageTabs,
+  GlobalBackgroundBlock,
+  SectionsBlock,
+} from './components';
+import GitHubSettings from '../github-settings/GitHubSettings';
 
-interface GeneralProps {
-  activeLang: Language;
-  setActiveLang: (lang: Language) => void;
-  activeView: ViewMode;
-  setActiveView: (view: ViewMode) => void;
-  globalBG: GlobalBackground;
-  setGlobalBG: (bg: GlobalBackground) => void;
-  sections: Section[];
-  setSections: (sections: Section[]) => void;
-  saveAllConfig: () => void;
-}
+export default function General() {
+  const { saveAllConfig, gitHub } = useLandingContext();
+  const [openBlocks, setOpenBlocks] = useState<string[]>(['bg', 'sections']);
 
-export default function General({
-  activeLang,
-  setActiveLang,
-  activeView,
-  setActiveView,
-  globalBG,
-  setGlobalBG,
-  sections,
-  setSections,
-  saveAllConfig,
-}: GeneralProps) {
+  const toggleBlock = (block: string) => {
+    setOpenBlocks((prev) =>
+      prev.includes(block) ? prev.filter((b) => b !== block) : [...prev, block]
+    );
+  };
+
   return (
     <div className={styles.general}>
-      <ViewLanguageTabs
-        activeView={activeView}
-        activeLang={activeLang}
-        onViewChange={setActiveView}
-        onLangChange={setActiveLang}
-      />
+      <div className={styles.general__topControls}>
+        <ViewportTabs />
+        <LanguageTabs />
+      </div>
 
-      <button className={styles.general__saveBtn} onClick={saveAllConfig}>
-        💾 PUBLISH CONFIG
+      <button
+        className={styles.general__saveBtn}
+        onClick={saveAllConfig}
+        disabled={gitHub.isPublishing}
+      >
+        {gitHub.isPublishing ? 'PUBLISHING...' : 'PUBLISH CONFIG'}
       </button>
 
+      <GitHubSettings />
+
       <GlobalBackgroundBlock
-        activeLang={activeLang}
-        activeView={activeView}
-        globalBG={globalBG}
-        onGlobalBGChange={setGlobalBG}
+        isOpen={openBlocks.includes('bg')}
+        onToggle={() => toggleBlock('bg')}
       />
 
       <SectionsBlock
-        sections={sections}
-        activeView={activeView}
-        activeLang={activeLang}
-        onSectionsChange={setSections}
+        isOpen={openBlocks.includes('sections')}
+        onToggle={() => toggleBlock('sections')}
       />
     </div>
   );

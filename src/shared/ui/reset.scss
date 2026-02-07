@@ -1,3 +1,43 @@
+@font-face {
+  font-family: 'CrocoSansBlackCAPS';
+  src: url('../../assets/fonts/CrocoSansBlackCAPS.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'CrocoSansCAPSRegular';
+  src: url('../../assets/fonts/CrocoSansCAPSRegular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'ProximaNova';
+  src: url('../../assets/fonts/ProximaNova.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'TTSupermolotNeue';
+  src: url('../../assets/fonts/TTSupermolotNeue.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'BebasNeueRegular';
+  src: url('../../assets/fonts/BebasNeueRegular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }

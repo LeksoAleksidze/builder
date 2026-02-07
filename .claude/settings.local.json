@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build:*)",
+      "Bash(timeout 8 npm run dev:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm run dev:*)",
+      "Bash(dir:*)",
+      "Bash(npx vite build:*)",
+      "Bash(git rm:*)",
+      "Bash(git config:*)",
+      "Bash(git -C C:/Users/laleksidze/Desktop/builder branch -a)"
+    ]
+  }
+}
