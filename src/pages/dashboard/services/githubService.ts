@@ -143,7 +143,7 @@ export async function loadFromGitHub(
 ): Promise<LandingData | null> {
   try {
     const res = await fetch(
-      `${API_BASE}/contents/config.json?ref=${branchName}`,
+      `${API_BASE}/contents/public/config.json?ref=${branchName}`,
       {
         headers: {
           Authorization: `token ${token}`,
@@ -202,34 +202,47 @@ export async function publishToGitHub(
     token,
   );
   treeEntries.push({
-    path: 'config.json',
+    path: 'public/config.json',
     mode: '100644',
     type: 'blob',
     sha: configBlob.sha,
   });
 
-  // Asset blobs
+  // Asset blobs (stored under public/ for Vite build)
   for (const [filePath, base64Content] of assets) {
     const blob = await createBlob(base64Content, 'base64', token);
     treeEntries.push({
-      path: filePath,
+      path: `public/${filePath}`,
       mode: '100644',
       type: 'blob',
       sha: blob.sha,
     });
   }
 
-  // 4.5. Delete unreferenced old assets
+  // 4.5. Delete unreferenced old assets + migrate away from root-level files
   const referencedPaths = collectReferencedAssets(cleanedData);
   const currentTreeFull = await ghFetch<GitTreeFull>(
     `${API_BASE}/git/trees/${currentCommit.tree.sha}?recursive=1`,
     token,
   );
   for (const entry of currentTreeFull.tree) {
+    if (entry.type !== 'blob') continue;
+
+    // Delete old root-level config.json and assets/* (migration)
+    if (entry.path === 'config.json' || (entry.path.startsWith('assets/') && !entry.path.startsWith('public/'))) {
+      treeEntries.push({
+        path: entry.path,
+        mode: '100644',
+        type: 'blob',
+        sha: null,
+      });
+      continue;
+    }
+
+    // Delete unreferenced assets under public/assets/
     if (
-      entry.type === 'blob' &&
-      entry.path.startsWith('assets/') &&
-      !referencedPaths.has(entry.path)
+      entry.path.startsWith('public/assets/') &&
+      !referencedPaths.has(entry.path.replace('public/', ''))
     ) {
       treeEntries.push({
         path: entry.path,

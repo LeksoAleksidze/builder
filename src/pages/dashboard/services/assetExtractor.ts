@@ -133,10 +133,10 @@ function isAssetPath(value: string): boolean {
 }
 
 function toRawUrl(path: string, branch: string): string {
-  return `https://raw.githubusercontent.com/LeksoAleksidze/builder/${branch}/${path}`;
+  return `https://raw.githubusercontent.com/LeksoAleksidze/builder/${branch}/public/${path}`;
 }
 
-const RAW_URL_ASSET_PATTERN = /https:\/\/raw\.githubusercontent\.com\/LeksoAleksidze\/builder\/[^/]+\/(assets\/[^"]+)/g;
+const RAW_URL_ASSET_PATTERN = /https:\/\/raw\.githubusercontent\.com\/LeksoAleksidze\/builder\/[^/]+\/(?:public\/)?(assets\/[^"]+)/g;
 
 export function normalizeRawUrls(data: LandingData): LandingData {
   const json = JSON.stringify(data);

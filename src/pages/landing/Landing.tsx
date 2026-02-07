@@ -22,7 +22,6 @@ import type {
   PopupImageElement,
 } from '../dashboard/types';
 import {
-  STORAGE_KEY,
   DEFAULT_GLOBAL_BG,
   DEFAULT_GLOBAL_BG_COLOR,
   DEFAULT_AUTH_STYLES,
@@ -482,7 +481,7 @@ function LandingChildElement({
 }
 
 export default function LandingPage() {
-  const { key, lang } = useParams<{ key: string; lang?: string }>();
+  const { lang } = useParams<{ lang: string }>();
 
   // ge ან ka = GE
   const getLanguage = (l?: string): Language => {
@@ -510,53 +509,52 @@ export default function LandingPage() {
       setError(null);
 
       try {
-        // TODO: მომავალში API-დან ჩატვირთვა key-ით
-        // const response = await fetch(`/api/landing/${key}`);
-        // const config = await response.json();
-
-        // ჯერჯერობით localStorage-დან
-        const saved = localStorage.getItem(STORAGE_KEY);
-
-        if (saved) {
-          const parsed = JSON.parse(saved);
-
-          // Merge authStyles with defaults to ensure new properties have values
-          const authStyles: ViewportAuthStyles = {
-            WEB: { ...DEFAULT_AUTH_STYLES.WEB, ...(parsed.authStyles?.WEB || {}) },
-            MOB: { ...DEFAULT_AUTH_STYLES.MOB, ...(parsed.authStyles?.MOB || {}) },
-          };
-
-          // Migrate popups if needed
-          const popups = (parsed.popups || []).map((p: Popup) => {
-            if (!p.children) p.children = [];
-            if (!p.closeButton) {
-              p.closeButton = {
-                useImage: false,
-                image: { ...DEFAULT_LOCALIZED_CONTENT },
-                styles: {
-                  WEB: { ...DEFAULT_CLOSE_BUTTON_STYLES.WEB },
-                  MOB: { ...DEFAULT_CLOSE_BUTTON_STYLES.MOB },
-                },
-              };
-            }
-            return p;
-          });
-
-          setData({
-            sections: parsed.sections || [],
-            authStyles,
-            globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
-            globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
-            popups,
-            backgroundMode: parsed.backgroundMode || 'cover',
-            headerText: parsed.headerText || DEFAULT_HEADER_TEXT,
-            endpoints: { ...DEFAULT_ENDPOINTS_CONFIG, ...(parsed.endpoints || {}) },
-            authBlockVisibility: parsed.authBlockVisibility || 'non-auth',
-            authTexts: parsed.authTexts ? { ...DEFAULT_AUTH_TEXTS, ...parsed.authTexts } : { ...DEFAULT_AUTH_TEXTS },
-          });
-        } else {
+        const BASE = import.meta.env.BASE_URL || '/';
+        const response = await fetch(`${BASE}config.json`);
+        if (!response.ok) {
           setError('კონფიგურაცია ვერ მოიძებნა');
+          return;
         }
+
+        // Resolve relative asset paths to absolute
+        const text = await response.text();
+        const resolved = text.replace(/"assets\//g, `"${BASE}assets/`);
+        const parsed = JSON.parse(resolved);
+
+        // Merge authStyles with defaults to ensure new properties have values
+        const authStyles: ViewportAuthStyles = {
+          WEB: { ...DEFAULT_AUTH_STYLES.WEB, ...(parsed.authStyles?.WEB || {}) },
+          MOB: { ...DEFAULT_AUTH_STYLES.MOB, ...(parsed.authStyles?.MOB || {}) },
+        };
+
+        // Migrate popups if needed
+        const popups = (parsed.popups || []).map((p: Popup) => {
+          if (!p.children) p.children = [];
+          if (!p.closeButton) {
+            p.closeButton = {
+              useImage: false,
+              image: { ...DEFAULT_LOCALIZED_CONTENT },
+              styles: {
+                WEB: { ...DEFAULT_CLOSE_BUTTON_STYLES.WEB },
+                MOB: { ...DEFAULT_CLOSE_BUTTON_STYLES.MOB },
+              },
+            };
+          }
+          return p;
+        });
+
+        setData({
+          sections: parsed.sections || [],
+          authStyles,
+          globalBG: parsed.globalBG || DEFAULT_GLOBAL_BG,
+          globalBGColor: { ...DEFAULT_GLOBAL_BG_COLOR, ...(parsed.globalBGColor || {}) },
+          popups,
+          backgroundMode: parsed.backgroundMode || 'cover',
+          headerText: parsed.headerText || DEFAULT_HEADER_TEXT,
+          endpoints: { ...DEFAULT_ENDPOINTS_CONFIG, ...(parsed.endpoints || {}) },
+          authBlockVisibility: parsed.authBlockVisibility || 'non-auth',
+          authTexts: parsed.authTexts ? { ...DEFAULT_AUTH_TEXTS, ...parsed.authTexts } : { ...DEFAULT_AUTH_TEXTS },
+        });
       } catch (err) {
         setError('კონფიგურაციის ჩატვირთვა ვერ მოხერხდა');
       } finally {
@@ -565,7 +563,7 @@ export default function LandingPage() {
     };
 
     loadConfig();
-  }, [key]);
+  }, []);
 
   // Sync activeLang when URL param changes (React Router navigation)
   useEffect(() => {
@@ -619,7 +617,6 @@ export default function LandingPage() {
       <div className={styles.error}>
         <div className={styles.errorIcon}>!</div>
         <p>{error || 'კონფიგურაცია ვერ მოიძებნა'}</p>
-        {key && <span className={styles.errorKey}>Key: {key}</span>}
       </div>
     );
   }
