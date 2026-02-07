@@ -55,15 +55,15 @@
   "popups": [],
   "headerText": {
     "content": {
-      "GE": "",
-      "EN": "",
-      "RU": "",
-      "TR": ""
+      "GE": "ქართული",
+      "EN": "English",
+      "RU": "Russian",
+      "TR": "Turkey"
     },
     "styles": {
       "WEB": {
-        "x": 0,
-        "y": 0,
+        "x": 111,
+        "y": -218,
         "width": 600,
         "paddingTop": 0,
         "paddingBottom": 0,
@@ -86,7 +86,7 @@
         "maxWidth": 350
       }
     },
-    "sameForAllLangs": true
+    "sameForAllLangs": false
   },
   "endpoints": {
     "rulesKey": "",
