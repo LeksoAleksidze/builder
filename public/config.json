@@ -1,34 +1,5 @@
 {
-  "sections": [
-    {
-      "id": 1770479088760,
-      "title": "Sec 1",
-      "styles": {
-        "WEB": {
-          "width": "740px",
-          "height": 488,
-          "marginTop": 40,
-          "marginBottom": 30,
-          "backgroundColor": "transparent",
-          "borderWidth": 0,
-          "borderRadius": 0,
-          "borderColor": "#333",
-          "backgroundImage": "assets/section-1770479088760-bg-WEB.png"
-        },
-        "MOB": {
-          "width": "100%",
-          "height": 300,
-          "marginTop": 0,
-          "marginBottom": 0,
-          "backgroundColor": "#161925",
-          "borderWidth": 0,
-          "borderRadius": 0,
-          "borderColor": "#333"
-        }
-      },
-      "elements": []
-    }
-  ],
+  "sections": [],
   "authStyles": {
     "WEB": {
       "marginTop": "700px",
@@ -59,19 +30,19 @@
   },
   "globalBG": {
     "GE": {
-      "web": "assets/bg-GE-web.jpg",
+      "web": "",
       "mob": ""
     },
     "EN": {
-      "web": "assets/bg-EN-web.jpg",
+      "web": "",
       "mob": ""
     },
     "RU": {
-      "web": "assets/bg-RU-web.jpg",
+      "web": "",
       "mob": ""
     },
     "TR": {
-      "web": "assets/bg-TR-web.jpg",
+      "web": "",
       "mob": ""
     }
   },
@@ -80,7 +51,7 @@
     "MOB": "#1a1a2e"
   },
   "sameBackgroundForAllLangs": true,
-  "backgroundMode": "natural",
+  "backgroundMode": "cover",
   "popups": [],
   "headerText": {
     "content": {
@@ -126,22 +97,22 @@
   "authBlockVisibility": "non-auth",
   "authTexts": {
     "mainText": {
-      "GE": "ავტორიზაციაააა",
+      "GE": "აქციაში მონაწილეობის მისაღებად, გთხოვთ, გაიაროთ რეგისტრაცია ან ავტორიზაცია",
       "EN": "To participate in the promotion, please register or log in",
-      "RU": "ÐÐ»Ñ ÑÑÐ°ÑÑÐ¸Ñ Ð² Ð°ÐºÑÐ¸Ð¸, Ð¿Ð¾Ð¶Ð°Ð»ÑÐ¹ÑÑÐ°, Ð·Ð°ÑÐµÐ³Ð¸ÑÑÑÐ¸ÑÑÐ¹ÑÐµÑÑ Ð¸Ð»Ð¸ Ð°Ð²ÑÐ¾ÑÐ¸Ð·ÑÐ¹ÑÐµÑÑ",
-      "TR": "Promosyona katÄ±lmak iÃ§in lÃ¼tfen kayÄ±t olun veya giriÅ yapÄ±n"
+      "RU": "Для участия в акции, пожалуйста, зарегистрируйтесь или авторизуйтесь",
+      "TR": "Promosyona katılmak için lütfen kayıt olun veya giriş yapın"
     },
     "registerButton": {
-      "GE": "á áááá¡á¢á ááªáá",
+      "GE": "რეგისტრაცია",
       "EN": "Register",
-      "RU": "Ð ÐµÐ³Ð¸ÑÑÑÐ°ÑÐ¸Ñ",
-      "TR": "KayÄ±t Ol"
+      "RU": "Регистрация",
+      "TR": "Kayıt Ol"
     },
     "loginButton": {
-      "GE": "ááá¢áá ááááªáá",
+      "GE": "ავტორიზაცია",
       "EN": "Log In",
-      "RU": "ÐÐ²ÑÐ¾ÑÐ¸Ð·Ð°ÑÐ¸Ñ",
-      "TR": "GiriÅ Yap"
+      "RU": "Авторизация",
+      "TR": "Giriş Yap"
     }
   }
 }
