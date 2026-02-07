@@ -13,7 +13,9 @@
       "Bash(git -C C:/Users/laleksidze/Desktop/builder pull)",
       "Bash(git -C C:/Users/laleksidze/Desktop/builder log --oneline -5)",
       "Bash(git -C C:/Users/laleksidze/Desktop/builder branch:*)",
-      "Bash(npm run build:prod:*)"
+      "Bash(npm run build:prod:*)",
+      "Bash(findstr:*)",
+      "Bash(npm install:*)"
     ]
   }
 }

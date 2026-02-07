@@ -1,4 +1,5 @@
 import ReactDOM from 'react-dom/client';
+import './d2d.css';
 import '../src/shared/ui/reset.scss';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
