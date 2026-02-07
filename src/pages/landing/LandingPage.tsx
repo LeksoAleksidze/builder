@@ -165,13 +165,10 @@ export default function LandingPage() {
           position: 'relative',
         }}
       >
-        {/* Header Text */}
+        {/* Header Text — positioned with x,y exactly like Rnd in dashboard */}
         {ht && htStyle && ht.content[activeLang] && (
           <div
             style={{
-              width: '100%',
-              maxWidth: `${htStyle.maxWidth}px`,
-              margin: '0 auto',
               paddingTop: `${htStyle.paddingTop}px`,
               paddingBottom: `${htStyle.paddingBottom}px`,
               position: 'relative',
@@ -180,19 +177,27 @@ export default function LandingPage() {
           >
             <div
               style={{
-                maxWidth: `${htStyle.width}px`,
-                margin: '0 auto',
-                fontSize: `${htStyle.fontSize}px`,
-                lineHeight: htStyle.lineHeight,
-                fontFamily: htStyle.fontFamily,
-                color: htStyle.color,
-                whiteSpace: 'pre-wrap',
-                textAlign: 'center',
-                wordWrap: 'break-word',
-                overflowWrap: 'break-word',
+                position: 'absolute',
+                transform: `translate(${htStyle.x}px, ${htStyle.y}px)`,
+                width: `${htStyle.width}px`,
               }}
-              dangerouslySetInnerHTML={{ __html: ht.content[activeLang] }}
-            />
+            >
+              <div
+                style={{
+                  maxWidth: `${htStyle.maxWidth}px`,
+                  fontSize: `${htStyle.fontSize}px`,
+                  lineHeight: htStyle.lineHeight,
+                  fontFamily: htStyle.fontFamily,
+                  color: htStyle.color,
+                  whiteSpace: 'pre-wrap',
+                  textAlign: 'center',
+                  width: '100%',
+                  wordWrap: 'break-word',
+                  overflowWrap: 'break-word',
+                }}
+                dangerouslySetInnerHTML={{ __html: ht.content[activeLang] }}
+              />
+            </div>
           </div>
         )}
 
