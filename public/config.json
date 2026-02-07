@@ -88,6 +88,34 @@
           "isEditing": false
         }
       ]
+    },
+    {
+      "id": 1770483585525,
+      "title": "Sec 2",
+      "styles": {
+        "WEB": {
+          "width": "523px",
+          "height": 821,
+          "marginTop": 24,
+          "marginBottom": 41,
+          "backgroundColor": "transparent",
+          "borderWidth": 0,
+          "borderRadius": 0,
+          "borderColor": "#6c0909",
+          "backgroundImage": "assets/section-1770483585525-bg-WEB.png"
+        },
+        "MOB": {
+          "width": "100%",
+          "height": 300,
+          "marginTop": 0,
+          "marginBottom": 0,
+          "backgroundColor": "#161925",
+          "borderWidth": 0,
+          "borderRadius": 0,
+          "borderColor": "#333"
+        }
+      },
+      "elements": []
     }
   ],
   "authStyles": {
@@ -137,7 +165,7 @@
     }
   },
   "globalBGColor": {
-    "WEB": "#1a1a2e",
+    "WEB": "#14100d",
     "MOB": "#1a1a2e"
   },
   "sameBackgroundForAllLangs": true,
