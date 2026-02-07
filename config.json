@@ -30,19 +30,19 @@
   },
   "globalBG": {
     "GE": {
-      "web": "assets/bg-GE-web.png",
+      "web": "",
       "mob": ""
     },
     "EN": {
-      "web": "assets/bg-EN-web.png",
+      "web": "",
       "mob": ""
     },
     "RU": {
-      "web": "assets/bg-RU-web.png",
+      "web": "",
       "mob": ""
     },
     "TR": {
-      "web": "assets/bg-TR-web.png",
+      "web": "",
       "mob": ""
     }
   },
