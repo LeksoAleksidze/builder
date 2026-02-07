@@ -60,7 +60,7 @@ function shouldShow(visibility: AuthVisibility | undefined, authorized: boolean)
 
 export default function LandingPage() {
   const { lang } = useParams<{ lang: string }>();
-  const activeLang = getLanguage(lang);
+  const [activeLang, setActiveLang] = useState<Language>(() => getLanguage(lang));
   const [data, setData] = useState<ProdConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,19 +69,27 @@ export default function LandingPage() {
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const isAuthorized = isUserAuthorized();
 
+  // Sync language from URL param without page refresh
+  useEffect(() => {
+    setActiveLang(getLanguage(lang));
+  }, [lang]);
+
   // Measure container width for proportional header text positioning
   const containerRef = useRef<HTMLDivElement>(null);
+  const initialWidthRef = useRef(0);
   const [containerWidth, setContainerWidth] = useState(0);
 
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const observer = new ResizeObserver(([entry]) => {
-      setContainerWidth(entry.contentRect.width);
+      const w = entry.contentRect.width;
+      if (initialWidthRef.current === 0) initialWidthRef.current = w;
+      setContainerWidth(w);
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [loading]);
 
   // Load config.json from local (Vite public/)
   useEffect(() => {
@@ -162,7 +170,7 @@ export default function LandingPage() {
       >
         {/* Header Text — positioned proportionally to container width */}
         {ht && htStyle && ht.content[activeLang] && (() => {
-          const refW = htStyle.referenceWidth;
+          const refW = htStyle.referenceWidth || initialWidthRef.current;
           const scale = refW && containerWidth ? containerWidth / refW : 1;
           const scaledX = htStyle.x * scale;
           const scaledWidth = htStyle.width * scale;
