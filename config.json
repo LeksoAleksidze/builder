@@ -1,0 +1,118 @@
+{
+  "sections": [],
+  "authStyles": {
+    "WEB": {
+      "marginTop": "700px",
+      "backgroundColor": "#37445ee6",
+      "textColor": "#ffffff",
+      "textBgColor": "transparent",
+      "textBgBorderRadius": 4,
+      "fontSize": 16,
+      "lineHeight": 1.4,
+      "fontFamily": "CrocoSansCAPSRegular",
+      "height": 80,
+      "padding": 20,
+      "borderRadius": 4
+    },
+    "MOB": {
+      "marginTop": "300px",
+      "backgroundColor": "#37445ee6",
+      "textColor": "#ffffff",
+      "textBgColor": "transparent",
+      "textBgBorderRadius": 4,
+      "fontSize": 14,
+      "lineHeight": 1.4,
+      "fontFamily": "CrocoSansCAPSRegular",
+      "height": 100,
+      "padding": 16,
+      "borderRadius": 4
+    }
+  },
+  "globalBG": {
+    "GE": {
+      "web": "",
+      "mob": ""
+    },
+    "EN": {
+      "web": "",
+      "mob": ""
+    },
+    "RU": {
+      "web": "",
+      "mob": ""
+    },
+    "TR": {
+      "web": "",
+      "mob": ""
+    }
+  },
+  "globalBGColor": {
+    "WEB": "#1a1a2e",
+    "MOB": "#1a1a2e"
+  },
+  "sameBackgroundForAllLangs": true,
+  "backgroundMode": "cover",
+  "popups": [],
+  "headerText": {
+    "content": {
+      "GE": "",
+      "EN": "",
+      "RU": "",
+      "TR": ""
+    },
+    "styles": {
+      "WEB": {
+        "x": 0,
+        "y": 0,
+        "width": 600,
+        "paddingTop": 0,
+        "paddingBottom": 0,
+        "fontSize": 32,
+        "lineHeight": 1.2,
+        "fontFamily": "BebasNeueRegular",
+        "color": "#ffffff",
+        "maxWidth": 800
+      },
+      "MOB": {
+        "x": 0,
+        "y": 0,
+        "width": 340,
+        "paddingTop": 0,
+        "paddingBottom": 0,
+        "fontSize": 24,
+        "lineHeight": 1.2,
+        "fontFamily": "BebasNeueRegular",
+        "color": "#ffffff",
+        "maxWidth": 350
+      }
+    },
+    "sameForAllLangs": true
+  },
+  "endpoints": {
+    "rulesKey": "",
+    "rulesBackground": "#37445ee6",
+    "rulesPaddingTop": 20,
+    "rulesPaddingBottom": 20
+  },
+  "authBlockVisibility": "non-auth",
+  "authTexts": {
+    "mainText": {
+      "GE": "აქციაში მონაწილეობის მისაღებად, გთხოვთ, გაიაროთ რეგისტრაცია ან ავტორიზაცია",
+      "EN": "To participate in the promotion, please register or log in",
+      "RU": "Для участия в акции, пожалуйста, зарегистрируйтесь или авторизуйтесь",
+      "TR": "Promosyona katılmak için lütfen kayıt olun veya giriş yapın"
+    },
+    "registerButton": {
+      "GE": "რეგისტრაცია",
+      "EN": "Register",
+      "RU": "Регистрация",
+      "TR": "Kayıt Ol"
+    },
+    "loginButton": {
+      "GE": "ავტორიზაცია",
+      "EN": "Log In",
+      "RU": "Авторизация",
+      "TR": "Giriş Yap"
+    }
+  }
+}
