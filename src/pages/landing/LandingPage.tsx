@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import Authorization from '../../shared/modules/authorization/Authorization';
 import Rules from '../../shared/modules/rules/Rules';
@@ -69,6 +69,20 @@ export default function LandingPage() {
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
   const isAuthorized = isUserAuthorized();
 
+  // Measure container width for proportional header text positioning
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setContainerWidth(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   // Load config.json from local (Vite public/)
   useEffect(() => {
     const BASE = import.meta.env.BASE_URL || '/';
@@ -137,6 +151,7 @@ export default function LandingPage() {
       style={{ width: '100%', minHeight: '100vh', backgroundColor: currentBGColor, ...getBackgroundStyle() }}
     >
       <div
+        ref={containerRef}
         style={{
           width: activeView === 'MOB' ? '375px' : '100%',
           margin: '0 auto',
@@ -145,8 +160,13 @@ export default function LandingPage() {
           position: 'relative',
         }}
       >
-        {/* Header Text — positioned with x,y px like Rnd in dashboard */}
-        {ht && htStyle && ht.content[activeLang] && (
+        {/* Header Text — positioned proportionally to container width */}
+        {ht && htStyle && ht.content[activeLang] && (() => {
+          const refW = htStyle.referenceWidth;
+          const scale = refW && containerWidth ? containerWidth / refW : 1;
+          const scaledX = htStyle.x * scale;
+          const scaledWidth = htStyle.width * scale;
+          return (
           <div
             style={{
               paddingTop: `${htStyle.paddingTop}px`,
@@ -158,9 +178,9 @@ export default function LandingPage() {
             <div
               style={{
                 position: 'absolute',
-                left: `${htStyle.x}px`,
+                left: `${scaledX}px`,
                 top: `${htStyle.y}px`,
-                width: `${htStyle.width}px`,
+                width: `${scaledWidth}px`,
               }}
             >
               <div
@@ -180,7 +200,8 @@ export default function LandingPage() {
               />
             </div>
           </div>
-        )}
+          );
+        })()}
 
         {/* Authorization */}
         {shouldShow(data.authBlockVisibility, isAuthorized) && (

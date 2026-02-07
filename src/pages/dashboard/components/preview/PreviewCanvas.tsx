@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { Rnd } from 'react-rnd';
 import { useLandingContext } from '../../context';
 import Authorization from '../../../../shared/modules/authorization/Authorization';
@@ -26,6 +26,17 @@ export function PreviewCanvas() {
 
   const [showCenterGuide, setShowCenterGuide] = useState(false);
   const landingRef = useRef<HTMLDivElement>(null);
+  const [editorWidth, setEditorWidth] = useState(0);
+
+  useEffect(() => {
+    const el = landingRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setEditorWidth(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const bgKey = activeView.toLowerCase() as 'web' | 'mob';
   const currentBGImage = globalBG[activeLang]?.[bgKey] || '';
@@ -78,6 +89,12 @@ export function PreviewCanvas() {
 
   const htStyles = headerText.styles[activeView];
 
+  // Scale header text position proportionally when container resizes
+  const htRefW = htStyles.referenceWidth;
+  const htScale = htRefW && editorWidth ? editorWidth / htRefW : 1;
+  const htDisplayX = htStyles.x * htScale;
+  const htDisplayWidth = htStyles.width * htScale;
+
   return (
     <div
       className={styles.dashboard__content}
@@ -129,8 +146,8 @@ export function PreviewCanvas() {
             }}
           >
             <Rnd
-              position={{ x: htStyles.x, y: htStyles.y }}
-              size={{ width: htStyles.width, height: 'auto' }}
+              position={{ x: htDisplayX, y: htStyles.y }}
+              size={{ width: htDisplayWidth, height: 'auto' }}
               enableResizing={{
                 left: true,
                 right: true,
@@ -142,16 +159,18 @@ export function PreviewCanvas() {
                 bottomRight: false,
               }}
               onDrag={(_e, d) => {
-                checkCenterAlignment(d.x, htStyles.width);
+                checkCenterAlignment(d.x, htDisplayWidth);
               }}
               onDragStop={(_e, d) => {
                 setShowCenterGuide(false);
                 updateHeaderTextStyle('x', d.x);
                 updateHeaderTextStyle('y', d.y);
+                updateHeaderTextStyle('referenceWidth', editorWidth || landingRef.current?.offsetWidth || 0);
               }}
               onResizeStop={(_e, _dir, ref, _delta, pos) => {
                 updateHeaderTextStyle('width', ref.offsetWidth);
                 updateHeaderTextStyle('x', pos.x);
+                updateHeaderTextStyle('referenceWidth', editorWidth || landingRef.current?.offsetWidth || 0);
               }}
               style={{ zIndex: 10 }}
               minWidth={50}

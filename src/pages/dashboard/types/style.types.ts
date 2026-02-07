@@ -118,6 +118,7 @@ export interface HeaderTextStyle {
   fontFamily: string;
   color: string;
   maxWidth: number;
+  referenceWidth?: number;
 }
 
 export type ViewportHeaderTextStyles = {
