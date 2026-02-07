@@ -180,8 +180,8 @@
     },
     "styles": {
       "WEB": {
-        "x": 663,
-        "y": -190,
+        "x": 371,
+        "y": -134,
         "width": 600,
         "paddingTop": 0,
         "paddingBottom": 0,
@@ -189,7 +189,8 @@
         "lineHeight": 1.2,
         "fontFamily": "BebasNeueRegular",
         "color": "#ffffff",
-        "maxWidth": 800
+        "maxWidth": 800,
+        "referenceWidth": 1328
       },
       "MOB": {
         "x": 0,
