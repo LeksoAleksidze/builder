@@ -9,7 +9,10 @@
       "Bash(npx vite build:*)",
       "Bash(git rm:*)",
       "Bash(git config:*)",
-      "Bash(git -C C:/Users/laleksidze/Desktop/builder branch -a)"
+      "Bash(git -C C:/Users/laleksidze/Desktop/builder branch -a)",
+      "Bash(git -C C:/Users/laleksidze/Desktop/builder pull)",
+      "Bash(git -C C:/Users/laleksidze/Desktop/builder log --oneline -5)",
+      "Bash(git -C C:/Users/laleksidze/Desktop/builder branch:*)"
     ]
   }
 }

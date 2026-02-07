@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import DashboardPage from './pages/dashboard/Dashboard';
-import LandingPage from './pages/landing/Landing';
+import LandingPage from './pages/landing/LandingPage';
 
 export default function App() {
   return (
