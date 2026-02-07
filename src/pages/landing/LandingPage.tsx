@@ -165,7 +165,7 @@ export default function LandingPage() {
           position: 'relative',
         }}
       >
-        {/* Header Text — positioned with x,y exactly like Rnd in dashboard */}
+        {/* Header Text — positioned with x,y px like Rnd in dashboard */}
         {ht && htStyle && ht.content[activeLang] && (
           <div
             style={{
@@ -178,7 +178,8 @@ export default function LandingPage() {
             <div
               style={{
                 position: 'absolute',
-                transform: `translate(${htStyle.x}px, ${htStyle.y}px)`,
+                left: `${htStyle.x}px`,
+                top: `${htStyle.y}px`,
                 width: `${htStyle.width}px`,
               }}
             >
