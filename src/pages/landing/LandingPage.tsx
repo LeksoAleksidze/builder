@@ -38,13 +38,13 @@ interface ProdConfig {
 }
 
 function getLanguage(l?: string): Language {
-  if (!l) return 'GE';
+  if (!l) return 'EN';
   const n = l.toUpperCase();
   if (n === 'KA' || n === 'GE') return 'GE';
   if (n === 'EN') return 'EN';
   if (n === 'RU') return 'RU';
   if (n === 'TR') return 'TR';
-  return 'GE';
+  return 'EN';
 }
 
 function isUserAuthorized(): boolean {
@@ -60,10 +60,10 @@ function shouldShow(visibility: AuthVisibility | undefined, authorized: boolean)
 
 export default function LandingPage() {
   const { lang } = useParams<{ lang: string }>();
+  const activeLang = getLanguage(lang);
   const [data, setData] = useState<ProdConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeLang, setActiveLang] = useState<Language>(getLanguage(lang));
   const [activeView, setActiveView] = useState<Viewport>('WEB');
   const [activePopupId, setActivePopupId] = useState<number | null>(null);
   const [popupTriggerSectionId, setPopupTriggerSectionId] = useState<number | null>(null);
@@ -85,32 +85,12 @@ export default function LandingPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  // Sync lang from URL param (no refresh — React Router handles it)
-  useEffect(() => {
-    setActiveLang(getLanguage(lang));
-  }, [lang]);
-
   // Viewport detection
   useEffect(() => {
     const check = () => setActiveView(window.innerWidth <= 768 ? 'MOB' : 'WEB');
     check();
     window.addEventListener('resize', check);
     return () => window.removeEventListener('resize', check);
-  }, []);
-
-  // postMessage language change (from parent iframe)
-  useEffect(() => {
-    const handler = (e: MessageEvent) => {
-      const msg = e.data;
-      if (msg && typeof msg === 'object' && msg.type === 'changeLang' && msg.lang) {
-        setActiveLang(getLanguage(msg.lang));
-        // Update URL without refresh
-        const newPath = `/${msg.lang.toLowerCase()}${window.location.search}`;
-        window.history.replaceState(null, '', newPath);
-      }
-    };
-    window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
   }, []);
 
   // Popup helpers
