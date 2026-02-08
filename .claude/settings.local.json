@@ -15,7 +15,8 @@
       "Bash(git -C C:/Users/laleksidze/Desktop/builder branch:*)",
       "Bash(npm run build:prod:*)",
       "Bash(findstr:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(timeout 10 npx vite:*)"
     ]
   }
 }

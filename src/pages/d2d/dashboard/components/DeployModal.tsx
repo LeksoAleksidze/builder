@@ -24,7 +24,7 @@ export function DeployModal({ isOpen, onClose, promotion, onSuccess }: DeployMod
   const [timer, setTimer] = useState<number>(0)
 
   useEffect(() => {
-    let interval: NodeJS.Timeout
+    let interval: ReturnType<typeof setInterval>
     if (timer > 0) {
       interval = setInterval(() => {
         setTimer((prev) => (prev <= 1 ? 0 : prev - 1))

@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@d2d-ui/ui/dialog";
+import { Button } from "@d2d-ui/ui/button";
+import { Alert, AlertDescription } from "@d2d-ui/ui/alert";
+import { Loader2, Upload, Trash2, ExternalLink, X, AlertTriangle } from "lucide-react";
 import { DOMAIN_URL } from "../../../../shared/services/api";
 
 interface FileModalGalleryProps {
@@ -102,133 +106,152 @@ export const FileModalGallery: React.FC<FileModalGalleryProps> = ({ isOpen, onCl
         }
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div style={styles.overlay}>
-            <div style={styles.modalWrapper}>
-                <div style={styles.modal}>
-                    {/* Header */}
-                    <div style={styles.header}>
-                        <h2>
-                            <span role="img" aria-label="folder icon">📂</span> File Gallery
-                        </h2>
-                        <button onClick={onClose} style={styles.closeBtn}>
-                            &times;
-                        </button>
-                    </div>
+        <>
+            <Dialog open={isOpen} onOpenChange={onClose}>
+                <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-bold text-foreground">
+                            File Gallery
+                        </DialogTitle>
+                    </DialogHeader>
 
-                    {/* Content */}
-                    <div style={styles.modalContent}>
-                        <div style={styles.uploadSection}>
+                    <div className="space-y-4">
+                        {/* Upload Section */}
+                        <div className="flex items-center gap-3">
                             <input
                                 type="file"
                                 onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                style={styles.fileInput}
+                                className="flex-1 text-sm border border-input rounded-lg p-2.5 bg-background text-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer"
                             />
-                            <button onClick={handleUpload} style={styles.uploadBtn} disabled={loading}>
-                                ⬆️ Upload
-                            </button>
+                            <Button
+                                onClick={handleUpload}
+                                disabled={loading || !file}
+                                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                            >
+                                {loading ? (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                    <>
+                                        <Upload className="h-4 w-4 mr-1" />
+                                        Upload
+                                    </>
+                                )}
+                            </Button>
                         </div>
 
-                        {error && <p style={styles.error}>{error}</p>}
+                        {error && (
+                            <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+                                <AlertDescription className="text-red-800 dark:text-red-200">{error}</AlertDescription>
+                            </Alert>
+                        )}
 
+                        {/* File List */}
                         {loading ? (
-                            <div style={styles.loading}>⏳ Loading files...</div>
+                            <div className="flex items-center justify-center py-8">
+                                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                                <span className="ml-2 text-muted-foreground">Loading files...</span>
+                            </div>
                         ) : (
-                            <div style={styles.fileList}>
+                            <div className="space-y-2">
                                 {files.length > 0 ? (
                                     files.map((item, idx) => (
-                                        <div key={idx} style={styles.fileCard}>
-                                            <div>
-                                                <strong style={styles.fileName}>{item.url.split("/").pop()}</strong>
-                                                <div style={styles.date}>{item.createdAt}</div>
+                                        <div
+                                            key={idx}
+                                            className="flex items-center justify-between p-3 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors"
+                                        >
+                                            <div className="min-w-0 flex-1 mr-3">
+                                                <div className="font-medium text-sm text-foreground truncate">
+                                                    {item.url.split("/").pop()}
+                                                </div>
+                                                <div className="text-xs text-muted-foreground mt-0.5">
+                                                    {item.createdAt}
+                                                </div>
                                             </div>
-                                            <div style={{ display: "flex", gap: "10px" }}>
+                                            <div className="flex items-center gap-2 flex-shrink-0">
                                                 <a
                                                     href={item.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    style={styles.link}
                                                 >
-                                                    Open
+                                                    <Button variant="outline" size="sm" className="h-8">
+                                                        <ExternalLink className="h-3 w-3 mr-1" />
+                                                        Open
+                                                    </Button>
                                                 </a>
-                                                <button
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
                                                     onClick={() => confirmDelete(item)}
-                                                    style={styles.deleteBtn}
                                                     disabled={loading}
                                                 >
-                                                    🗑️ Delete
-                                                </button>
+                                                    <Trash2 className="h-3 w-3 mr-1" />
+                                                    Delete
+                                                </Button>
                                             </div>
                                         </div>
                                     ))
                                 ) : (
-                                    <p style={styles.emptyMessage}>No files uploaded yet.</p>
+                                    <div className="text-center py-8 text-muted-foreground">
+                                        No files uploaded yet.
+                                    </div>
                                 )}
                             </div>
                         )}
                     </div>
-                </div>
-            </div>
+                </DialogContent>
+            </Dialog>
 
-            {/* Confirm Modal */}
-            {confirmFile && (
-                <div style={styles.confirmOverlay}>
-                    <div style={styles.confirmBox}>
-                        <h3 style={{ marginBottom: "10px" }}>Are you sure?</h3>
-                        <p style={{ color: "#555", marginBottom: "20px" }}>
-                            Do you really want to delete <strong>{confirmFile.url.split("/").pop()}</strong>?<br />
-                            This action cannot be undone.
-                        </p>
-                        <div style={{ display: "flex", gap: "15px", justifyContent: "center" }}>
-                            <button
-                                onClick={() => setConfirmFile(null)}
-                                style={styles.cancelBtn}
-                                disabled={deleting}
-                            >
-                                ❌ Cancel
-                            </button>
-                            <button
+            {/* Confirm Delete Dialog */}
+            <Dialog open={!!confirmFile} onOpenChange={(open) => { if (!open) setConfirmFile(null); }}>
+                <DialogContent className="max-w-sm" onPointerDownOutside={(e) => deleting && e.preventDefault()}>
+                    <DialogHeader>
+                        <DialogTitle className="flex items-center gap-2 text-foreground">
+                            <Trash2 className="h-5 w-5 text-red-600" />
+                            Delete Confirmation
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    <div className="space-y-4">
+                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
+                            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                            <div className="space-y-1">
+                                <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                                    Are you sure?
+                                </p>
+                                <p className="text-xs text-red-700 dark:text-red-300">
+                                    Delete <strong>{confirmFile?.url.split("/").pop()}</strong>? This action cannot be undone.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-4 border-t border-border">
+                            <Button variant="outline" onClick={() => setConfirmFile(null)} disabled={deleting}>
+                                <X className="h-4 w-4 mr-2" />
+                                Cancel
+                            </Button>
+                            <Button
                                 onClick={handleDeleteConfirmed}
-                                style={{
-                                    ...styles.confirmDeleteBtn,
-                                    opacity: deleting ? 0.7 : 1,
-                                    cursor: deleting ? "not-allowed" : "pointer"
-                                }}
                                 disabled={deleting}
+                                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
                             >
-                                {deleting ? "⏳ Deleting..." : "🗑️ Delete"}
-                            </button>
+                                {deleting ? (
+                                    <>
+                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        Deleting...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete
+                                    </>
+                                )}
+                            </Button>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
+                </DialogContent>
+            </Dialog>
+        </>
     );
-};
-
-const styles: Record<string, React.CSSProperties> = {
-    overlay: { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.6)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 },
-    modalWrapper: { animation: "scaleIn 0.25s ease-in-out" },
-    modal: { backgroundColor: "#fff", borderRadius: "16px", width: "580px", maxHeight: "85vh", boxShadow: "0 10px 30px rgba(0,0,0,0.25)", display: "flex", flexDirection: "column", overflow: "hidden" },
-    header: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px 25px", borderBottom: "1px solid #e0e0e0" },
-    closeBtn: { background: "linear-gradient(45deg, #ff6b6b, #f06595)", border: "none", fontSize: "24px", cursor: "pointer", color: "#fff", borderRadius: "50%", width: "36px", height: "36px" },
-    modalContent: { padding: "20px 25px", overflowY: "auto" },
-    uploadSection: { display: "flex", gap: "15px", alignItems: "center", marginBottom: "20px" },
-    fileInput: { flex: 1, fontSize: "16px", border: "1px solid #ddd", borderRadius: "8px", padding: "10px" },
-    uploadBtn: { backgroundColor: "#28a745", color: "#fff", border: "none", padding: "12px 20px", borderRadius: "8px", cursor: "pointer", fontWeight: "bold", fontSize: "16px" },
-    deleteBtn: { backgroundColor: "#dc3545", color: "#fff", border: "none", padding: "8px 16px", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "500" },
-    link: { backgroundColor: "#007bff", color: "#fff", padding: "8px 16px", borderRadius: "6px", textDecoration: "none", fontSize: "14px", fontWeight: "500" },
-    error: { color: "#d9534f", fontSize: "14px", marginBottom: "15px", backgroundColor: "#fdd", padding: "10px", borderRadius: "8px" },
-    fileList: { display: "flex", flexDirection: "column", gap: "12px" },
-    fileCard: { padding: "15px", border: "1px solid #e0e0e0", borderRadius: "10px", backgroundColor: "#f9f9f9", display: "flex", justifyContent: "space-between", alignItems: "center" },
-    fileName: { fontSize: "16px", color: "#333", maxWidth: "300px", overflow: "hidden", display: 'block' },
-    date: { fontSize: "12px", color: "#888", marginTop: "4px" },
-    emptyMessage: { textAlign: "center", padding: "30px", color: "#888", fontStyle: "italic", fontSize: "16px" },
-    loading: { textAlign: "center", padding: "30px", fontSize: "18px", color: "#555" },
-    confirmOverlay: { position: "fixed", top: 0, left: 0, width: "100vw", height: "100vh", backgroundColor: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 2000 },
-    confirmBox: { backgroundColor: "#fff", borderRadius: "12px", padding: "30px 40px", boxShadow: "0 10px 30px rgba(0,0,0,0.3)", textAlign: "center", maxWidth: "400px" },
-    cancelBtn: { backgroundColor: "#6c757d", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "500" },
-    confirmDeleteBtn: { backgroundColor: "#dc3545", color: "#fff", border: "none", padding: "10px 20px", borderRadius: "6px", cursor: "pointer", fontSize: "14px", fontWeight: "500" },
 };

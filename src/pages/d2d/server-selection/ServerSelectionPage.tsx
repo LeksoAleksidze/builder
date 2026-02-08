@@ -13,6 +13,7 @@ interface UserInfo {
   lastName: string
   email: string
   role: string
+  stack: string
   createdAt: string
 }
 

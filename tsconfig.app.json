@@ -22,7 +22,14 @@
     "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@components/*": ["./src/shared/components/*"],
+      "@modules/*": ["./src/shared/modules/*"],
+      "@d2d-ui/*": ["./src/shared/d2d-ui/*"]
+    }
   },
   "include": ["src"]
 }
