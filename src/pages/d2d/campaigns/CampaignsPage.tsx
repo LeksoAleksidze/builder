@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom"
 import { Button } from "@d2d-ui/ui/button"
 import { Input } from "@d2d-ui/ui/input"
 import { ThemeToggle } from "@d2d-ui/theme-toggle"
-import { Card, CardContent, CardHeader, CardTitle } from "@d2d-ui/ui/card"
 import { Home, Calendar, ExternalLink, LogOut, Search, Eye, EyeOff } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@d2d-ui/ui/dialog"
 import { DOMAIN_URL } from "../../../shared/services/api"
@@ -302,87 +301,61 @@ export function CampaignsPage() {
     const isWeekendCheck = isWeekend(showStartDate ? campaign.startDate : campaign.endDate)
 
     const getCardClassName = () => {
-      let baseClass = "mb-3 hover:shadow-md transition-shadow"
-
+      let baseClass = "campaign-item"
       if (isWithin24HoursCheck) {
-        if (cardType === "endingSoon") {
-          baseClass += " border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/20"
-        } else if (cardType === "scheduled") {
-          baseClass += " border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/20"
-        } else if (cardType === "ended") {
-          baseClass += " border-red-300 bg-red-100 dark:border-red-700 dark:bg-red-950/30"
-        }
+        if (cardType === "endingSoon") baseClass += " campaign-item--warning"
+        else if (cardType === "scheduled") baseClass += " campaign-item--info"
+        else if (cardType === "ended") baseClass += " campaign-item--danger"
       }
-
       return baseClass
     }
 
     return (
-      <Card className={getCardClassName()}>
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <h3 className="font-medium text-foreground text-sm line-clamp-2 uppercase">{campaign.name}</h3>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-xs text-muted-foreground">ID: {campaign.id}</span>
-                  {campaign.enabled ? (
-                    <span className="px-2 py-1 bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded text-xs">
-                      ჩართული
-                    </span>
-                  ) : (
-                    <span className="px-2 py-1 bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200 rounded text-xs">
-                      გამორთული
-                    </span>
-                  )}
-                  {isWeekendCheck && (
-                    <span className="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded text-xs font-medium">
-                      Weekend
-                    </span>
-                  )}
-                  {isWithin24HoursCheck && (
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        cardType === "endingSoon"
-                          ? "bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                          : cardType === "scheduled"
-                            ? "bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                            : "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
-                      }`}
-                    >
-                      {cardType === "scheduled"
-                        ? "მომდევნო 24 საათი"
-                        : cardType === "ended"
-                          ? "გასული 24 საათი"
-                          : "24 საათი"}
-                    </span>
-                  )}
-                </div>
-              </div>
-              <Button variant="outline" size="sm" onClick={() => handleEdit(campaign.id)} className="h-8 w-8 p-0">
-                <ExternalLink className="h-3 w-3" />
-              </Button>
-            </div>
-
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
-              <span>
-                {showStartDate
-                  ? `დაწყება: ${formatDate(campaign.startDate)}`
-                  : `დასრულება: ${formatDate(campaign.endDate)}`}
-              </span>
-            </div>
-
-            {campaign.type && (
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded text-xs">
-                  {campaign.type}
+      <div className={getCardClassName()}>
+        <div className="campaign-item__header">
+          <div style={{ flex: 1 }}>
+            <h3 className="campaign-item__title">{campaign.name}</h3>
+            <div className="campaign-item__badges">
+              <span className="campaign-item__id">ID: {campaign.id}</span>
+              {campaign.enabled ? (
+                <span className="campaign-item__badge campaign-item__badge--enabled">ჩართული</span>
+              ) : (
+                <span className="campaign-item__badge campaign-item__badge--disabled">გამორთული</span>
+              )}
+              {isWeekendCheck && (
+                <span className="campaign-item__badge campaign-item__badge--weekend">Weekend</span>
+              )}
+              {isWithin24HoursCheck && (
+                <span className={`campaign-item__badge ${
+                  cardType === "endingSoon" ? "campaign-item__badge--24h-warning"
+                    : cardType === "scheduled" ? "campaign-item__badge--24h-info"
+                    : "campaign-item__badge--24h-danger"
+                }`}>
+                  {cardType === "scheduled" ? "მომდევნო 24 საათი" : cardType === "ended" ? "გასული 24 საათი" : "24 საათი"}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </CardContent>
-      </Card>
+          <Button variant="outline" size="sm" onClick={() => handleEdit(campaign.id)} className="h-8 w-8 p-0">
+            <ExternalLink className="h-3 w-3" />
+          </Button>
+        </div>
+
+        <div className="campaign-item__meta">
+          <Calendar />
+          <span>
+            {showStartDate
+              ? `დაწყება: ${formatDate(campaign.startDate)}`
+              : `დასრულება: ${formatDate(campaign.endDate)}`}
+          </span>
+        </div>
+
+        {campaign.type && (
+          <div className="campaign-item__badges" style={{ marginTop: '0.375rem' }}>
+            <span className="campaign-item__badge campaign-item__badge--type">{campaign.type}</span>
+          </div>
+        )}
+      </div>
     )
   }
 
@@ -444,45 +417,32 @@ export function CampaignsPage() {
     }
 
     return (
-      <Card
-        className="cursor-pointer hover:shadow-lg transition-shadow border-l-4 border-l-purple-500"
+      <div
+        className="campaign-item"
+        style={{ cursor: 'pointer', borderLeft: '3px solid hsl(271 91% 55%)' }}
         onClick={handleGroupClick}
       >
-        <CardContent className="p-3">
-          <div className="space-y-2">
-            <div className="flex items-start justify-between">
-              <h4 className="font-medium text-foreground text-sm line-clamp-2">{groupName}</h4>
-              <span className="text-xs text-muted-foreground bg-purple-100 dark:bg-purple-900 px-2 py-1 rounded">
-                {campaigns.length}
-              </span>
-            </div>
+        <div className="campaign-item__header">
+          <h4 className="campaign-item__title">{groupName}</h4>
+          <span className="campaign-item__badge campaign-item__badge--weekend">{campaigns.length}</span>
+        </div>
 
-            <div className="text-xs text-muted-foreground">
-              UIDs:{" "}
-              {campaigns
-                .slice(0, 2)
-                .map((c) => c.uid)
-                .join(", ")}
-              {campaigns.length > 2 && ` +${campaigns.length - 2} მეტი`}
-            </div>
+        <div className="campaign-item__meta">
+          UIDs: {campaigns.slice(0, 2).map((c) => c.uid).join(", ")}
+          {campaigns.length > 2 && ` +${campaigns.length - 2} მეტი`}
+        </div>
 
-            <div className="flex items-center gap-1 flex-wrap">
-              {campaigns.slice(0, 3).map((campaign) => (
-                <span
-                  key={campaign.id}
-                  className={`px-1.5 py-0.5 rounded text-xs ${
-                    campaign.enabled
-                      ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                      : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                  }`}
-                >
-                  {campaign.enabled ? "✓" : "✗"}
-                </span>
-              ))}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="campaign-item__badges" style={{ marginTop: '0.375rem' }}>
+          {campaigns.slice(0, 3).map((campaign) => (
+            <span
+              key={campaign.id}
+              className={`campaign-item__badge ${campaign.enabled ? "campaign-item__badge--enabled" : "campaign-item__badge--disabled"}`}
+            >
+              {campaign.enabled ? "✓" : "✗"}
+            </span>
+          ))}
+        </div>
+      </div>
     )
   }
 
@@ -495,59 +455,51 @@ export function CampaignsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      {/* Header */}
-      <header className="border-b border-border bg-card/85 backdrop-blur-xl sticky top-0 z-10" style={{ boxShadow: 'var(--shadow-xs)' }}>
-        <div className="container mx-auto px-4 sm:px-6 py-3">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => navigate("/server-selection")}>
-                <Home className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">მთავარი</span>
-              </Button>
-              <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-green-500 to-green-700 bg-clip-text text-transparent">
-                კამპანიები
-              </h1>
-            </div>
+    <div className="page-bg">
+      <header className="page-header">
+        <div className="page-header__container">
+          <div className="page-header__left">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/server-selection")}>
+              <Home className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">მთავარი</span>
+            </Button>
+            <h1 className="page-header__title page-header__title--green">კამპანიები</h1>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              {userInfo && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowProfileModal(true)}
-                    className="flex items-center gap-2 hover:bg-accent rounded-lg p-2 transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-500 to-green-700 text-white flex items-center justify-center text-xs font-semibold">
-                      {getInitials(userInfo.firstName, userInfo.lastName)}
+          <div className="page-header__right">
+            <ThemeToggle />
+            {userInfo && (
+              <>
+                <button
+                  onClick={() => setShowProfileModal(true)}
+                  className="page-header__user-btn"
+                >
+                  <div className="page-header__avatar page-header__avatar--green">
+                    {getInitials(userInfo.firstName, userInfo.lastName)}
+                  </div>
+                  <div className="page-header__user-info">
+                    <div className="page-header__user-name">
+                      {userInfo.firstName} {userInfo.lastName}
                     </div>
-                    <div className="text-sm hidden sm:block">
-                      <div className="font-medium text-foreground">
-                        {userInfo.firstName} {userInfo.lastName}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{userInfo.role}</div>
-                    </div>
-                  </button>
-                  <Button variant="ghost" size="sm" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+                    <div className="page-header__user-role">{userInfo.role}</div>
+                  </div>
+                </button>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        {/* Filters */}
-        <div className="mb-6 p-4 sm:p-6 bg-card rounded-lg border border-border" style={{ boxShadow: 'var(--shadow-sm)' }}>
-          <h3 className="text-base font-semibold mb-4 sm:mb-6 text-foreground">ფილტრები და პარამეტრები</h3>
+      <main className="dashboard__main">
+        <div className="filter-card">
+          <h3 className="filter-card__title">ფილტრები და პარამეტრები</h3>
 
-          {/* Main Filters Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div className="filter-card__grid">
             <div>
-              <label className="block text-sm font-medium mb-2 text-foreground">დღის რეინჯი</label>
+              <label className="filter-card__field-label">დღის რეინჯი</label>
               <Input
                 type="number"
                 min="1"
@@ -559,26 +511,23 @@ export function CampaignsPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2 text-foreground">ძებნა კამპანიის სახელით</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
+              <label className="filter-card__field-label">ძებნა კამპანიის სახელით</label>
+              <div className="dashboard__filters-search">
+                <Search />
+                <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="კამპანიის სახელი..."
-                  className="pl-10"
                 />
               </div>
             </div>
           </div>
 
-          {/* Controls Section */}
-          <div className="space-y-4">
-            {/* Column Visibility Controls */}
+          <div className="filter-card__controls">
             <div>
-              <label className="block text-sm font-medium mb-3 text-foreground">სვეტების ხილვადობა</label>
-              <div className="flex flex-wrap gap-3">
+              <label className="filter-card__controls-label">სვეტების ხილვადობა</label>
+              <div className="filter-card__controls-row">
                 <Button
                   variant={columnVisibility.endingSoon ? "default" : "outline"}
                   size="sm"
@@ -609,9 +558,8 @@ export function CampaignsPage() {
               </div>
             </div>
 
-            {/* Grouping Control */}
             <div>
-              <label className="block text-sm font-medium mb-3 text-foreground">დაჯგუფება</label>
+              <label className="filter-card__controls-label">დაჯგუფება</label>
               <Button
                 variant={isGroupingEnabled ? "default" : "outline"}
                 size="sm"
@@ -625,77 +573,61 @@ export function CampaignsPage() {
           </div>
         </div>
 
-        {/* Campaigns Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Ending Soon */}
+        <div className="columns-grid columns-grid--3">
           {columnVisibility.endingSoon && (
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-red-700 dark:text-red-400">
-                    მალე დასრულდება - {dayRange} დღე ({filterCampaigns(endingSoonCampaigns).length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="max-h-[70vh] overflow-y-auto">
-                  {filterCampaigns(endingSoonCampaigns).length > 0 ? (
-                    filterCampaigns(endingSoonCampaigns).map((campaign) => (
-                      <CampaignCard key={campaign.id} campaign={campaign} cardType="endingSoon" />
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      მომდევნო {dayRange} დღეში არ სრულდება კამპანიები
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+            <div className="column-card">
+              <div className="column-card__header">
+                <h2 className="column-card__title column-card__title--red">
+                  მალე დასრულდება - {dayRange} დღე ({filterCampaigns(endingSoonCampaigns).length})
+                </h2>
+              </div>
+              <div className="column-card__body">
+                {filterCampaigns(endingSoonCampaigns).length > 0 ? (
+                  filterCampaigns(endingSoonCampaigns).map((campaign) => (
+                    <CampaignCard key={campaign.id} campaign={campaign} cardType="endingSoon" />
+                  ))
+                ) : (
+                  <div className="column-card__empty">მომდევნო {dayRange} დღეში არ სრულდება კამპანიები</div>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Scheduled */}
           {columnVisibility.scheduled && (
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-blue-700 dark:text-blue-400">
-                    დაგეგმილი - {dayRange} დღე ({filterCampaigns(scheduledCampaigns).length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="max-h-[70vh] overflow-y-auto">
-                  {filterCampaigns(scheduledCampaigns).length > 0 ? (
-                    filterCampaigns(scheduledCampaigns).map((campaign) => (
-                      <CampaignCard key={campaign.id} campaign={campaign} showStartDate={true} cardType="scheduled" />
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      მომდევნო {dayRange} დღეში არ იწყება კამპანიები
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+            <div className="column-card">
+              <div className="column-card__header">
+                <h2 className="column-card__title column-card__title--blue">
+                  დაგეგმილი - {dayRange} დღე ({filterCampaigns(scheduledCampaigns).length})
+                </h2>
+              </div>
+              <div className="column-card__body">
+                {filterCampaigns(scheduledCampaigns).length > 0 ? (
+                  filterCampaigns(scheduledCampaigns).map((campaign) => (
+                    <CampaignCard key={campaign.id} campaign={campaign} showStartDate={true} cardType="scheduled" />
+                  ))
+                ) : (
+                  <div className="column-card__empty">მომდევნო {dayRange} დღეში არ იწყება კამპანიები</div>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Ended */}
           {columnVisibility.ended && (
-            <div>
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg font-semibold text-gray-700 dark:text-gray-400">
-                    დასრულებული - {dayRange} დღე ({filterCampaigns(endedCampaigns).length})
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="max-h-[70vh] overflow-y-auto">
-                  {filterCampaigns(endedCampaigns).length > 0 ? (
-                    filterCampaigns(endedCampaigns).map((campaign) => (
-                      <CampaignCard key={campaign.id} campaign={campaign} cardType="ended" />
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-muted-foreground">
-                      გასული {dayRange} დღეში არ დასრულებულა კამპანიები
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
+            <div className="column-card">
+              <div className="column-card__header">
+                <h2 className="column-card__title column-card__title--gray">
+                  დასრულებული - {dayRange} დღე ({filterCampaigns(endedCampaigns).length})
+                </h2>
+              </div>
+              <div className="column-card__body">
+                {filterCampaigns(endedCampaigns).length > 0 ? (
+                  filterCampaigns(endedCampaigns).map((campaign) => (
+                    <CampaignCard key={campaign.id} campaign={campaign} cardType="ended" />
+                  ))
+                ) : (
+                  <div className="column-card__empty">გასული {dayRange} დღეში არ დასრულებულა კამპანიები</div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -710,106 +642,74 @@ export function CampaignsPage() {
             }
           }}
         >
-          <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="dialog-content max-w-6xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">დაჯგუფებული კამპანიები</DialogTitle>
             </DialogHeader>
 
             {Object.keys(groupedCampaigns).length > 0 ? (
-              <div className="space-y-6">
-                {/* Search within grouped campaigns */}
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input type="text" placeholder="ძებნა დაჯგუფებულ კამპანიებში..." className="pl-10" />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div className="dashboard__filters-search">
+                  <Search />
+                  <input type="text" placeholder="ძებნა დაჯგუფებულ კამპანიებში..." />
                 </div>
 
-                {/* Three column layout like main page */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                  {/* Ending Soon Groups */}
-                  <div>
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg font-semibold text-red-700 dark:text-red-400">
-                          მალე დასრულდება
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="max-h-[60vh] overflow-y-auto space-y-3">
-                        {Object.entries(groupedCampaigns)
-                          .filter(([_, campaigns]) =>
-                            campaigns.some((c) => endingSoonCampaigns.some((ec) => ec.id === c.id)),
-                          )
-                          .map(([groupName, campaigns]) => (
-                            <GroupedCampaignCard
-                              key={groupName}
-                              groupName={groupName}
-                              campaigns={campaigns}
-                              cardType="endingSoon"
-                            />
-                          ))}
-                      </CardContent>
-                    </Card>
+                <div className="columns-grid columns-grid--3">
+                  <div className="column-card">
+                    <div className="column-card__header">
+                      <h2 className="column-card__title column-card__title--red">მალე დასრულდება</h2>
+                    </div>
+                    <div className="column-card__body">
+                      {Object.entries(groupedCampaigns)
+                        .filter(([_, campaigns]) =>
+                          campaigns.some((c) => endingSoonCampaigns.some((ec) => ec.id === c.id)),
+                        )
+                        .map(([groupName, campaigns]) => (
+                          <GroupedCampaignCard key={groupName} groupName={groupName} campaigns={campaigns} cardType="endingSoon" />
+                        ))}
+                    </div>
                   </div>
 
-                  {/* Scheduled Groups */}
-                  <div>
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg font-semibold text-blue-700 dark:text-blue-400">
-                          დაგეგმილი
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="max-h-[60vh] overflow-y-auto space-y-3">
-                        {Object.entries(groupedCampaigns)
-                          .filter(([_, campaigns]) =>
-                            campaigns.some((c) => scheduledCampaigns.some((sc) => sc.id === c.id)),
-                          )
-                          .map(([groupName, campaigns]) => (
-                            <GroupedCampaignCard
-                              key={groupName}
-                              groupName={groupName}
-                              campaigns={campaigns}
-                              cardType="scheduled"
-                            />
-                          ))}
-                      </CardContent>
-                    </Card>
+                  <div className="column-card">
+                    <div className="column-card__header">
+                      <h2 className="column-card__title column-card__title--blue">დაგეგმილი</h2>
+                    </div>
+                    <div className="column-card__body">
+                      {Object.entries(groupedCampaigns)
+                        .filter(([_, campaigns]) =>
+                          campaigns.some((c) => scheduledCampaigns.some((sc) => sc.id === c.id)),
+                        )
+                        .map(([groupName, campaigns]) => (
+                          <GroupedCampaignCard key={groupName} groupName={groupName} campaigns={campaigns} cardType="scheduled" />
+                        ))}
+                    </div>
                   </div>
 
-                  {/* Ended Groups */}
-                  <div>
-                    <Card>
-                      <CardHeader>
-                        <CardTitle className="text-lg font-semibold text-gray-700 dark:text-gray-400">
-                          დასრულებული
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="max-h-[60vh] overflow-y-auto space-y-3">
-                        {Object.entries(groupedCampaigns)
-                          .filter(([_, campaigns]) =>
-                            campaigns.some((c) => endedCampaigns.some((ec) => ec.id === c.id)),
-                          )
-                          .map(([groupName, campaigns]) => (
-                            <GroupedCampaignCard
-                              key={groupName}
-                              groupName={groupName}
-                              campaigns={campaigns}
-                              cardType="ended"
-                            />
-                          ))}
-                      </CardContent>
-                    </Card>
+                  <div className="column-card">
+                    <div className="column-card__header">
+                      <h2 className="column-card__title column-card__title--gray">დასრულებული</h2>
+                    </div>
+                    <div className="column-card__body">
+                      {Object.entries(groupedCampaigns)
+                        .filter(([_, campaigns]) =>
+                          campaigns.some((c) => endedCampaigns.some((ec) => ec.id === c.id)),
+                        )
+                        .map(([groupName, campaigns]) => (
+                          <GroupedCampaignCard key={groupName} groupName={groupName} campaigns={campaigns} cardType="ended" />
+                        ))}
+                    </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-muted-foreground">დაჯგუფებული კამპანიები არ მოიძებნა</div>
+              <div className="column-card__empty">დაჯგუფებული კამპანიები არ მოიძებნა</div>
             )}
           </DialogContent>
         </Dialog>
 
         {/* Group Details Modal */}
         <Dialog open={showGroupDetailsModal} onOpenChange={setShowGroupDetailsModal}>
-          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="dialog-content max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold text-foreground">
                 {selectedGroupName} - დეტალები ({selectedGroupCampaigns.length} კამპანია)
@@ -842,8 +742,7 @@ export function CampaignsPage() {
               {/* Campaign Details */}
               <div className="space-y-3">
                 {selectedGroupCampaigns.map((campaign) => (
-                  <Card key={campaign.id} className="border-l-4 border-l-blue-500">
-                    <CardContent className="p-4">
+                  <div key={campaign.id} className="campaign-item" style={{ borderLeft: '4px solid var(--color-blue-500, #3b82f6)' }}>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                         <div className="space-y-2">
                           <div>
@@ -856,19 +755,13 @@ export function CampaignsPage() {
                           </div>
                           <div>
                             <span className="text-sm font-medium text-foreground">ტიპი: </span>
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded text-xs">
+                            <span className="campaign-item__badge campaign-item__badge--type">
                               {campaign.type}
                             </span>
                           </div>
                           <div>
                             <span className="text-sm font-medium text-foreground">სტატუსი: </span>
-                            <span
-                              className={`px-2 py-1 rounded text-xs ${
-                                campaign.enabled
-                                  ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                                  : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-200"
-                              }`}
-                            >
+                            <span className={`campaign-item__badge ${campaign.enabled ? 'campaign-item__badge--enabled' : 'campaign-item__badge--disabled'}`}>
                               {campaign.enabled ? "ჩართული" : "გამორთული"}
                             </span>
                           </div>
@@ -895,8 +788,7 @@ export function CampaignsPage() {
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                  </div>
                 ))}
               </div>
             </div>

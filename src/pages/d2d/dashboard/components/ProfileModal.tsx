@@ -140,7 +140,7 @@ export function ProfileModal({ isOpen, onClose, userInfo }: ProfileModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="dialog-content max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold text-foreground">პროფილი</DialogTitle>
         </DialogHeader>

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@d2d-ui/ui/card"
 import { Button } from "@d2d-ui/ui/button"
 import { ThemeToggle } from "@d2d-ui/theme-toggle"
 import { Server, Calendar, Megaphone, LogOut } from "lucide-react"
@@ -83,109 +82,88 @@ export function ServerSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card/85 backdrop-blur-xl sticky top-0 z-10" style={{ boxShadow: 'var(--shadow-xs)' }}>
-        <div className="container mx-auto px-4 sm:px-6 py-3">
-          <div className="flex justify-between items-center">
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              D2D Dashboard
-            </h1>
+    <div className="server-selection">
+      <header className="server-selection__header">
+        <div className="server-selection__header-container">
+          <h1 className="server-selection__header-title">D2D Dashboard</h1>
 
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              {userInfo && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowProfileModal(true)}
-                    className="flex items-center gap-2 hover:bg-accent rounded-lg p-2 transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-semibold">
-                      {getInitials(userInfo.firstName, userInfo.lastName)}
+          <div className="server-selection__header-actions">
+            <ThemeToggle />
+            {userInfo && (
+              <>
+                <button
+                  onClick={() => setShowProfileModal(true)}
+                  className="server-selection__header-user"
+                >
+                  <div className="server-selection__header-avatar">
+                    {getInitials(userInfo.firstName, userInfo.lastName)}
+                  </div>
+                  <div className="server-selection__header-user-info">
+                    <div className="server-selection__header-user-name">
+                      {userInfo.firstName} {userInfo.lastName}
                     </div>
-                    <div className="text-sm hidden sm:block">
-                      <div className="font-medium text-foreground">
-                        {userInfo.firstName} {userInfo.lastName}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{userInfo.role}</div>
-                    </div>
-                  </button>
-                  <Button variant="ghost" size="sm" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+                    <div className="server-selection__header-user-role">{userInfo.role}</div>
+                  </div>
+                </button>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-foreground">აირჩიეთ სერვისი</h2>
-          <p className="text-base text-muted-foreground">რომელ სერვისთან გსურთ მუშაობა?</p>
+      <main className="server-selection__main">
+        <div className="server-selection__intro">
+          <h2 className="server-selection__intro-title">აირჩიეთ სერვისი</h2>
+          <p className="server-selection__intro-subtitle">რომელ სერვისთან გსურთ მუშაობა?</p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
-          {/* Server Management */}
-          <Card className="group cursor-pointer transition-all duration-200 hover:border-blue-400 dark:hover:border-blue-600" style={{ boxShadow: 'var(--shadow-card)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}>
-            <CardHeader className="text-center pb-3">
-              <div className="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ boxShadow: '0 4px 12px rgb(59 130 246 / 0.25)' }}>
-                <Server className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-lg text-foreground">აქციების მართვა</CardTitle>
-              <CardDescription className="text-sm">აქციების მართვა, deploy-ები და კონფიგურაცია</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={() => handleSelection("server")}
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-medium"
-              >
-                გადასვლა
-              </Button>
-            </CardContent>
-          </Card>
+        <div className="server-selection__grid">
+          <div
+            className="server-selection__card server-selection__card--blue"
+            onClick={() => handleSelection("server")}
+          >
+            <div className="server-selection__card-icon server-selection__card-icon--blue">
+              <Server />
+            </div>
+            <h3 className="server-selection__card-title">აქციების მართვა</h3>
+            <p className="server-selection__card-desc">აქციების მართვა, deploy-ები და კონფიგურაცია</p>
+            <div className="server-selection__card-btn server-selection__card-btn--blue">
+              გადასვლა
+            </div>
+          </div>
 
-          {/* Campaigns */}
-          <Card className="group cursor-pointer transition-all duration-200 hover:border-green-400 dark:hover:border-green-600" style={{ boxShadow: 'var(--shadow-card)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}>
-            <CardHeader className="text-center pb-3">
-              <div className="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ boxShadow: '0 4px 12px rgb(34 197 94 / 0.25)' }}>
-                <Calendar className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-lg text-foreground">კამპანიები</CardTitle>
-              <CardDescription className="text-sm">აქციის მიმდინარეობები, სტატისტიკა და ანალიტიკა</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={() => handleSelection("campaigns")}
-                className="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-medium"
-              >
-                გადასვლა
-              </Button>
-            </CardContent>
-          </Card>
+          <div
+            className="server-selection__card server-selection__card--green"
+            onClick={() => handleSelection("campaigns")}
+          >
+            <div className="server-selection__card-icon server-selection__card-icon--green">
+              <Calendar />
+            </div>
+            <h3 className="server-selection__card-title">კამპანიები</h3>
+            <p className="server-selection__card-desc">აქციის მიმდინარეობები, სტატისტიკა და ანალიტიკა</p>
+            <div className="server-selection__card-btn server-selection__card-btn--green">
+              გადასვლა
+            </div>
+          </div>
 
-          {/* Headers */}
-          <Card className="group cursor-pointer transition-all duration-200 hover:border-purple-400 dark:hover:border-purple-600 sm:col-span-2 lg:col-span-1" style={{ boxShadow: 'var(--shadow-card)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}>
-            <CardHeader className="text-center pb-3">
-              <div className="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ boxShadow: '0 4px 12px rgb(147 51 234 / 0.25)' }}>
-                <Megaphone className="h-7 w-7 text-white" />
-              </div>
-              <CardTitle className="text-lg text-foreground">ჰედერები</CardTitle>
-              <CardDescription className="text-sm">ჰედერების მართვა, კონტენტი და დიზაინი</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button
-                onClick={() => handleSelection("headers")}
-                className="w-full bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-medium"
-              >
-                გადასვლა
-              </Button>
-            </CardContent>
-          </Card>
+          <div
+            className="server-selection__card server-selection__card--purple"
+            onClick={() => handleSelection("headers")}
+          >
+            <div className="server-selection__card-icon server-selection__card-icon--purple">
+              <Megaphone />
+            </div>
+            <h3 className="server-selection__card-title">ჰედერები</h3>
+            <p className="server-selection__card-desc">ჰედერების მართვა, კონტენტი და დიზაინი</p>
+            <div className="server-selection__card-btn server-selection__card-btn--purple">
+              გადასვლა
+            </div>
+          </div>
         </div>
-        {/* Profile Modal */}
+
         {userInfo && (
           <ProfileModal isOpen={showProfileModal} onClose={() => setShowProfileModal(false)} userInfo={userInfo} />
         )}

@@ -465,31 +465,22 @@ export function D2DDashboard() {
 
                   {/* --- Copy Modal --- */}
                   {showCopyModal && (
-                      <div className="absolute z-50 right-0 top-10 w-72 bg-card border border-border rounded-lg p-3 animate-fadeIn" style={{ boxShadow: 'var(--shadow-lg)' }}>
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="font-semibold text-xs text-foreground">
-                            აირჩიე ლინკი
-                          </span>
-                          <button
-                              onClick={() => setShowCopyModal(false)}
-                              className="p-1 hover:bg-accent rounded transition-colors"
-                          >
-                            <X className="w-3.5 h-3.5 text-muted-foreground" />
+                      <div className="copy-modal">
+                        <div className="copy-modal__header">
+                          <span className="copy-modal__header-title">აირჩიე ლინკი</span>
+                          <button onClick={() => setShowCopyModal(false)} className="copy-modal__header-close">
+                            <X />
                           </button>
                         </div>
-                        <div className="flex flex-col gap-1.5">
+                        <div className="copy-modal__list">
                           {links.map((link, i) => (
                               <button
                                   key={i}
                                   onClick={() => handleCopyLink(link)}
-                                  className="flex justify-between items-center px-2.5 py-2 text-xs bg-muted/50 hover:bg-accent rounded-md transition-colors text-foreground"
+                                  className={`copy-modal__item ${copiedLink === link ? "copy-modal__item--copied" : ""}`}
                               >
-                                <span className="truncate mr-2 font-mono">{link}</span>
-                                {copiedLink === link ? (
-                                    <Check className="text-green-500 w-3.5 h-3.5 flex-shrink-0" />
-                                ) : (
-                                    <Copy className="w-3.5 h-3.5 opacity-50 flex-shrink-0" />
-                                )}
+                                <span className="copy-modal__item-url">{link}</span>
+                                {copiedLink === link ? <Check /> : <Copy />}
                               </button>
                           ))}
                         </div>
@@ -577,44 +568,40 @@ export function D2DDashboard() {
   };
 
   return (
-      <div className="dashboard">
-        <header className="border-b border-border bg-card/85 backdrop-blur-xl sticky top-0 z-10" style={{ boxShadow: 'var(--shadow-xs)' }}>
-          <div className="container mx-auto px-4 sm:px-6 py-3">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm" onClick={() => navigate("/server-selection")}>
-                  <Home className="h-4 w-4 mr-1" />
-                  <span className="hidden sm:inline">მთავარი</span>
-                </Button>
-                <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-                  აქციების მართვა
-                </h1>
-              </div>
+      <div className="dashboard page-bg">
+        <header className="page-header">
+          <div className="page-header__container">
+            <div className="page-header__left">
+              <Button variant="ghost" size="sm" onClick={() => navigate("/server-selection")}>
+                <Home className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">მთავარი</span>
+              </Button>
+              <h1 className="page-header__title page-header__title--blue">აქციების მართვა</h1>
+            </div>
 
-              <div className="flex items-center gap-2">
-                <ThemeToggle />
-                {userInfo && (
-                    <div className="flex items-center gap-2">
-                      <button
-                          onClick={() => setShowProfileModal(true)}
-                          className="flex items-center gap-2 hover:bg-accent rounded-lg p-2 transition-colors"
-                      >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-semibold">
-                          {getInitials(userInfo.firstName, userInfo.lastName)}
+            <div className="page-header__right">
+              <ThemeToggle />
+              {userInfo && (
+                  <>
+                    <button
+                        onClick={() => setShowProfileModal(true)}
+                        className="page-header__user-btn"
+                    >
+                      <div className="page-header__avatar page-header__avatar--blue">
+                        {getInitials(userInfo.firstName, userInfo.lastName)}
+                      </div>
+                      <div className="page-header__user-info">
+                        <div className="page-header__user-name">
+                          {userInfo.firstName} {userInfo.lastName}
                         </div>
-                        <div className="text-sm hidden sm:block">
-                          <div className="font-medium text-foreground">
-                            {userInfo.firstName} {userInfo.lastName}
-                          </div>
-                          <div className="text-xs text-muted-foreground">{userInfo.role} / {userInfo.stack}</div>
-                        </div>
-                      </button>
-                      <Button variant="ghost" size="sm" onClick={handleLogout}>
-                        <LogOut className="h-4 w-4" />
-                      </Button>
-                    </div>
-                )}
-              </div>
+                        <div className="page-header__user-role">{userInfo.role} / {userInfo.stack}</div>
+                      </div>
+                    </button>
+                    <Button variant="ghost" size="sm" onClick={handleLogout}>
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  </>
+              )}
             </div>
           </div>
         </header>
@@ -698,18 +685,13 @@ export function D2DDashboard() {
 
           </div>
 
-          <div
-              className="container mx-auto px-4 sm:px-6 py-3 pt-0 flex flex-wrap gap-2 items-center border-b border-border mb-4 pb-4">
+          <div className="author-bar">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <button
                       onClick={() => setSelectedAuthorId(null)}
-                      className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-semibold transition-all duration-150
-                      ${selectedAuthorId === null
-                          ? "bg-primary text-primary-foreground ring-2 ring-primary/30"
-                          : "bg-secondary text-secondary-foreground hover:bg-accent"
-                      }`}
+                      className={`author-bar__btn author-bar__btn--all ${selectedAuthorId === null ? "active" : ""}`}
                   >
                     ALL
                   </button>
@@ -724,12 +706,7 @@ export function D2DDashboard() {
                     <TooltipTrigger asChild>
                       <button
                           onClick={() => handleAuthorSelect(user.userId)}
-                          className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-xs font-semibold transition-all duration-150
-                      ${getUserColor(user.userId)}
-                      ${selectedAuthorId === user.userId
-                              ? "ring-2 ring-offset-2 ring-offset-background ring-current scale-105"
-                              : "opacity-65 hover:opacity-100"
-                          }`}
+                          className={`author-bar__btn author-bar__btn--user ${getUserColor(user.userId)} ${selectedAuthorId === user.userId ? "active" : ""}`}
                       >
                         {user.initials}
                       </button>

@@ -2,7 +2,6 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@d2d-ui/ui/button"
 import { ThemeToggle } from "@d2d-ui/theme-toggle"
-import { Card, CardContent, CardHeader, CardTitle } from "@d2d-ui/ui/card"
 import { Home, Calendar, ImageIcon, ExternalLink, LogOut, Check } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@d2d-ui/ui/select"
 import { Input } from "@d2d-ui/ui/input"
@@ -267,99 +266,68 @@ export function HeadersPage() {
     const imageUrl = getImageUrl(promotion)
 
     const getCardClassName = () => {
-      let baseClass = "mb-3 hover:shadow-md transition-shadow"
-
+      let baseClass = "header-item"
       if (within24Hours) {
-        if (isPast) {
-          baseClass += " border-red-300 bg-red-100 dark:border-red-700 dark:bg-red-950/30"
-        } else {
-          baseClass += " border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/20"
-        }
+        baseClass += isPast ? " header-item--danger" : " header-item--warning"
       }
-
       return baseClass
     }
 
     return (
-      <Card className={getCardClassName()}>
-        <CardContent className="p-3">
-          <div className="flex items-start gap-3">
-            <div className="w-40 h-20 bg-muted rounded-lg flex items-center justify-center overflow-hidden">
-              {imageUrl ? (
-                <img
-                  src={imageUrl}
-                  alt={promotion.description}
-                  className="w-full h-full object-cover-special"
-                  onError={(e) => {
-                    console.warn("Failed to load image:", imageUrl)
-                    e.currentTarget.style.display = "none"
-                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement
-                    if (nextElement) {
-                      nextElement.style.display = "flex"
-                    }
-                  }}
-                  onLoad={(e) => {
-                    const nextElement = e.currentTarget.nextElementSibling as HTMLElement
-                    if (nextElement) {
-                      nextElement.style.display = "none"
-                    }
-                  }}
-                />
-              ) : null}
-              <ImageIcon className="h-8 w-8 text-muted-foreground" style={{ display: imageUrl ? "none" : "flex" }} />
-            </div>
+      <div className={getCardClassName()}>
+        <div className="header-item__image">
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={promotion.description}
+              onError={(e) => {
+                e.currentTarget.style.display = "none"
+                const nextElement = e.currentTarget.nextElementSibling as HTMLElement
+                if (nextElement) nextElement.style.display = "flex"
+              }}
+              onLoad={(e) => {
+                const nextElement = e.currentTarget.nextElementSibling as HTMLElement
+                if (nextElement) nextElement.style.display = "none"
+              }}
+            />
+          ) : null}
+          <ImageIcon style={{ display: imageUrl ? "none" : "flex" }} />
+        </div>
 
-            <div className="flex-1 space-y-1">
-              <h3 className="font-medium text-foreground line-clamp-2 text-sm uppercase">{promotion.description}</h3>
+        <div className="header-item__content">
+          <h3 className="header-item__title">{promotion.description}</h3>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                {promotion.enabled ? (
-                  <div className="h-3 w-3 rounded-sm bg-green-500 flex items-center justify-center">
-                    <Check className="h-2 w-2 text-white" />
-                  </div>
-                ) : (
-                  <div className="h-3 w-3 rounded-sm border border-gray-300 bg-gray-100"></div>
-                )}
-                <span className="text-xs text-muted-foreground">{promotion.enabled ? "ჩართული" : "გამორთული"}</span>
-
-                {isWeekendCheck && (
-                  <span className="px-2 py-1 bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 rounded text-xs font-medium">
-                    Weekend
-                  </span>
-                )}
-
-                {within24Hours && (
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-medium ${
-                      isPast
-                        ? "bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200"
-                        : "bg-yellow-200 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                    }`}
-                  >
-                    {isPast ? "გასული 24 საათი" : "მომდევნო 24 საათი"}
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" />
-                <span>{formatDate(promotion.endDate)}</span>
-              </div>
-              {promotion.environment && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="px-1.5 py-0.5 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded text-xs">
-                    {promotion.environment}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <Button variant="outline" size="sm" onClick={() => handleEdit(promotion._id)} className="h-8 w-8 p-0">
-              <ExternalLink className="h-3 w-3" />
-            </Button>
+          <div className="campaign-item__badges">
+            {promotion.enabled ? (
+              <span className="campaign-item__badge campaign-item__badge--enabled">ჩართული</span>
+            ) : (
+              <span className="campaign-item__badge campaign-item__badge--disabled">გამორთული</span>
+            )}
+            {isWeekendCheck && (
+              <span className="campaign-item__badge campaign-item__badge--weekend">Weekend</span>
+            )}
+            {within24Hours && (
+              <span className={`campaign-item__badge ${isPast ? "campaign-item__badge--24h-danger" : "campaign-item__badge--24h-warning"}`}>
+                {isPast ? "გასული 24 საათი" : "მომდევნო 24 საათი"}
+              </span>
+            )}
           </div>
-        </CardContent>
-      </Card>
+
+          <div className="campaign-item__meta">
+            <Calendar />
+            <span>{formatDate(promotion.endDate)}</span>
+          </div>
+          {promotion.environment && (
+            <div className="campaign-item__badges" style={{ marginTop: '0.25rem' }}>
+              <span className="campaign-item__badge campaign-item__badge--type">{promotion.environment}</span>
+            </div>
+          )}
+        </div>
+
+        <Button variant="outline" size="sm" onClick={() => handleEdit(promotion._id)} className="h-8 w-8 p-0">
+          <ExternalLink className="h-3 w-3" />
+        </Button>
+      </div>
     )
   }
 
@@ -372,54 +340,50 @@ export function HeadersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      <header className="border-b border-border bg-card/85 backdrop-blur-xl sticky top-0 z-10" style={{ boxShadow: 'var(--shadow-xs)' }}>
-        <div className="container mx-auto px-4 sm:px-6 py-3">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={() => navigate("/server-selection")}>
-                <Home className="h-4 w-4 mr-1" />
-                <span className="hidden sm:inline">მთავარი</span>
-              </Button>
-              <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent">
-                ჰედერები
-              </h1>
-            </div>
+    <div className="page-bg">
+      <header className="page-header">
+        <div className="page-header__container">
+          <div className="page-header__left">
+            <Button variant="ghost" size="sm" onClick={() => navigate("/server-selection")}>
+              <Home className="h-4 w-4 mr-1" />
+              <span className="hidden sm:inline">მთავარი</span>
+            </Button>
+            <h1 className="page-header__title page-header__title--purple">ჰედერები</h1>
+          </div>
 
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              {userInfo && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowProfileModal(true)}
-                    className="flex items-center gap-2 hover:bg-accent rounded-lg p-2 transition-colors"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 text-white flex items-center justify-center text-xs font-semibold">
-                      {getInitials(userInfo.firstName, userInfo.lastName)}
+          <div className="page-header__right">
+            <ThemeToggle />
+            {userInfo && (
+              <>
+                <button
+                  onClick={() => setShowProfileModal(true)}
+                  className="page-header__user-btn"
+                >
+                  <div className="page-header__avatar page-header__avatar--purple">
+                    {getInitials(userInfo.firstName, userInfo.lastName)}
+                  </div>
+                  <div className="page-header__user-info">
+                    <div className="page-header__user-name">
+                      {userInfo.firstName} {userInfo.lastName}
                     </div>
-                    <div className="text-sm hidden sm:block">
-                      <div className="font-medium text-foreground">
-                        {userInfo.firstName} {userInfo.lastName}
-                      </div>
-                      <div className="text-xs text-muted-foreground">{userInfo.role} / {userInfo.stack}</div>
-                    </div>
-                  </button>
-                  <Button variant="ghost" size="sm" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
+                    <div className="page-header__user-role">{userInfo.role} / {userInfo.stack}</div>
+                  </div>
+                </button>
+                <Button variant="ghost" size="sm" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
-        <div className="mb-6 p-4 sm:p-5 bg-card rounded-lg border border-border" style={{ boxShadow: 'var(--shadow-sm)' }}>
-          <h3 className="text-base font-semibold mb-4 text-foreground">ფილტრები</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+      <main className="dashboard__main">
+        <div className="filter-card">
+          <h3 className="filter-card__title">ფილტრები</h3>
+          <div className="filter-card__grid filter-card__grid--4">
             <div>
-              <label className="block text-sm font-medium mb-2">დღის რეინჯი</label>
+              <label className="filter-card__field-label">დღის რეინჯი</label>
               <Input
                 type="number"
                 min="1"
@@ -431,7 +395,7 @@ export function HeadersPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">ძებნა სახელით</label>
+              <label className="filter-card__field-label">ძებნა სახელით</label>
               <Input
                 type="text"
                 value={searchTerm}
@@ -441,7 +405,7 @@ export function HeadersPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">სტატუსი</label>
+              <label className="filter-card__field-label">სტატუსი</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="აირჩიეთ სტატუსი" />
@@ -454,7 +418,7 @@ export function HeadersPage() {
               </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-2">გარემო</label>
+              <label className="filter-card__field-label">გარემო</label>
               <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
                 <SelectTrigger>
                   <SelectValue placeholder="აირჩიეთ გარემო" />
@@ -470,51 +434,39 @@ export function HeadersPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <div>
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-green-700 dark:text-green-400">
-                  მომდევნო {dayRange} დღის აქციები ({upcomingPromotions.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="max-h-[70vh] overflow-y-auto">
-                {upcomingPromotions.length > 0 ? (
-                  upcomingPromotions.map((promotion) => (
-                    <PromotionCard key={promotion._id} promotion={promotion} isPast={false} />
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">
-                    მომდევნო {dayRange} დღეში არ არის აქციები
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+        <div className="columns-grid columns-grid--2">
+          <div className="column-card">
+            <div className="column-card__header">
+              <h2 className="column-card__title column-card__title--green">
+                მომდევნო {dayRange} დღის აქციები ({upcomingPromotions.length})
+              </h2>
+            </div>
+            <div className="column-card__body">
+              {upcomingPromotions.length > 0 ? (
+                upcomingPromotions.map((promotion) => (
+                  <PromotionCard key={promotion._id} promotion={promotion} isPast={false} />
+                ))
+              ) : (
+                <div className="column-card__empty">მომდევნო {dayRange} დღეში არ არის აქციები</div>
+              )}
+            </div>
           </div>
 
-          <div>
-            <Card
-              className={
-                pastPromotions.some((promo) => isWithin24Hours(promo.endDate, true))
-                  ? "border-red-300 bg-red-50 dark:border-red-700 dark:bg-red-950/20"
-                  : ""
-              }
-            >
-              <CardHeader>
-                <CardTitle className="text-lg font-semibold text-red-700 dark:text-red-400 flex items-center gap-2">
-                  გასული {dayRange} დღის აქციები ({pastPromotions.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="max-h-[70vh] overflow-y-auto">
-                {pastPromotions.length > 0 ? (
-                  pastPromotions.map((promotion) => (
-                    <PromotionCard key={promotion._id} promotion={promotion} isPast={true} />
-                  ))
-                ) : (
-                  <div className="text-center py-8 text-muted-foreground">გასული {dayRange} დღეში არ იყო აქციები</div>
-                )}
-              </CardContent>
-            </Card>
+          <div className="column-card">
+            <div className="column-card__header">
+              <h2 className="column-card__title column-card__title--red">
+                გასული {dayRange} დღის აქციები ({pastPromotions.length})
+              </h2>
+            </div>
+            <div className="column-card__body">
+              {pastPromotions.length > 0 ? (
+                pastPromotions.map((promotion) => (
+                  <PromotionCard key={promotion._id} promotion={promotion} isPast={true} />
+                ))
+              ) : (
+                <div className="column-card__empty">გასული {dayRange} დღეში არ იყო აქციები</div>
+              )}
+            </div>
           </div>
         </div>
         {userInfo && (

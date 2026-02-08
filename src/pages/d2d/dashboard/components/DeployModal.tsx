@@ -96,7 +96,7 @@ export function DeployModal({ isOpen, onClose, promotion, onSuccess }: DeployMod
 
   return (
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="max-w-md" onPointerDownOutside={(e) => (loading || cacheLoading) && e.preventDefault()}>
+        <DialogContent className="dialog-content max-w-md" onPointerDownOutside={(e) => (loading || cacheLoading) && e.preventDefault()}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-foreground">
               <Rocket className="h-5 w-5 text-blue-600" />

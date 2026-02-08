@@ -109,7 +109,7 @@ export const FileModalGallery: React.FC<FileModalGalleryProps> = ({ isOpen, onCl
     return (
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
-                <DialogContent className="max-w-xl max-h-[85vh] overflow-y-auto">
+                <DialogContent className="dialog-content max-w-xl max-h-[85vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle className="text-xl font-bold text-foreground">
                             File Gallery
@@ -205,7 +205,7 @@ export const FileModalGallery: React.FC<FileModalGalleryProps> = ({ isOpen, onCl
 
             {/* Confirm Delete Dialog */}
             <Dialog open={!!confirmFile} onOpenChange={(open) => { if (!open) setConfirmFile(null); }}>
-                <DialogContent className="max-w-sm" onPointerDownOutside={(e) => deleting && e.preventDefault()}>
+                <DialogContent className="dialog-content max-w-sm" onPointerDownOutside={(e) => deleting && e.preventDefault()}>
                     <DialogHeader>
                         <DialogTitle className="flex items-center gap-2 text-foreground">
                             <Trash2 className="h-5 w-5 text-red-600" />

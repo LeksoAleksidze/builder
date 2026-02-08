@@ -564,7 +564,7 @@ export function AddPromotionModal({
                          if (!open) setStarterProjectId('')
                        }}
         >
-        <StarterDialogContent className="max-w-md">
+        <StarterDialogContent className="dialog-content max-w-md">
           <StarterDialogHeader className="text-center">
             <StarterDialogTitle className="text-lg font-semibold">აირჩიე Project ID</StarterDialogTitle>
             <p className="text-sm text-muted-foreground">
@@ -647,7 +647,7 @@ export function AddPromotionModal({
                 if (!open) setStarterProjectId('')
               }}
       >
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent">
+        <DialogContent className="dialog-content max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold text-foreground">
               {isEditMode ? "აქციის რედაქტირება" : "ახალი აქციის დამატება"}
@@ -930,12 +930,12 @@ export function AddPromotionModal({
             {/* Date and Time Pickers */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
               <div className="space-y-2">
-                <Label htmlFor="startDate" className=" font-normal">
+                <Label htmlFor="startDate" className="font-normal">
                   დასაწყისი *
                 </Label>
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/>
+                <div className="datepicker-group">
+                  <div className="datepicker-group__date">
+                    <Calendar />
                     <Input
                         id="startDate"
                         type="date"
@@ -948,7 +948,7 @@ export function AddPromotionModal({
                         disabled={isArchivedPromotion}
                     />
                   </div>
-                  <div className="relative">
+                  <div className="datepicker-group__time">
                     <Input
                         type="text"
                         placeholder="HH:MM"
@@ -961,15 +961,12 @@ export function AddPromotionModal({
                           }
                         }}
                         onInput={(e) => {
-                          // Auto-format: add colon after 2 digits
                           let value = e.currentTarget.value.replace(/[^0-9]/g, "")
                           if (value.length >= 2) {
                             value = value.slice(0, 2) + ":" + value.slice(2, 4)
                           }
-
                           e.currentTarget.value = value
                         }}
-                        className="text-center font-mono"
                         pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
                         maxLength={8}
                         disabled={isArchivedPromotion}
@@ -979,12 +976,12 @@ export function AddPromotionModal({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="endDate" className=" font-normal">
+                <Label htmlFor="endDate" className="font-normal">
                   დასასრული *
                 </Label>
-                <div className="space-y-2">
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-3 h-4 w-4 text-muted-foreground"/>
+                <div className="datepicker-group">
+                  <div className="datepicker-group__date">
+                    <Calendar />
                     <Input
                         id="endDate"
                         type="date"
@@ -997,20 +994,19 @@ export function AddPromotionModal({
                         disabled={isArchivedPromotion}
                     />
                   </div>
-                  <div className="relative">
+                  <div className="datepicker-group__time">
                     <Input
                         type="text"
                         placeholder="HH:MM"
                         value={formData.endDate.split("T")[1] || ""}
                         onChange={(e) => {
-                          const value = e.target.value.replace(/[^0-9:]/g, "") // Only allow numbers and colon
+                          const value = e.target.value.replace(/[^0-9:]/g, "")
                           const date = formData.endDate.split("T")[0] || ""
                           if (date) {
                             setFormData({...formData, endDate: `${date}T${value}`})
                           }
                         }}
                         onInput={(e) => {
-                          // Auto-format: add colon after 2 digits
                           let value = e.currentTarget.value.replace(/[^0-9]/g, "")
                           if (value.length >= 2) {
                             value = value.slice(0, 2) + ":" + value.slice(2, 4)
@@ -1018,7 +1014,6 @@ export function AddPromotionModal({
                           e.currentTarget.value = value
                         }}
                         pattern="^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
-                        className="text-center font-mono"
                         maxLength={8}
                         disabled={isArchivedPromotion}
                     />
@@ -1029,29 +1024,15 @@ export function AddPromotionModal({
 
             {repositoryYrl && editPromotion?.branch !== 'redirect'  && editPromotion?.branch !== '404' && (
                 <>
-                  <div
-                      className="bg-muted/30 border border-border rounded-lg p-3 mt-2 flex items-center justify-between">
-                    <code className="text-sm break-all text-foreground">{repositoryYrl.ssh}</code>
-                    <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="ml-3"
-                        onClick={() => navigator.clipboard.writeText(repositoryYrl?.ssh)}
-                    >
+                  <div className="modal-form__repo-box">
+                    <code>{repositoryYrl.ssh}</code>
+                    <Button type="button" size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(repositoryYrl?.ssh)}>
                       დაკოპირება
                     </Button>
                   </div>
-                  <div
-                      className="bg-muted/30 border border-border rounded-lg p-3 mt-2 flex items-center justify-between">
-                    <code className="text-sm break-all text-foreground">{repositoryYrl.url}</code>
-                    <Button
-                        type="button"
-                        size="sm"
-                        variant="outline"
-                        className="ml-3"
-                        onClick={() => navigator.clipboard.writeText(repositoryYrl?.url)}
-                    >
+                  <div className="modal-form__repo-box" style={{ marginTop: '0.5rem' }}>
+                    <code>{repositoryYrl.url}</code>
+                    <Button type="button" size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(repositoryYrl?.url)}>
                       დაკოპირება
                     </Button>
                   </div>
@@ -1226,7 +1207,7 @@ export function AddPromotionModal({
 
           {/* Configuration Modal */}
           <Dialog open={showConfigModal} onOpenChange={setShowConfigModal}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="dialog-content max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold text-foreground">კონფიგურაცია</DialogTitle>
               </DialogHeader>
@@ -1429,7 +1410,7 @@ export function AddPromotionModal({
 
           {/* History Modal */}
           <Dialog open={showHistoryModal} onOpenChange={setShowHistoryModal}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+            <DialogContent className="dialog-content max-w-4xl max-h-[90vh] overflow-y-auto p-6">
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold text-foreground mb-8">History</DialogTitle>
               </DialogHeader>

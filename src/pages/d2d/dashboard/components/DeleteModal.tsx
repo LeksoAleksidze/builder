@@ -56,7 +56,7 @@ export function DeleteModal({ isOpen, onClose, promotion, onSuccess }: DeleteMod
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md" onPointerDownOutside={(e) => loading && e.preventDefault()}>
+      <DialogContent className="dialog-content max-w-md" onPointerDownOutside={(e) => loading && e.preventDefault()}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <Trash2 className="h-5 w-5 text-red-600" />
