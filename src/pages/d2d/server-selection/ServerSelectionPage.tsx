@@ -83,31 +83,31 @@ export function ServerSelectionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+      <header className="border-b border-border bg-card/85 backdrop-blur-xl sticky top-0 z-10" style={{ boxShadow: 'var(--shadow-xs)' }}>
+        <div className="container mx-auto px-4 sm:px-6 py-3">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
               D2D Dashboard
             </h1>
 
             <div className="flex items-center gap-2">
               <ThemeToggle />
               {userInfo && (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowProfileModal(true)}
                     className="flex items-center gap-2 hover:bg-accent rounded-lg p-2 transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white flex items-center justify-center text-sm font-medium">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center text-xs font-semibold">
                       {getInitials(userInfo.firstName, userInfo.lastName)}
                     </div>
-                    <div className="text-sm">
-                      <div className="font-medium">
+                    <div className="text-sm hidden sm:block">
+                      <div className="font-medium text-foreground">
                         {userInfo.firstName} {userInfo.lastName}
                       </div>
-                      <div className="text-muted-foreground">{userInfo.role}</div>
+                      <div className="text-xs text-muted-foreground">{userInfo.role}</div>
                     </div>
                   </button>
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -121,26 +121,26 @@ export function ServerSelectionPage() {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold mb-4">აირჩიეთ სერვისი</h2>
-          <p className="text-xl text-muted-foreground">რომელ სერვისთან გსურთ მუშაობა?</p>
+      <main className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2 text-foreground">აირჩიეთ სერვისი</h2>
+          <p className="text-base text-muted-foreground">რომელ სერვისთან გსურთ მუშაობა?</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
           {/* Server Management */}
-          <Card className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 border-2 hover:border-blue-500">
-            <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
-                <Server className="h-8 w-8 text-white" />
+          <Card className="group cursor-pointer transition-all duration-200 hover:border-blue-400 dark:hover:border-blue-600" style={{ boxShadow: 'var(--shadow-card)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}>
+            <CardHeader className="text-center pb-3">
+              <div className="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-blue-500 to-blue-700 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ boxShadow: '0 4px 12px rgb(59 130 246 / 0.25)' }}>
+                <Server className="h-7 w-7 text-white" />
               </div>
-              <CardTitle className="text-xl">აქციების მართვა</CardTitle>
-              <CardDescription>აქციების მართვა, deploy-ები და კონფიგურაცია</CardDescription>
+              <CardTitle className="text-lg text-foreground">აქციების მართვა</CardTitle>
+              <CardDescription className="text-sm">აქციების მართვა, deploy-ები და კონფიგურაცია</CardDescription>
             </CardHeader>
             <CardContent>
               <Button
                 onClick={() => handleSelection("server")}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-medium"
               >
                 გადასვლა
               </Button>
@@ -148,18 +148,18 @@ export function ServerSelectionPage() {
           </Card>
 
           {/* Campaigns */}
-          <Card className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 border-2 hover:border-green-500">
-            <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-green-600 to-green-700 rounded-full flex items-center justify-center">
-                <Calendar className="h-8 w-8 text-white" />
+          <Card className="group cursor-pointer transition-all duration-200 hover:border-green-400 dark:hover:border-green-600" style={{ boxShadow: 'var(--shadow-card)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}>
+            <CardHeader className="text-center pb-3">
+              <div className="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-green-500 to-green-700 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ boxShadow: '0 4px 12px rgb(34 197 94 / 0.25)' }}>
+                <Calendar className="h-7 w-7 text-white" />
               </div>
-              <CardTitle className="text-xl">კამპანიები</CardTitle>
-              <CardDescription>აქციის მიმდინარეობები, სტატისტიკა და ანალიტიკა</CardDescription>
+              <CardTitle className="text-lg text-foreground">კამპანიები</CardTitle>
+              <CardDescription className="text-sm">აქციის მიმდინარეობები, სტატისტიკა და ანალიტიკა</CardDescription>
             </CardHeader>
             <CardContent>
               <Button
                 onClick={() => handleSelection("campaigns")}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                className="w-full bg-gradient-to-r from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 text-white font-medium"
               >
                 გადასვლა
               </Button>
@@ -167,18 +167,18 @@ export function ServerSelectionPage() {
           </Card>
 
           {/* Headers */}
-          <Card className="cursor-pointer transition-all hover:shadow-lg hover:scale-105 border-2 hover:border-purple-500">
-            <CardHeader className="text-center pb-4">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-r from-purple-600 to-purple-700 rounded-full flex items-center justify-center">
-                <Megaphone className="h-8 w-8 text-white" />
+          <Card className="group cursor-pointer transition-all duration-200 hover:border-purple-400 dark:hover:border-purple-600 sm:col-span-2 lg:col-span-1" style={{ boxShadow: 'var(--shadow-card)' }} onMouseEnter={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card-hover)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = 'var(--shadow-card)'}>
+            <CardHeader className="text-center pb-3">
+              <div className="w-14 h-14 mx-auto mb-3 bg-gradient-to-br from-purple-500 to-purple-700 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-105" style={{ boxShadow: '0 4px 12px rgb(147 51 234 / 0.25)' }}>
+                <Megaphone className="h-7 w-7 text-white" />
               </div>
-              <CardTitle className="text-xl">ჰედერები</CardTitle>
-              <CardDescription>ჰედერების მართვა, კონტენტი და დიზაინი</CardDescription>
+              <CardTitle className="text-lg text-foreground">ჰედერები</CardTitle>
+              <CardDescription className="text-sm">ჰედერების მართვა, კონტენტი და დიზაინი</CardDescription>
             </CardHeader>
             <CardContent>
               <Button
                 onClick={() => handleSelection("headers")}
-                className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                className="w-full bg-gradient-to-r from-purple-500 to-purple-700 hover:from-purple-600 hover:to-purple-800 text-white font-medium"
               >
                 გადასვლა
               </Button>

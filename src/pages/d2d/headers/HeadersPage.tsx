@@ -373,15 +373,15 @@ export function HeadersPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-muted/20">
-      <header className="border-b bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
+      <header className="border-b border-border bg-card/85 backdrop-blur-xl sticky top-0 z-10" style={{ boxShadow: 'var(--shadow-xs)' }}>
+        <div className="container mx-auto px-4 sm:px-6 py-3">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={() => navigate("/server-selection")}>
-                <Home className="h-4 w-4 mr-2" />
-                მთავარი
+                <Home className="h-4 w-4 mr-1" />
+                <span className="hidden sm:inline">მთავარი</span>
               </Button>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">
+              <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-purple-500 to-purple-700 bg-clip-text text-transparent">
                 ჰედერები
               </h1>
             </div>
@@ -389,19 +389,19 @@ export function HeadersPage() {
             <div className="flex items-center gap-2">
               <ThemeToggle />
               {userInfo && (
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowProfileModal(true)}
                     className="flex items-center gap-2 hover:bg-accent rounded-lg p-2 transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-600 to-purple-700 text-white flex items-center justify-center text-sm font-medium">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 text-white flex items-center justify-center text-xs font-semibold">
                       {getInitials(userInfo.firstName, userInfo.lastName)}
                     </div>
-                    <div className="text-sm">
-                      <div className="font-medium">
+                    <div className="text-sm hidden sm:block">
+                      <div className="font-medium text-foreground">
                         {userInfo.firstName} {userInfo.lastName}
                       </div>
-                      <div className="text-muted-foreground">{userInfo.role} / {userInfo.stack}</div>
+                      <div className="text-xs text-muted-foreground">{userInfo.role} / {userInfo.stack}</div>
                     </div>
                   </button>
                   <Button variant="ghost" size="sm" onClick={handleLogout}>
@@ -414,9 +414,9 @@ export function HeadersPage() {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="mb-6 p-4 bg-card rounded-lg border">
-          <h3 className="text-lg font-semibold mb-4">ფილტრები</h3>
+      <main className="container mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="mb-6 p-4 sm:p-5 bg-card rounded-lg border border-border" style={{ boxShadow: 'var(--shadow-sm)' }}>
+          <h3 className="text-base font-semibold mb-4 text-foreground">ფილტრები</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
             <div>
               <label className="block text-sm font-medium mb-2">დღის რეინჯი</label>
