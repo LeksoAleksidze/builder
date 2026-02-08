@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@d2d-ui/ui/dialog";
 import { Button } from "@d2d-ui/ui/button";
 import { Alert, AlertDescription } from "@d2d-ui/ui/alert";
-import { Loader2, Upload, Trash2, ExternalLink, X, AlertTriangle } from "lucide-react";
+import { Loader2, Upload, Trash2, ExternalLink, AlertTriangle } from "lucide-react";
 import { DOMAIN_URL } from "../../../../shared/services/api";
 
 interface FileModalGalleryProps {
@@ -111,29 +111,28 @@ export const FileModalGallery: React.FC<FileModalGalleryProps> = ({ isOpen, onCl
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent className="dialog-content max-w-xl max-h-[85vh] overflow-y-auto">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-foreground">
-                            File Gallery
-                        </DialogTitle>
+                        <DialogTitle>File Gallery</DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-4">
                         {/* Upload Section */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2.5 p-3 rounded-[0.625rem] border border-border/50 bg-muted/20">
                             <input
                                 type="file"
                                 onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                className="flex-1 text-sm border border-input rounded-lg p-2.5 bg-background text-foreground file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer"
+                                className="flex-1 text-[13px] text-foreground file:mr-2.5 file:py-1.5 file:px-3 file:rounded-[0.4rem] file:border-0 file:text-[12px] file:font-medium file:bg-primary file:text-primary-foreground hover:file:bg-primary/90 file:cursor-pointer file:transition-colors"
                             />
                             <Button
                                 onClick={handleUpload}
                                 disabled={loading || !file}
-                                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800"
+                                size="sm"
+                                className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shrink-0"
                             >
                                 {loading ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                 ) : (
                                     <>
-                                        <Upload className="h-4 w-4 mr-1" />
+                                        <Upload className="h-3.5 w-3.5 mr-1" />
                                         Upload
                                     </>
                                 )}
@@ -141,40 +140,40 @@ export const FileModalGallery: React.FC<FileModalGalleryProps> = ({ isOpen, onCl
                         </div>
 
                         {error && (
-                            <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-                                <AlertDescription className="text-red-800 dark:text-red-200">{error}</AlertDescription>
+                            <Alert className="border-red-200/60 bg-red-50 dark:border-red-800/40 dark:bg-red-950/30 rounded-[0.5rem]">
+                                <AlertDescription className="text-red-700 dark:text-red-300 text-[13px]">{error}</AlertDescription>
                             </Alert>
                         )}
 
                         {/* File List */}
                         {loading ? (
-                            <div className="flex items-center justify-center py-8">
-                                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                                <span className="ml-2 text-muted-foreground">Loading files...</span>
+                            <div className="flex items-center justify-center py-10">
+                                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                                <span className="ml-2 text-[13px] text-muted-foreground">Loading files...</span>
                             </div>
                         ) : (
-                            <div className="space-y-2">
+                            <div className="space-y-1.5">
                                 {files.length > 0 ? (
                                     files.map((item, idx) => (
                                         <div
                                             key={idx}
-                                            className="flex items-center justify-between p-3 border border-border rounded-lg bg-card hover:bg-accent/50 transition-colors"
+                                            className="flex items-center justify-between p-2.5 border border-border/40 rounded-[0.5rem] bg-card hover:bg-accent/40 transition-colors duration-100"
                                         >
                                             <div className="min-w-0 flex-1 mr-3">
-                                                <div className="font-medium text-sm text-foreground truncate">
+                                                <div className="font-medium text-[13px] text-foreground truncate">
                                                     {item.url.split("/").pop()}
                                                 </div>
-                                                <div className="text-xs text-muted-foreground mt-0.5">
+                                                <div className="text-[11px] text-muted-foreground mt-0.5">
                                                     {item.createdAt}
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2 flex-shrink-0">
+                                            <div className="flex items-center gap-1.5 flex-shrink-0">
                                                 <a
                                                     href={item.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
                                                 >
-                                                    <Button variant="outline" size="sm" className="h-8">
+                                                    <Button variant="outline" size="sm">
                                                         <ExternalLink className="h-3 w-3 mr-1" />
                                                         Open
                                                     </Button>
@@ -182,7 +181,7 @@ export const FileModalGallery: React.FC<FileModalGalleryProps> = ({ isOpen, onCl
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/20"
+                                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 hover:border-red-200/60 dark:hover:bg-red-950/20 dark:hover:border-red-800/40"
                                                     onClick={() => confirmDelete(item)}
                                                     disabled={loading}
                                                 >
@@ -193,7 +192,7 @@ export const FileModalGallery: React.FC<FileModalGalleryProps> = ({ isOpen, onCl
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="text-center py-8 text-muted-foreground">
+                                    <div className="text-center py-10 text-muted-foreground text-[13px]">
                                         No files uploaded yet.
                                     </div>
                                 )}
@@ -207,43 +206,43 @@ export const FileModalGallery: React.FC<FileModalGalleryProps> = ({ isOpen, onCl
             <Dialog open={!!confirmFile} onOpenChange={(open) => { if (!open) setConfirmFile(null); }}>
                 <DialogContent className="dialog-content max-w-sm" onPointerDownOutside={(e) => deleting && e.preventDefault()}>
                     <DialogHeader>
-                        <DialogTitle className="flex items-center gap-2 text-foreground">
-                            <Trash2 className="h-5 w-5 text-red-600" />
+                        <DialogTitle className="flex items-center gap-2">
+                            <Trash2 className="h-4 w-4 text-red-500" />
                             Delete Confirmation
                         </DialogTitle>
                     </DialogHeader>
 
                     <div className="space-y-4">
-                        <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
-                            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                        <div className="flex items-start gap-3 p-3.5 bg-red-50 dark:bg-red-950/20 rounded-[0.5rem] border border-red-200/50 dark:border-red-800/30">
+                            <AlertTriangle className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
                             <div className="space-y-1">
-                                <p className="text-sm font-medium text-red-800 dark:text-red-200">
+                                <p className="text-[13px] font-medium text-red-800 dark:text-red-200">
                                     Are you sure?
                                 </p>
-                                <p className="text-xs text-red-700 dark:text-red-300">
+                                <p className="text-[12px] text-red-600/80 dark:text-red-300/80 leading-relaxed">
                                     Delete <strong>{confirmFile?.url.split("/").pop()}</strong>? This action cannot be undone.
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                            <Button variant="outline" onClick={() => setConfirmFile(null)} disabled={deleting}>
-                                <X className="h-4 w-4 mr-2" />
+                        <div className="flex justify-end gap-2.5 pt-4 border-t border-border/50">
+                            <Button variant="outline" size="sm" onClick={() => setConfirmFile(null)} disabled={deleting}>
                                 Cancel
                             </Button>
                             <Button
+                                size="sm"
                                 onClick={handleDeleteConfirmed}
                                 disabled={deleting}
-                                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
+                                variant="destructive"
                             >
                                 {deleting ? (
                                     <>
-                                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                                         Deleting...
                                     </>
                                 ) : (
                                     <>
-                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                                         Delete
                                     </>
                                 )}
