@@ -312,6 +312,7 @@ export function D2DDashboard() {
     const isCollapsed = collapsedCards.has(promotion.promotionId)
     const isFinished = promotion.status === 'FINISHED'
     const isActive = promotion.status === 'ACTIVE'
+    const isPending = promotion.status === 'PENDING'
 
 
     const [showCopyModal, setShowCopyModal] = useState(false)
@@ -349,7 +350,7 @@ export function D2DDashboard() {
 
     return (
         <div
-            className={`promotion-card relative ${isDeploying ? "promotion-card--deploying" : ""} ${isActive ? "promotion-card--active" : ""} ${isFinished ? "promotion-card--finished" : ""}`}
+            className={`promotion-card relative ${isDeploying ? "promotion-card--deploying" : ""} ${isActive ? "promotion-card--active" : ""} ${isFinished ? "promotion-card--finished" : ""} ${isPending ? "promotion-card--pending" : ""}`}
         >
           <div className="promotion-card__header">
             <div className="promotion-card__header-content">

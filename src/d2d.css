@@ -833,8 +833,14 @@ body {
   box-shadow: var(--shadow-card), 0 0 0 1px hsl(142 76% 36% / 0.1);
 }
 
+.promotion-card--pending {
+  border-color: hsl(0 0% 100% / 0.5);
+  box-shadow: var(--shadow-card), 0 0 0 1px hsl(0 0% 100% / 0.1);
+}
+
 .promotion-card--finished {
-  border-color: hsl(var(--border));
+  border-color: hsl(0 72% 51% / 0.4);
+  box-shadow: var(--shadow-card), 0 0 0 1px hsl(0 72% 51% / 0.1);
   opacity: 0.85;
 }
 
