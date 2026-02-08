@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@d2d-ui/ui/select"
+import { D2DSelect } from "@d2d-ui/ui/d2d-select"
 import {
   LogOut,
   Search,
@@ -618,48 +618,39 @@ export function D2DDashboard() {
               />
             </div>
 
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-44">
-                <SelectValue placeholder="კატეგორია"/>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">ყველა კატეგორია</SelectItem>
-                {CATEGORIES.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <D2DSelect
+              value={selectedCategory}
+              onValueChange={setSelectedCategory}
+              placeholder="კატეგორია"
+              className="w-full sm:w-44"
+              options={[
+                { value: "all", label: "ყველა კატეგორია" },
+                ...CATEGORIES.map((c) => ({ value: c, label: c })),
+              ]}
+            />
 
-            <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-full sm:w-40">
-                <SelectValue placeholder="ტიპი"/>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">ყველა ტიპი</SelectItem>
-                {TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <D2DSelect
+              value={selectedType}
+              onValueChange={setSelectedType}
+              placeholder="ტიპი"
+              className="w-full sm:w-40"
+              options={[
+                { value: "all", label: "ყველა ტიპი" },
+                ...TYPES.map((t) => ({ value: t, label: t })),
+              ]}
+            />
 
             {userInfo?.role === 'VIEWER' && (
-                <Select value={selectedStack} onValueChange={setSelectedStack}>
-                  <SelectTrigger className="w-full sm:w-40">
-                    <SelectValue placeholder="სტეკი"/>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">ყველა სტეკი</SelectItem>
-                    {STACKS.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <D2DSelect
+                  value={selectedStack}
+                  onValueChange={setSelectedStack}
+                  placeholder="სტეკი"
+                  className="w-full sm:w-40"
+                  options={[
+                    { value: "all", label: "ყველა სტეკი" },
+                    ...STACKS.map((s) => ({ value: s, label: s })),
+                  ]}
+                />
             )}
 
 

@@ -470,6 +470,17 @@ body {
   height: 1rem;
 }
 
+.login-page__footer {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.75rem;
+  color: hsl(var(--muted-foreground) / 0.9);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
 /* ===========================
    Dashboard Styles
    =========================== */
@@ -946,6 +957,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  font-size: 12px;
 }
 
 .promotion-card__content-details-item svg {
@@ -960,7 +972,7 @@ body {
   color: hsl(var(--primary));
   text-decoration: none;
   transition: color 0.15s;
-  font-size: 0.6875rem;
+  font-size: 12px;
 }
 
 .promotion-card__content-details-item a:hover {
@@ -979,7 +991,7 @@ body {
 
 .promotion-card__content-details-item--branch .value {
   font-family: "SF Mono", "Fira Code", monospace;
-  font-size: 0.6875rem;
+  font-size: 12px;
 }
 
 .promotion-card__content-details-item--branch.origin .label {
@@ -2274,9 +2286,13 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
   word-break: break-all;
 }
 
-/* Select dropdown portal */
-[data-radix-popper-content-wrapper] {
-  z-index: 100 !important;
+/* D2DSelect dropdown animation */
+@keyframes d2dSelectIn {
+  from { opacity: 0; transform: translateY(-4px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.d2d-select-dropdown-enter {
+  animation: d2dSelectIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* ===========================

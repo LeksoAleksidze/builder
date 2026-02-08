@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@d2d-ui/ui/dia
 import { Button } from "@d2d-ui/ui/button"
 import { Input } from "@d2d-ui/ui/input"
 import { Label } from "@d2d-ui/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@d2d-ui/ui/select"
+import { D2DSelect } from "@d2d-ui/ui/d2d-select"
 import { Checkbox } from "@d2d-ui/ui/checkbox"
 import { Alert, AlertDescription } from "@d2d-ui/ui/alert"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@d2d-ui/ui/tooltip"
@@ -77,7 +77,6 @@ export function AddPromotionModal({
   const [loading, setLoading] = useState(false)
   const [branchesLoading, setBranchesLoading] = useState(false)
   const [error, setError] = useState("")
-  const [branchSearch, setBranchSearch] = useState("")
   const isEditMode = !!editPromotion && editPromotion.promotionId !== 0
   const isArchivedPromotion = isFromArchived && editPromotion?.place === "archived"
   const navigate = useNavigate()
@@ -225,7 +224,6 @@ export function AddPromotionModal({
   // FIXED: open modal + clone projectId
   useEffect(() => {
     if (isOpen) {
-      setBranchSearch("")
       setError("")
       setShowOverwriteOption(false)
 
@@ -684,10 +682,9 @@ export function AddPromotionModal({
                 <Label htmlFor="origin" className=" font-normal">
                   ORIGIN ბრენჩი *
                 </Label>
-                <Select
+                <D2DSelect
                     value={formData.origin}
                     onValueChange={(value) => {
-                      // Auto-check createGitlab if main is selected in add mode
                       if (!isEditMode && value === "main" && formData.origin !== 'redirect') {
                         setFormData((prev) => ({...prev, origin: value, createGitlab: true}))
                       } else {
@@ -696,47 +693,18 @@ export function AddPromotionModal({
                       fetchCommits(starterProjectId, value).then()
                     }}
                     disabled={isEditMode || isArchivedPromotion}
-                >
-                  <SelectTrigger className={isEditMode ? "bg-muted" : ""}>
-                    <SelectValue
-                        placeholder={
-                          branchesLoading
-                              ? "იტვირთება..."
-                              : branches.length === 0
-                                  ? "ბრენჩები ჯერ არ ჩაიტვირთა"
-                                  : "აირჩიეთ ბრენჩი"
-                        }
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {branches.length > 0 ? (
-                        <>
-                          <div className="p-2 border-b border-border">
-                            <Input
-                                placeholder="ძებნა ბრენჩებში..."
-                                value={branchSearch}
-                                onChange={(e) => setBranchSearch(e.target.value)}
-                                className="h-8"
-                            />
-                          </div>
-                          {branches
-                              .filter((branch) => branch.name.toLowerCase().includes(branchSearch.toLowerCase()))
-                              .map((branch) => (
-                                  <SelectItem key={branch.name} value={branch.name}>
-                                    {branch.name}
-                                  </SelectItem>
-                              ))}
-                          {branches.filter((branch) => branch.name.toLowerCase().includes(branchSearch.toLowerCase()))
-                                  .length === 0 &&
-                              branchSearch && (
-                                  <div className="p-2 text-sm text-muted-foreground text-center">ბრენჩი არ მოიძებნა</div>
-                              )}
-                        </>
-                    ) : (
-                        <div className="p-2 text-sm text-muted-foreground text-center">ბრენჩები ჯერ არ ჩაიტვირთა</div>
-                    )}
-                  </SelectContent>
-                </Select>
+                    searchable
+                    searchPlaceholder="ძებნა ბრენჩებში..."
+                    placeholder={
+                      branchesLoading
+                          ? "იტვირთება..."
+                          : branches.length === 0
+                              ? "ბრენჩები ჯერ არ ჩაიტვირთა"
+                              : "აირჩიეთ ბრენჩი"
+                    }
+                    className={isEditMode ? "[&>button]:bg-muted" : ""}
+                    options={branches.map((b) => ({ value: b.name, label: b.name }))}
+                />
               </div>
 
               {/* Category */}
@@ -744,22 +712,13 @@ export function AddPromotionModal({
                 <Label htmlFor="category" className=" font-normal">
                   კატეგორია *
                 </Label>
-                <Select
+                <D2DSelect
                     value={formData.category}
                     onValueChange={(value) => setFormData({...formData, category: value})}
                     disabled={isArchivedPromotion}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="აირჩიეთ კატეგორია"/>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {CATEGORIES.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    placeholder="აირჩიეთ კატეგორია"
+                    options={CATEGORIES.map((c) => ({ value: c, label: c }))}
+                />
               </div>
 
               {/* Commits */}
@@ -767,22 +726,13 @@ export function AddPromotionModal({
                 <Label htmlFor="category" className=" font-normal">
                   ვერსია
                 </Label>
-                <Select
-                    value={isEditMode ? editPromotion?.commitHash : formData.commitHash}
+                <D2DSelect
+                    value={isEditMode ? editPromotion?.commitHash ?? "" : formData.commitHash}
                     onValueChange={(value) => setFormData({...formData, commitHash: value, createGitlab: true})}
                     disabled={isArchivedPromotion || !commits.prod.length || isEditMode}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="აირჩიეთ კომიტი"/>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {commits.prod.map((commit: any) => (
-                        <SelectItem key={commit.hash} value={commit.hash}>
-                          {commit.hash}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    placeholder="აირჩიეთ კომიტი"
+                    options={commits.prod.map((commit: any) => ({ value: commit.hash, label: commit.hash }))}
+                />
               </div>
 
               {/* Type */}
@@ -790,22 +740,13 @@ export function AddPromotionModal({
                 <Label htmlFor="type" className=" font-normal">
                   სეგმენტი *
                 </Label>
-                <Select
+                <D2DSelect
                     value={formData.segment}
                     onValueChange={(value) => setFormData({...formData, segment: value})}
                     disabled={isArchivedPromotion}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="აირჩიეთ სეგმენტი"/>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SEGMENTS.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    placeholder="აირჩიეთ სეგმენტი"
+                    options={SEGMENTS.map((s) => ({ value: s, label: s }))}
+                />
               </div>
 
               {/* Place - Environment restrictions in edit mode */}
@@ -813,22 +754,13 @@ export function AddPromotionModal({
                 <Label htmlFor="place" className=" font-normal">
                   გარემო
                 </Label>
-                <Select
+                <D2DSelect
                     value={formData.place}
                     onValueChange={(value) => setFormData({...formData, place: value})}
                     disabled={editPromotion?.place === 'private' && !editPromotion?.approves?.length || !isEditMode || (isEditMode && userRole !== "EDITOR")}
-                >
-                  <SelectTrigger className={!isEditMode || (isEditMode && userRole !== "EDITOR") ? "bg-muted" : ""}>
-                    <SelectValue/>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {availablePlaces.map((place) => (
-                        <SelectItem key={place.value} value={place.value}>
-                          {place.label}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    className={!isEditMode || (isEditMode && userRole !== "EDITOR") ? "[&>button]:bg-muted" : ""}
+                    options={availablePlaces.map((p) => ({ value: p.value, label: p.label }))}
+                />
               </div>
 
               {/* Type */}
@@ -836,22 +768,13 @@ export function AddPromotionModal({
                 <Label htmlFor="type" className=" font-normal">
                   ტიპი *
                 </Label>
-                <Select
+                <D2DSelect
                     value={formData.type}
                     onValueChange={(value) => setFormData({...formData, type: value})}
                     disabled={isArchivedPromotion}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="აირჩიეთ ტიპი"/>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {TYPES.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                    placeholder="აირჩიეთ ტიპი"
+                    options={TYPES.map((t) => ({ value: t, label: t }))}
+                />
               </div>
             </div>
 

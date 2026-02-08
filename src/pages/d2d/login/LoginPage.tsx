@@ -1,49 +1,49 @@
-import type React from "react"
-import { useState } from "react"
-import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react"
-import { useNavigate } from "react-router-dom"
-import { ThemeToggle } from "@d2d-ui/theme-toggle"
-import { DOMAIN_URL } from "../../../shared/services/api"
+import type React from 'react';
+import { useState } from 'react';
+import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ThemeToggle } from '@d2d-ui/theme-toggle';
+import { DOMAIN_URL } from '../../../shared/services/api';
 
 export function LoginPage() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState("")
-  const navigate = useNavigate()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError("")
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
 
     try {
       const response = await fetch(`${DOMAIN_URL}/auth/login`, {
-        method: "POST",
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email,
           password,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (data.status && data.body) {
-        localStorage.setItem("authToken", data.body)
-        navigate("/server-selection")
+        localStorage.setItem('authToken', data.body);
+        navigate('/server-selection');
       } else {
-        setError("არასწორი მონაცემები. გთხოვთ სცადოთ ხელახლა.")
+        setError('არასწორი მონაცემები. გთხოვთ სცადოთ ხელახლა.');
       }
     } catch (err) {
-      setError("შეცდომა სერვერთან კავშირში. გთხოვთ სცადოთ ხელახლა.")
+      setError('შეცდომა სერვერთან კავშირში. გთხოვთ სცადოთ ხელახლა.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="login-page">
@@ -56,8 +56,10 @@ export function LoginPage() {
           <div className="login-page__header-icon">
             <Lock />
           </div>
-          <h1 className="login-page__header-title">კეთილი იყოს თქვენი მობრძანება</h1>
-          <p className="login-page__header-description">შეიყვანეთ თქვენი მონაცემები სისტემაში შესასვლელად</p>
+          <h1 className="login-page__header-title">D2D</h1>
+          <p className="login-page__header-description">
+            აქციების მართვის სააგენტო
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-page__form">
@@ -82,13 +84,17 @@ export function LoginPage() {
               <Lock />
               <input
                 id="password"
-                type={showPassword ? "text" : "password"}
+                type={showPassword ? 'text' : 'password'}
                 placeholder="თქვენი პაროლი"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <button className="password-eye" type="button" onClick={() => setShowPassword(!showPassword)}>
+              <button
+                className="password-eye"
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+              >
                 {showPassword ? <EyeOff /> : <Eye />}
               </button>
             </div>
@@ -100,7 +106,11 @@ export function LoginPage() {
             </div>
           )}
 
-          <button type="submit" className="login-page__form-submit" disabled={isLoading}>
+          <button
+            type="submit"
+            className="login-page__form-submit"
+            disabled={isLoading}
+          >
             <div className="login-page__form-submit-content">
               {isLoading ? (
                 <>
@@ -108,12 +118,16 @@ export function LoginPage() {
                   შესვლა...
                 </>
               ) : (
-                "შესვლა"
+                'შესვლა'
               )}
             </div>
           </button>
         </form>
       </div>
+
+      <p className="login-page__footer">
+        Created by Lekso Aleksidze
+      </p>
     </div>
-  )
+  );
 }

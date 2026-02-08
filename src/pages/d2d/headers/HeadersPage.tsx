@@ -2,8 +2,8 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "@d2d-ui/ui/button"
 import { ThemeToggle } from "@d2d-ui/theme-toggle"
-import { Home, Calendar, ImageIcon, ExternalLink, LogOut, Check } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@d2d-ui/ui/select"
+import { Home, Calendar, ImageIcon, ExternalLink, LogOut } from "lucide-react"
+import { D2DSelect } from "@d2d-ui/ui/d2d-select"
 import { Input } from "@d2d-ui/ui/input"
 import { ProfileModal } from "../dashboard/components/ProfileModal"
 import { DOMAIN_URL } from "../../../shared/services/api"
@@ -406,30 +406,30 @@ export function HeadersPage() {
             </div>
             <div>
               <label className="filter-card__field-label">სტატუსი</label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="აირჩიეთ სტატუსი" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ყველა</SelectItem>
-                  <SelectItem value="enabled">ჩართული</SelectItem>
-                  <SelectItem value="disabled">გათიშული</SelectItem>
-                </SelectContent>
-              </Select>
+              <D2DSelect
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+                placeholder="აირჩიეთ სტატუსი"
+                options={[
+                  { value: "all", label: "ყველა" },
+                  { value: "enabled", label: "ჩართული" },
+                  { value: "disabled", label: "გათიშული" },
+                ]}
+              />
             </div>
             <div>
               <label className="filter-card__field-label">გარემო</label>
-              <Select value={environmentFilter} onValueChange={setEnvironmentFilter}>
-                <SelectTrigger>
-                  <SelectValue placeholder="აირჩიეთ გარემო" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ყველა</SelectItem>
-                  <SelectItem value="PRODUCTION">PRODUCTION</SelectItem>
-                  <SelectItem value="TEST">TEST</SelectItem>
-                  <SelectItem value="STAGE">STAGE</SelectItem>
-                </SelectContent>
-              </Select>
+              <D2DSelect
+                value={environmentFilter}
+                onValueChange={setEnvironmentFilter}
+                placeholder="აირჩიეთ გარემო"
+                options={[
+                  { value: "all", label: "ყველა" },
+                  { value: "PRODUCTION", label: "PRODUCTION" },
+                  { value: "TEST", label: "TEST" },
+                  { value: "STAGE", label: "STAGE" },
+                ]}
+              />
             </div>
           </div>
         </div>

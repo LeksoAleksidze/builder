@@ -16,7 +16,8 @@
       "Bash(npm run build:prod:*)",
       "Bash(findstr:*)",
       "Bash(npm install:*)",
-      "Bash(timeout 10 npx vite:*)"
+      "Bash(timeout 10 npx vite:*)",
+      "Bash(find:*)"
     ]
   }
 }
