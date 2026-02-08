@@ -2067,15 +2067,23 @@ body {
    Dialog / Modal — Modern Design System
    =========================== */
 .dialog-content {
-  padding: 1.75rem !important;
+  padding: 0 !important;
   gap: 0 !important;
 }
 
-/* Dialog header — clean separator */
+/* Fixed header area — never scrolls */
 .dialog-content > div:first-child {
-  padding-bottom: 1rem;
-  border-bottom: 1px solid hsl(var(--border) / 0.5);
-  margin-bottom: 1.25rem;
+  padding: 1.5rem 1.75rem 1rem;
+  border-bottom: 1px solid hsl(var(--border) / 0.4);
+  flex-shrink: 0;
+}
+
+/* Scrollable body — everything between header and the close button */
+.dialog-content > form,
+.dialog-content > div:not(:first-child) {
+  padding: 1.25rem 1.75rem 1.5rem;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 /* Form layout within dialogs */
@@ -2086,7 +2094,7 @@ body {
 }
 
 .dialog-content form .grid {
-  gap: 1rem !important;
+  gap: 0.875rem !important;
 }
 
 /* Form labels */
@@ -2094,46 +2102,62 @@ body {
 .dialog-content label {
   font-size: 0.8125rem;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.005em;
+  color: hsl(var(--foreground) / 0.75);
 }
 
 /* Dialog form footer */
 .dialog-content .flex.justify-end.space-x-3,
-.dialog-content .flex.justify-end.gap-3 {
+.dialog-content .flex.justify-end.gap-3,
+.dialog-content .flex.justify-end.gap-2\.5 {
   padding-top: 1.25rem;
-  margin-top: 0.75rem;
-  border-top: 1px solid hsl(var(--border) / 0.5);
+  margin-top: 0.5rem;
+  border-top: 1px solid hsl(var(--border) / 0.4);
 }
 
 /* Checkbox labels — clickable */
 .dialog-content label[for] {
   cursor: pointer;
+  color: hsl(var(--foreground));
 }
 
 /* Additional parameters section */
 .dialog-content .space-y-3.p-4.rounded-lg.border {
-  border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
-  background-color: hsl(var(--muted) / 0.25);
-  border-color: hsl(var(--border) / 0.5) !important;
+  border-radius: 0.625rem;
+  padding: 0.875rem 1rem;
+  background-color: hsl(var(--muted) / 0.2);
+  border-color: hsl(var(--border) / 0.4) !important;
   transition: border-color 0.2s ease;
-}
-
-.dialog-content .space-y-3.p-4.rounded-lg.border:hover {
-  border-color: hsl(var(--primary) / 0.2) !important;
 }
 
 .dialog-content .space-y-3.p-4.rounded-lg.border h3 {
   font-weight: 600;
   font-size: 0.8125rem;
-  margin-bottom: 0.75rem;
-  color: hsl(var(--foreground));
+  margin-bottom: 0.625rem;
+  color: hsl(var(--foreground) / 0.85);
 }
 
 /* Alert boxes within dialogs */
 .dialog-content [role="alert"] {
-  border-radius: 0.625rem;
+  border-radius: 0.5rem;
   font-size: 0.8125rem;
+  padding: 0.625rem 0.875rem;
+}
+
+/* Scrollable dialog — used on modals with max-h */
+.dialog-scrollable {
+  overflow: hidden !important;
+}
+
+.dialog-scrollable > div:first-child {
+  flex-shrink: 0;
+}
+
+.dialog-scrollable > form,
+.dialog-scrollable > div:nth-child(2) {
+  overflow-y: auto;
+  min-height: 0;
+  flex: 1;
 }
 
 /* ===========================

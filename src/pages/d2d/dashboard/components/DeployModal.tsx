@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@d2d-ui/ui/dialog"
 import { Button } from "@d2d-ui/ui/button"
 import { Alert, AlertDescription } from "@d2d-ui/ui/alert"
-import { Loader2, Rocket, X, AlertTriangle, RefreshCw } from "lucide-react"
+import { Loader2, Rocket, AlertTriangle, RefreshCw } from "lucide-react"
 import { useState, useEffect } from "react"
 import { DOMAIN_URL } from "../../../../shared/services/api"
 
@@ -98,16 +98,15 @@ export function DeployModal({ isOpen, onClose, promotion, onSuccess }: DeployMod
       <Dialog open={isOpen} onOpenChange={handleClose}>
         <DialogContent className="dialog-content max-w-md" onPointerDownOutside={(e) => (loading || cacheLoading) && e.preventDefault()}>
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-foreground">
-              <Rocket className="h-5 w-5 text-blue-600" />
+            <DialogTitle className="flex items-center gap-2">
+              <Rocket className="h-4 w-4 text-blue-500" />
               Deploy დადასტურება
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4">
-            {/* დეტალების ბლოკი */}
-            <div className="space-y-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg border border-border">
-              <p className="font-semibold text-foreground mb-1">Title: {promotion.title}</p>
+          <div className="space-y-3">
+            <div className="space-y-1.5 text-[12px] text-muted-foreground bg-muted/30 p-3 rounded-lg border border-border/40">
+              <p className="font-medium text-[13px] text-foreground">{promotion.title}</p>
               <div className="grid grid-cols-2 gap-1">
                 <span><strong>Branch:</strong> {promotion.branch}</span>
                 <span><strong>ID:</strong> {promotion.promotionId}</span>
@@ -115,46 +114,43 @@ export function DeployModal({ isOpen, onClose, promotion, onSuccess }: DeployMod
             </div>
 
             {error && (
-                <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-                  <AlertDescription className="text-red-800 dark:text-red-200">{error}</AlertDescription>
+                <Alert className="border-red-200/50 bg-red-50 dark:border-red-800/30 dark:bg-red-950/20">
+                  <AlertDescription className="text-red-700 dark:text-red-300 text-[13px]">{error}</AlertDescription>
                 </Alert>
             )}
 
-            <div className="space-y-3">
-              {/* Deploy-ის სტატუსი */}
+            <div className="space-y-2.5">
               {loading && (
-                  <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800 animate-pulse">
-                    <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
-                    <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Deploy მიმდინარეობს... ({timer}წმ)</span>
+                  <div className="flex items-center gap-2 p-2.5 bg-blue-50 dark:bg-blue-950/15 rounded-lg border border-blue-200/40 dark:border-blue-800/25 animate-pulse">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-600" />
+                    <span className="text-[13px] font-medium text-blue-700 dark:text-blue-300">Deploy მიმდინარეობს... ({timer}წმ)</span>
                   </div>
               )}
 
-              {/* ქეშის გასუფთავების სტატუსი */}
               {cacheLoading && (
-                  <div className="flex items-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200 dark:border-emerald-800">
-                    <RefreshCw className="h-4 w-4 animate-spin text-emerald-600" />
-                    <span className="text-sm font-medium text-emerald-700 dark:text-emerald-300">მიმდინარეობს ქეშის გასუფთავება...</span>
+                  <div className="flex items-center gap-2 p-2.5 bg-emerald-50 dark:bg-emerald-950/15 rounded-lg border border-emerald-200/40 dark:border-emerald-800/25">
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin text-emerald-600" />
+                    <span className="text-[13px] font-medium text-emerald-700 dark:text-emerald-300">მიმდინარეობს ქეშის გასუფთავება...</span>
                   </div>
               )}
 
-              <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                <Button variant="outline" onClick={handleClose} disabled={loading || cacheLoading}>
-                  <X className="h-4 w-4 mr-2" />
+              <div className="flex justify-end gap-2.5 pt-3 border-t border-border/40">
+                <Button variant="outline" size="sm" onClick={handleClose} disabled={loading || cacheLoading}>
                   არა
                 </Button>
                 <Button
+                    size="sm"
                     onClick={handleDeploy}
                     disabled={loading || cacheLoading}
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
                 >
                   {loading || cacheLoading ? (
                       <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                         პროცესშია...
                       </>
                   ) : (
                       <>
-                        <Rocket className="h-4 w-4 mr-2" />
+                        <Rocket className="h-3.5 w-3.5 mr-1.5" />
                         დიახ, გაშვება
                       </>
                   )}

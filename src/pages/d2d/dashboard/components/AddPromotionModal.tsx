@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@d2d-ui/ui/checkbox"
 import { Alert, AlertDescription } from "@d2d-ui/ui/alert"
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@d2d-ui/ui/tooltip"
-import { Loader2, X, Save, Calendar, Info, Settings } from "lucide-react"
+import { Loader2, Save, Calendar, Info, Settings } from "lucide-react"
 import { DOMAIN_URL } from "../../../../shared/services/api"
 import { Dialog as StarterDialog, DialogContent as StarterDialogContent, DialogHeader as StarterDialogHeader, DialogTitle as StarterDialogTitle } from "@d2d-ui/ui/dialog"
 
@@ -566,23 +566,20 @@ export function AddPromotionModal({
         >
         <StarterDialogContent className="dialog-content max-w-md">
           <StarterDialogHeader className="text-center">
-            <StarterDialogTitle className="text-lg font-semibold">აირჩიე Project ID</StarterDialogTitle>
-            <p className="text-sm text-muted-foreground">
+            <StarterDialogTitle>აირჩიე Project ID</StarterDialogTitle>
+            <p className="text-[13px] text-muted-foreground mt-1">
               აირჩიე პროექტი ან ჩაწერე საკუთარი ID
             </p>
           </StarterDialogHeader>
 
-          <div className="space-y-4 pt-2">
-            {
-              userRole
-            }
+          <div className="space-y-3">
             {
               userStack === 'ANGULAR' && (
                     <Button
                         variant={starterProjectId === "515" ? "default" : "outline"}
-                        className={`w-full justify-center text-lg font-semibold py-6 rounded-xl transition ${
+                        className={`w-full justify-center text-[15px] font-semibold py-5 rounded-lg transition ${
                             starterProjectId === "515"
-                                ? "bg-blue-600 text-white hover:bg-blue-700"
+                                ? ""
                                 : "hover:bg-muted"
                         }`}
                         onClick={() => setStarterProjectId("515")}
@@ -596,9 +593,9 @@ export function AddPromotionModal({
                 userStack === 'REACT' && (
                     <Button
                         variant={starterProjectId === "1221" ? "default" : "outline"}
-                        className={`w-full justify-center text-lg font-semibold py-6 rounded-xl transition ${
+                        className={`w-full justify-center text-[15px] font-semibold py-5 rounded-lg transition ${
                             starterProjectId === "1221"
-                                ? "bg-blue-600 text-white hover:bg-blue-700"
+                                ? ""
                                 : "hover:bg-muted"
                         }`}
                         onClick={() => setStarterProjectId("1221")}
@@ -608,19 +605,16 @@ export function AddPromotionModal({
                 )
             }
 
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">ან ჩაწერე საკუთარი Project ID</Label>
-              <div className="flex gap-2">
-                <Input
-                    value={starterProjectId}
-                    onChange={(e) => setStarterProjectId(e.target.value)}
-                    placeholder="მაგ: 777"
-                    className="flex-1"
-                />
-              </div>
+            <div className="space-y-1.5">
+              <Label className="text-[13px]">ან ჩაწერე საკუთარი Project ID</Label>
+              <Input
+                  value={starterProjectId}
+                  onChange={(e) => setStarterProjectId(e.target.value)}
+                  placeholder="მაგ: 777"
+              />
             </div>
 
-            <div className="pt-4">
+            <div className="pt-2">
               <Button
                   className="w-full"
                   onClick={() => {
@@ -647,48 +641,44 @@ export function AddPromotionModal({
                 if (!open) setStarterProjectId('')
               }}
       >
-        <DialogContent className="dialog-content max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="dialog-content dialog-scrollable max-w-2xl max-h-[85vh]">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-foreground">
+            <DialogTitle>
               {isEditMode ? "აქციის რედაქტირება" : "ახალი აქციის დამატება"}
             </DialogTitle>
           </DialogHeader>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* History Button - Only show in edit mode */}
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Edit mode action buttons */}
             {isEditMode && (
-                <div className="flex justify-start">
+                <div className="flex flex-wrap gap-2">
                   <button
                       type="button"
                       onClick={() => setShowHistoryModal(true)}
-                      className="flex items-center gap-2 px-3 py-2 text-sm bg-blue-50 dark:bg-blue-950/20 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded-md hover:bg-blue-100 dark:hover:bg-blue-950/40 transition-colors"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium bg-blue-50 dark:bg-blue-950/15 text-blue-600 dark:text-blue-400 border border-blue-200/50 dark:border-blue-800/30 rounded-md hover:bg-blue-100 dark:hover:bg-blue-950/30 transition-colors"
                   >
-                    <Settings className="h-4 w-4"/>
+                    <Settings className="h-3.5 w-3.5"/>
                     History
                   </button>
+                  {editPromotion && editPromotion.promotionId !== 0 && (
+                    <button
+                        type="button"
+                        onClick={() => {
+                          window.open(
+                            `/dashboard?branch=${editPromotion.branch}&url=${editPromotion.url}`,
+                            '_blank'
+                          );
+                        }}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-[12px] font-medium bg-purple-50 dark:bg-purple-950/15 text-purple-600 dark:text-purple-400 border border-purple-200/50 dark:border-purple-800/30 rounded-md hover:bg-purple-100 dark:hover:bg-purple-950/30 transition-colors"
+                    >
+                      <Settings className="h-3.5 w-3.5"/>
+                      კონფიგურაცია
+                    </button>
+                  )}
                 </div>
             )}
 
-            {/* Configuration Button - Opens Landing Builder */}
-            {isEditMode && editPromotion && editPromotion.promotionId !== 0 && (
-                <div className="flex justify-start">
-                  <button
-                      type="button"
-                      onClick={() => {
-                        window.open(
-                          `/dashboard?branch=${editPromotion.branch}&url=${editPromotion.url}`,
-                          '_blank'
-                        );
-                      }}
-                      className="flex items-center gap-2 px-3 py-2 text-sm bg-purple-50 dark:bg-purple-950/20 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 rounded-md hover:bg-purple-100 dark:hover:bg-purple-950/40 transition-colors"
-                  >
-                    <Settings className="h-4 w-4"/>
-                    კონფიგურაცია
-                  </button>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Origin Branch - Disabled in edit mode or when no permission */}
               <div className="space-y-2">
                 <Label htmlFor="origin" className=" font-normal">
@@ -867,7 +857,7 @@ export function AddPromotionModal({
 
 
             {/* Text Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="title" className=" font-normal">
                   სათაური *
@@ -928,7 +918,7 @@ export function AddPromotionModal({
             </div>
 
             {/* Date and Time Pickers */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-2">
                 <Label htmlFor="startDate" className="font-normal">
                   დასაწყისი *
@@ -1106,8 +1096,8 @@ export function AddPromotionModal({
 
             {/* Edit Mode Additional Checkboxes */}
             {isEditMode && (
-                <div className="space-y-3 p-4 bg-muted/50 rounded-lg border">
-                  <h3 className="text-sm font-medium text-foreground  font-normal">დამატებითი პარამეტრები</h3>
+                <div className="space-y-3 p-4 bg-muted/30 rounded-lg border">
+                  <h3 className="text-[13px] font-medium text-foreground/85">დამატებითი პარამეტრები</h3>
 
                   { editPromotion?.place !== "archived" && (
                       <div className="flex items-center space-x-2">
@@ -1170,25 +1160,24 @@ export function AddPromotionModal({
             )}
 
             {error && (
-                <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-                  <AlertDescription className="text-red-800 dark:text-red-200">{error}</AlertDescription>
+                <Alert className="border-red-200/50 bg-red-50 dark:border-red-800/30 dark:bg-red-950/20">
+                  <AlertDescription className="text-red-700 dark:text-red-300 text-[13px]">{error}</AlertDescription>
                 </Alert>
             )}
 
             {/* Buttons */}
-            <div className="flex justify-end space-x-3 pt-4 border-t border-border">
-              <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
-                <X className="h-4 w-4 mr-2"/>
+            <div className="flex justify-end gap-2.5 pt-4 border-t border-border/40">
+              <Button type="button" variant="outline" size="sm" onClick={onClose} disabled={loading}>
                 დახურვა
               </Button>
               <Button
                   type="submit"
+                  size="sm"
                   disabled={loading || !isFormValid()}
-                  className="bg-gradient-to-r from-green-600 to-green-700"
               >
                 {loading ? (
                     <>
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin"/>
+                      <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin"/>
                       {isEditMode && originalPlace !== formData.place
                           ? "გადატანა..."
                           : isEditMode
@@ -1197,7 +1186,7 @@ export function AddPromotionModal({
                     </>
                 ) : (
                     <>
-                      <Save className="h-4 w-4 mr-2"/>
+                      <Save className="h-3.5 w-3.5 mr-1.5"/>
                       {isEditMode && originalPlace !== formData.place ? "გადატანა" : isEditMode ? "შენახვა" : "შექმნა"}
                     </>
                 )}
@@ -1207,9 +1196,9 @@ export function AddPromotionModal({
 
           {/* Configuration Modal */}
           <Dialog open={showConfigModal} onOpenChange={setShowConfigModal}>
-            <DialogContent className="dialog-content max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="dialog-content dialog-scrollable max-w-4xl max-h-[90vh]">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-foreground">კონფიგურაცია</DialogTitle>
+                <DialogTitle>კონფიგურაცია</DialogTitle>
               </DialogHeader>
 
               <div className="space-y-6">
@@ -1386,23 +1375,24 @@ export function AddPromotionModal({
                 )}
 
                 {/* Configuration Modal Actions */}
-                <div className="flex justify-end gap-3 pt-4 border-t border-border">
-                  <button
+                <div className="flex justify-end gap-2.5 pt-4 border-t border-border/40">
+                  <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => setShowConfigModal(false)}
-                      className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     დახურვა
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                       type="button"
+                      size="sm"
                       onClick={() => {
                         setShowConfigModal(false)
                       }}
-                      className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                   >
                     შენახვა
-                  </button>
+                  </Button>
                 </div>
               </div>
             </DialogContent>
@@ -1410,9 +1400,9 @@ export function AddPromotionModal({
 
           {/* History Modal */}
           <Dialog open={showHistoryModal} onOpenChange={setShowHistoryModal}>
-            <DialogContent className="dialog-content max-w-4xl max-h-[90vh] overflow-y-auto p-6">
+            <DialogContent className="dialog-content dialog-scrollable max-w-4xl max-h-[90vh]">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-foreground mb-8">History</DialogTitle>
+                <DialogTitle>History</DialogTitle>
               </DialogHeader>
 
               <div className="space-y-10">
@@ -1483,14 +1473,15 @@ export function AddPromotionModal({
                 </section>
 
                 {/* Close button */}
-                <div className="flex justify-end pt-6">
-                  <button
+                <div className="flex justify-end pt-4 border-t border-border/40">
+                  <Button
                       type="button"
+                      variant="outline"
+                      size="sm"
                       onClick={() => setShowHistoryModal(false)}
-                      className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                   >
                     დახურვა
-                  </button>
+                  </Button>
                 </div>
               </div>
             </DialogContent>

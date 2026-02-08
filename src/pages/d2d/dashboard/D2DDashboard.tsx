@@ -618,7 +618,7 @@ export function D2DDashboard() {
             </div>
 
             <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-              <SelectTrigger className="w-full sm:w-48 h-12">
+              <SelectTrigger className="w-full sm:w-44">
                 <SelectValue placeholder="კატეგორია"/>
               </SelectTrigger>
               <SelectContent>
@@ -632,7 +632,7 @@ export function D2DDashboard() {
             </Select>
 
             <Select value={selectedType} onValueChange={setSelectedType}>
-              <SelectTrigger className="w-full sm:w-48 h-12">
+              <SelectTrigger className="w-full sm:w-40">
                 <SelectValue placeholder="ტიპი"/>
               </SelectTrigger>
               <SelectContent>
@@ -645,24 +645,21 @@ export function D2DDashboard() {
               </SelectContent>
             </Select>
 
-
-            {
-              userInfo?.role === 'VIEWER' && (
-                    <Select value={selectedStack} onValueChange={setSelectedStack}>
-                      <SelectTrigger className="w-full sm:w-48 h-12">
-                        <SelectValue placeholder="სტეკი"/>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">ყველა სტეკი</SelectItem>
-                        {STACKS.map((type) => (
-                            <SelectItem key={type} value={type}>
-                              {type}
-                            </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                )
-            }
+            {userInfo?.role === 'VIEWER' && (
+                <Select value={selectedStack} onValueChange={setSelectedStack}>
+                  <SelectTrigger className="w-full sm:w-40">
+                    <SelectValue placeholder="სტეკი"/>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">ყველა სტეკი</SelectItem>
+                    {STACKS.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
+                        </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+            )}
 
 
             {userInfo?.role === "EDITOR" && (

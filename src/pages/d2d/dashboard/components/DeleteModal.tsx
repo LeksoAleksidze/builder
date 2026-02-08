@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@d2d-ui/ui/dialog"
 import { Button } from "@d2d-ui/ui/button"
 import { Alert, AlertDescription } from "@d2d-ui/ui/alert"
-import { Loader2, Trash2, X, AlertTriangle } from "lucide-react"
+import { Loader2, Trash2, AlertTriangle } from "lucide-react"
 import { useState } from "react"
 import { DOMAIN_URL } from "../../../../shared/services/api"
 
@@ -58,22 +58,22 @@ export function DeleteModal({ isOpen, onClose, promotion, onSuccess }: DeleteMod
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="dialog-content max-w-md" onPointerDownOutside={(e) => loading && e.preventDefault()}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-foreground">
-            <Trash2 className="h-5 w-5 text-red-600" />
+          <DialogTitle className="flex items-center gap-2">
+            <Trash2 className="h-4 w-4 text-red-500" />
             წაშლის დადასტურება
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-950/20 rounded-lg border border-red-200 dark:border-red-800">
-            <AlertTriangle className="h-5 w-5 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-            <div className="space-y-1">
-              <p className="text-sm font-medium text-red-800 dark:text-red-200">ნამდვილად გსურთ წაშლა?</p>
-              <p className="text-xs text-red-700 dark:text-red-300">{promotion.title}</p>
+        <div className="space-y-3">
+          <div className="flex items-start gap-3 p-3 bg-red-50 dark:bg-red-950/15 rounded-lg border border-red-200/40 dark:border-red-800/20">
+            <AlertTriangle className="h-4 w-4 text-red-500 dark:text-red-400 mt-0.5 flex-shrink-0" />
+            <div className="space-y-0.5">
+              <p className="text-[13px] font-medium text-red-800 dark:text-red-200">ნამდვილად გსურთ წაშლა?</p>
+              <p className="text-[12px] text-red-600/70 dark:text-red-300/70">{promotion.title}</p>
             </div>
           </div>
 
-          <div className="space-y-2 text-xs text-muted-foreground bg-muted/50 p-3 rounded-lg">
+          <div className="space-y-1.5 text-[12px] text-muted-foreground bg-muted/20 p-2.5 rounded-lg border border-border/30">
             <div>
               <strong>JIRA:</strong> {promotion.jira}
             </div>
@@ -86,29 +86,29 @@ export function DeleteModal({ isOpen, onClose, promotion, onSuccess }: DeleteMod
           </div>
 
           {error && (
-            <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-              <AlertDescription className="text-red-800 dark:text-red-200">{error}</AlertDescription>
+            <Alert className="border-red-200/50 bg-red-50 dark:border-red-800/30 dark:bg-red-950/20">
+              <AlertDescription className="text-red-700 dark:text-red-300 text-[13px]">{error}</AlertDescription>
             </Alert>
           )}
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-border">
-            <Button variant="outline" onClick={handleClose} disabled={loading}>
-              <X className="h-4 w-4 mr-2" />
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-border/40">
+            <Button variant="outline" size="sm" onClick={handleClose} disabled={loading}>
               დახურვა
             </Button>
             <Button
+              size="sm"
               onClick={handleDelete}
               disabled={loading}
-              className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800"
+              variant="destructive"
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                   იშლება...
                 </>
               ) : (
                 <>
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  <Trash2 className="h-3.5 w-3.5 mr-1.5" />
                   დიახ, წაშლა
                 </>
               )}

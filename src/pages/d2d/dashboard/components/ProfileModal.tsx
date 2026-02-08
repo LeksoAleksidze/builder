@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@d2d-
 import { Avatar, AvatarFallback, AvatarImage } from "@d2d-ui/ui/avatar"
 import { Badge } from "@d2d-ui/ui/badge"
 import { Alert, AlertDescription } from "@d2d-ui/ui/alert"
-import { Loader2, User, Shield, Calendar, Mail, X, Save, Settings } from "lucide-react"
+import { Loader2, User, Shield, Calendar, Mail, Save, Settings } from "lucide-react"
 import { ThemeSelector } from "@d2d-ui/theme-selector"
 import { DOMAIN_URL } from "../../../../shared/services/api"
 
@@ -140,9 +140,9 @@ export function ProfileModal({ isOpen, onClose, userInfo }: ProfileModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="dialog-content max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="dialog-content dialog-scrollable max-w-2xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-foreground">პროფილი</DialogTitle>
+          <DialogTitle>პროფილი</DialogTitle>
         </DialogHeader>
 
         <Tabs defaultValue="personal" className="w-full">
@@ -262,14 +262,14 @@ export function ProfileModal({ isOpen, onClose, userInfo }: ProfileModalProps) {
                   </div>
 
                   {error && (
-                    <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
-                      <AlertDescription className="text-red-800 dark:text-red-200">{error}</AlertDescription>
+                    <Alert className="border-red-200/50 bg-red-50 dark:border-red-800/30 dark:bg-red-950/20">
+                      <AlertDescription className="text-red-700 dark:text-red-300 text-[13px]">{error}</AlertDescription>
                     </Alert>
                   )}
 
                   {success && (
-                    <Alert className="border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950">
-                      <AlertDescription className="text-green-800 dark:text-green-200">{success}</AlertDescription>
+                    <Alert className="border-green-200/50 bg-green-50 dark:border-green-800/30 dark:bg-green-950/20">
+                      <AlertDescription className="text-green-700 dark:text-green-300 text-[13px]">{success}</AlertDescription>
                     </Alert>
                   )}
 
@@ -310,9 +310,8 @@ export function ProfileModal({ isOpen, onClose, userInfo }: ProfileModalProps) {
           </TabsContent>
         </Tabs>
 
-        <div className="flex justify-end pt-4 border-t border-border">
-          <Button variant="outline" onClick={onClose}>
-            <X className="h-4 w-4 mr-2" />
+        <div className="flex justify-end pt-3 border-t border-border/40" style={{ padding: '0.75rem 1.75rem 1.25rem', margin: 0 }}>
+          <Button variant="outline" size="sm" onClick={onClose}>
             დახურვა
           </Button>
         </div>
