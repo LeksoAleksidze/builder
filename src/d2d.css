@@ -2293,6 +2293,8 @@ input[type="date"]::-webkit-calendar-picker-indicator:hover {
 }
 .d2d-select-dropdown-enter {
   animation: d2dSelectIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  padding: 12px;
+  font-size: 12px;
 }
 
 /* ===========================
