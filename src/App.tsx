@@ -4,6 +4,7 @@ import LandingPage from './pages/landing/LandingPage';
 import { ThemeProvider } from '@d2d-ui/theme-provider';
 import { AuthRedirect } from './shared/components/AuthRedirect';
 import { ProtectedRoute } from './shared/components/ProtectedRoute';
+import { BuilderProtectedRoute } from './shared/components/BuilderProtectedRoute';
 import { LoginPage } from './pages/d2d/login/LoginPage';
 import { ServerSelectionPage } from './pages/d2d/server-selection/ServerSelectionPage';
 import { D2DDashboard } from './pages/d2d/dashboard/D2DDashboard';
@@ -23,8 +24,8 @@ export default function App() {
         <Route path="/headers" element={<ProtectedRoute><HeadersPage /></ProtectedRoute>} />
 
         {/* Builder Routes */}
-        <Route path="/dashboard" element={<ProtectedRoute><DashboardPage /></ProtectedRoute>} />
-        <Route path="/:lang" element={<LandingPage />} />
+        <Route path="/dashboard" element={<BuilderProtectedRoute><DashboardPage /></BuilderProtectedRoute>} />
+        <Route path="/:lang" element={<BuilderProtectedRoute><LandingPage /></BuilderProtectedRoute>} />
       </Routes>
     </ThemeProvider>
   );

@@ -660,7 +660,7 @@ export function AddPromotionModal({
                     <Settings className="h-3.5 w-3.5"/>
                     History
                   </button>
-                  {editPromotion && editPromotion.promotionId !== 0 && (
+                  {editPromotion && editPromotion.promotionId !== 0 && userStack?.includes('BUILDER') && (
                     <button
                         type="button"
                         onClick={() => {

@@ -1403,8 +1403,7 @@ body {
   border-radius: var(--radius);
   color: white;
   font-weight: 600;
-  font-size: 1px;
-  cursor: pointer;
+  font-size: 14px;
   transition: all 0.2s ease;
   margin-top: auto;
   display: flex;
