@@ -56,7 +56,7 @@ export function LoginPage() {
           <div className="login-page__header-icon">
             <Lock />
           </div>
-          <h1 className="login-page__header-title">D2D</h1>
+          <h1 className="login-page__header-title">D2D TEAM</h1>
           <p className="login-page__header-description">
             აქციების მართვის სააგენტო
           </p>
@@ -109,7 +109,7 @@ export function LoginPage() {
           <button
             type="submit"
             className="login-page__form-submit"
-            disabled={isLoading}
+            disabled={!email || password.length < 4 || isLoading}
           >
             <div className="login-page__form-submit-content">
               {isLoading ? (
@@ -125,9 +125,7 @@ export function LoginPage() {
         </form>
       </div>
 
-      <p className="login-page__footer">
-        Created by Lekso Aleksidze
-      </p>
+      <p className="login-page__footer">Created by Lekso Aleksidze</p>
     </div>
   );
 }

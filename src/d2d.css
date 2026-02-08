@@ -383,7 +383,7 @@ body {
 
 .login-page__form-field-input-wrapper--password button {
   position: absolute;
-  right: 40px;
+  right: 20px;
   top: 50%;
   transform: translateY(-50%);
   background: none;
